@@ -2,11 +2,11 @@ package com.lawzoom.complianceservice.controller.reminderController;
 
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.response.ResponseEntity;
-import com.lawzoom.complianceservice.service.reminderService.ReminderService;
+import com.lawzoom.complianceservice.services.reminderService.ReminderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/compliance/reminder")
@@ -31,7 +31,8 @@ public class ReminderController {
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity deleteReminder(@PathVariable("id") Long id){
+	public ResponseEntity deleteReminder(@PathVariable("id") Long id)
+	{
 		return this.reminderService.deleteReminder(id);
 	}
 }
