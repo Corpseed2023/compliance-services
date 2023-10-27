@@ -1,7 +1,7 @@
 package com.lawzoom.complianceservice.controller.complianceController;
 
 import com.lawzoom.complianceservice.response.ResponseEntity;
-import com.lawzoom.complianceservice.service.complianceService.ComplianceService;
+import com.lawzoom.complianceservice.services.complianceService.ComplianceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

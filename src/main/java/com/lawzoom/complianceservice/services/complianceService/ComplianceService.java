@@ -1,4 +1,4 @@
-package com.lawzoom.complianceservice.service.complianceService;
+package com.lawzoom.complianceservice.services.complianceService;
 
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
@@ -31,14 +31,11 @@ public interface ComplianceService {
 
     ResponseEntity updateCompliance(ComplianceRequest complianceRequest, Long companyId);
 
-    ResponseEntity fetchCompliance(Long complianceId, Long companyId);
+    ComplianceResponse fetchCompliance(Long complianceId, Long companyId);
 
     ResponseEntity deleteCompliance(Long complianceId, Long companyId);
 
 //==========================================complete till delete on 14 sept 2023==================================================
-
-
-
 
 
     ResponseEntity updateComplianceStatus(Long complianceId, int status);

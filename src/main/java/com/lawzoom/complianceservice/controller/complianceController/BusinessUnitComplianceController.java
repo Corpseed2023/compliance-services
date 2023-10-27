@@ -3,14 +3,16 @@ package com.lawzoom.complianceservice.controller.complianceController;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
 import com.lawzoom.complianceservice.response.ResponseEntity;
-import com.lawzoom.complianceservice.service.complianceService.ComplianceService;
+import com.lawzoom.complianceservice.services.complianceService.ComplianceService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/compliance/business/{businessUnitId}")
+//@RequestMapping("/compliance/business/{businessUnitId}")
+@RequestMapping("/compliance/business")
+
 public class BusinessUnitComplianceController {
 
     @Autowired

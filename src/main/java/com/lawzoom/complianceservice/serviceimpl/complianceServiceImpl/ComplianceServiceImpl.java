@@ -4,12 +4,13 @@ import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.repository.ComplianceRepo;
+import com.lawzoom.complianceservice.response.ResponseEntity;
+import com.lawzoom.complianceservice.services.complianceService.ComplianceService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import com.lawzoom.complianceservice.response;
+//import com.lawzoom.complianceservice.response;
 
 
 
@@ -19,11 +20,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class ComplianceServiceImpl implements com.lawzoom.complianceservice.service.complianceService.ComplianceService {
+public class ComplianceServiceImpl implements ComplianceService {
 //
-     private com.lawzoom.complianceservice.response.ResponseEntity
-
-
 
     @Autowired
     private ComplianceRepo complianceRepository;
@@ -263,7 +261,7 @@ public class ComplianceServiceImpl implements com.lawzoom.complianceservice.serv
 
 
     @Override
-    public ResponseEntity<ComplianceResponse> fetchCompliance(Long complianceId, Long companyId) {
+    public ComplianceResponse fetchCompliance(Long complianceId, Long companyId) {
         // Use the complianceRepository to find the compliance by ID and companyId
         Optional<Compliance> optionalCompliance = complianceRepository.findByIdAndCompanyId(complianceId, companyId);
 
@@ -287,7 +285,7 @@ public class ComplianceServiceImpl implements com.lawzoom.complianceservice.serv
             response.setWorkStatus(compliance.getWorkStatus());
             response.setPriority(compliance.getPriority());
 
-          return ResponseEntity.fetchDataStatus(response+"Data fetch successfully");
+          return response;
         } else {
             throw new EntityNotFoundException("Compliance not found");
         }
@@ -306,7 +304,7 @@ public class ComplianceServiceImpl implements com.lawzoom.complianceservice.serv
         if (compliance != null) {
 
             compliance.setEnable(false);
-            complianceRepository.save(compliance);
+            complianceRepository.delete(compliance);
 
             return  ResponseEntity.ok();
         } else {
@@ -344,31 +342,36 @@ public class ComplianceServiceImpl implements com.lawzoom.complianceservice.serv
     }
 
     @Override
-    public ResponseEntity<List<ComplianceResponse>> fetchManageCompliancesByUserId(Long userId) {
-
-        List<Compliance> compliances = complianceRepository.findByUserId(userId);
-
-        List<ComplianceResponse> complianceResponses = compliances.stream()
-                .map(compliance -> {
-                    ComplianceResponse response = new ComplianceResponse();
-                    response.setId(compliance.getId());
-                    response.setTitle(compliance.getTitle());
-                    response.setDescription(compliance.getDescription());
-                    response.setApprovalState(compliance.getApprovalState());
-                    response.setApplicableZone(compliance.getApplicableZone());
-                    response.setCreatedAt(compliance.getCreatedAt());
-                    response.setUpdatedAt(compliance.getUpdatedAt());
-                    response.setEnable(compliance.isEnable());
-                    response.setStartDate(compliance.getStartDate());
-                    response.setDueDate(compliance.getDueDate());
-                    response.setCompletedDate(compliance.getCompletedDate());
-                    response.setDuration(compliance.getDuration());
-                    response.setWorkStatus(compliance.getWorkStatus());
-                    response.setPriority(compliance.getPriority());
-                    return response;
-                })
-                .collect(Collectors.toList());
-
+    public ResponseEntity fetchManageCompliancesByUserId(Long userId) {
         return null;
     }
+
+//    @Override
+//    public ResponseEntity<List<ComplianceResponse>> fetchManageCompliancesByUserId(Long userId) {
+//
+//        List<Compliance> compliances = complianceRepository.findByUserId(userId);
+//
+//        List<ComplianceResponse> complianceResponses = compliances.stream()
+//                .map(compliance -> {
+//                    ComplianceResponse response = new ComplianceResponse();
+//                    response.setId(compliance.getId());
+//                    response.setTitle(compliance.getTitle());
+//                    response.setDescription(compliance.getDescription());
+//                    response.setApprovalState(compliance.getApprovalState());
+//                    response.setApplicableZone(compliance.getApplicableZone());
+//                    response.setCreatedAt(compliance.getCreatedAt());
+//                    response.setUpdatedAt(compliance.getUpdatedAt());
+//                    response.setEnable(compliance.isEnable());
+//                    response.setStartDate(compliance.getStartDate());
+//                    response.setDueDate(compliance.getDueDate());
+//                    response.setCompletedDate(compliance.getCompletedDate());
+//                    response.setDuration(compliance.getDuration());
+//                    response.setWorkStatus(compliance.getWorkStatus());
+//                    response.setPriority(compliance.getPriority());
+//                    return response;
+//                })
+//                .collect(Collectors.toList());
+//
+//        return null;
+//    }
 }
