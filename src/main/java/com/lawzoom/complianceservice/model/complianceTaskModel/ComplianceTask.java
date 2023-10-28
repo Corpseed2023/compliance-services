@@ -91,21 +91,21 @@ public class ComplianceTask {
 	@OneToMany(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true)
 	private List<ComplianceSubTask> complianceSubTasks=new ArrayList<>();
 
-	@OneToMany(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true)
-	private List<TaskAction> taskActionList=new ArrayList<>();
+//	@OneToMany(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true)
+//	private List<TaskAction> taskActionList=new ArrayList<>();
 
 //	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
 //	private List<Document> complianceDocuments=new ArrayList<>();
 
-	@OneToMany(mappedBy = "complianceTask", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Document> complianceDocuments = new ArrayList<>();
+//	@OneToMany(mappedBy = "complianceTask", cascade = CascadeType.ALL, orphanRemoval = true)
+//	private List<Document> complianceDocuments = new ArrayList<>();
 
 
 	@OneToOne(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
 	private Reminder complianceReminder;
 
-	@OneToOne(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
-	private RenewalReminder complianceRenewal;
+//	@OneToOne(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+//	private RenewalReminder complianceRenewal;
 
 	@Override
 	public String toString() {

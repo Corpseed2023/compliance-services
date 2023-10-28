@@ -15,23 +15,25 @@ public class ReminderController {
 	@Autowired
 	private ReminderService reminderService;
 
-	@PostMapping("/save")
+	@PostMapping("/setReminder")
 	public ResponseEntity saveReminder(@Valid @RequestBody Reminder reminder){
 		return this.reminderService.saveReminder(reminder);
 	}
 	
-	@PutMapping("/update")
+	@PutMapping("/updateReminder")
 	public ResponseEntity updateReminder(@Valid @RequestBody Reminder reminder){
 		return this.reminderService.updateReminder(reminder);
 	}
 	
-	@GetMapping("/{id}")
-	public ResponseEntity fetchReminder(@PathVariable("id") Long id){
+	@GetMapping("/seeTheReminder")
+	public ResponseEntity fetchReminder(@RequestParam("id") Long id){
 		return this.reminderService.fetchReminder(id);
 	}
 	
-	@DeleteMapping("/{id}")
-	public ResponseEntity deleteReminder(@PathVariable("id") Long id)
+//	@DeleteMapping("/{id}")
+	@DeleteMapping("/removeReminder")
+
+	public ResponseEntity deleteReminder(@RequestParam("id") Long id)
 	{
 		return this.reminderService.deleteReminder(id);
 	}

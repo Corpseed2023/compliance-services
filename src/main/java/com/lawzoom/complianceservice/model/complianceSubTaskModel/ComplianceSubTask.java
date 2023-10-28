@@ -1,21 +1,12 @@
 package com.lawzoom.complianceservice.model.complianceSubTaskModel;
 
 import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
-import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
-import com.lawzoom.complianceservice.model.renewalModel.RenewalReminder;
-import com.lawzoom.complianceservice.model.taskActionModel.TaskAction;
-import lombok.*;
-import org.hibernate.annotations.Comment;
-import com.lawzoom.complianceservice.model.complianceSubTaskModel.ComplianceSubTask;
-import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
-import com.lawzoom.complianceservice.model.legalGuideModel.LegalGuide;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 import jakarta.persistence.*;
 import java.util.Date;
-import java.util.ArrayList;
-import java.util.List;
+
 
 
 
@@ -89,23 +80,25 @@ public class ComplianceSubTask {
 	@JoinColumn(name = "compliance_task_id",nullable = false)
 	private ComplianceTask complianceTask;
 	
-	@OneToMany(mappedBy = "complianceSubTask",cascade = CascadeType.ALL,orphanRemoval = true, fetch = FetchType.LAZY)
-	private List<Document> complianceDocuments=new ArrayList<>();
-
-	@OneToMany(mappedBy = "complianceSubTask",cascade = CascadeType.ALL,orphanRemoval = true, fetch = FetchType.LAZY)
-	private List<TaskAction> taskActionList=new ArrayList<>();
+//	@OneToMany(mappedBy = "complianceSubTask",cascade = CascadeType.ALL,orphanRemoval = true, fetch = FetchType.LAZY)
+//	private List<Document> complianceDocuments=new ArrayList<>();
+//
+//	@OneToMany(mappedBy = "complianceSubTask",cascade = CascadeType.ALL,orphanRemoval = true, fetch = FetchType.LAZY)
+//	private List<TaskAction> taskActionList=new ArrayList<>();
 
 	@OneToOne(mappedBy = "complianceSubTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
 	private Reminder complianceReminder;
 
-	@OneToOne(mappedBy = "complianceSubTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
-	private RenewalReminder complianceRenewal;
+//	@OneToOne(mappedBy = "complianceSubTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+//	private RenewalReminder complianceRenewal;
+
 
 	@Override
 	public String toString() {
 		return "ComplianceSubTask{" +
 				"id=" + id +
 				", subTaskName='" + subTaskName + '\'' +
+				", description='" + description + '\'' +
 				", timelineValue=" + timelineValue +
 				", timelineType='" + timelineType + '\'' +
 				", status='" + status + '\'' +
@@ -120,6 +113,8 @@ public class ComplianceSubTask {
 				", reporterUserId=" + reporterUserId +
 				", assigneeUserId=" + assigneeUserId +
 				", criticality='" + criticality + '\'' +
+				", complianceTask=" + complianceTask +
+				", complianceReminder=" + complianceReminder +
 				'}';
 	}
 }

@@ -29,6 +29,7 @@ import com.lawzoom.complianceservice.model.taskActionModel.TaskAction;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -106,17 +107,17 @@ public class ResponseMapper {
                 .criticality(t.getCriticality()).updatedAt(t.getUpdatedAt()).build();
     }
 
-    public ReminderResponse mapToReminderResponse(Reminder reminder) {
-        if(reminder==null)return null;
-        return ReminderResponse.builder().id(reminder.getId()).reminderDate(reminder.getReminderDate())
-                .notificationTimelineValue(reminder.getNotificationTimelineValue())
-                .notificationTimelineType(reminder.getNotificationTimelineType())
-                .repeatTimelineValue(reminder.getRepeatTimelineValue())
-                .repeatTimelineType(reminder.getRepeatTimelineType())
-                .notificationTimelineType(reminder.getNotificationTimelineType())
-                .repeatOnDay(reminder.getRepeatOnDay()).reminderEndDate(reminder.getReminderEndDate())
-                .createdAt(reminder.getCreatedAt()).updatedAt(reminder.getUpdatedAt()).build();
-    }
+//    public ReminderResponse mapToReminderResponse(Optional<Reminder> reminder) {
+//        if(reminder==null)return null;
+//        return ReminderResponse.builder().id(reminder.getId()).reminderDate(reminder.getReminderDate())
+//                .notificationTimelineValue(reminder.getNotificationTimelineValue())
+//                .notificationTimelineType(reminder.getNotificationTimelineType())
+//                .repeatTimelineValue(reminder.getRepeatTimelineValue())
+//                .repeatTimelineType(reminder.getRepeatTimelineType())
+//                .notificationTimelineType(reminder.getNotificationTimelineType())
+//                .repeatOnDay(reminder.getRepeatOnDay()).reminderEndDate(reminder.getReminderEndDate())
+//                .createdAt(reminder.getCreatedAt()).updatedAt(reminder.getUpdatedAt()).build();
+//    }
 
     public RenewalReminderResponse mapToRenewalReminderResponse(RenewalReminder rr) {
         if(rr==null)return null;
@@ -148,19 +149,19 @@ public class ResponseMapper {
                 .description(task.getDescription()).compliance(compliance).build();
     }
 
-    public ComplianceSubTask mapToSaveComplianceSubTask(ComplianceSubTaskRequest subTask,ComplianceTask complianceTask) {
-        if(subTask==null)return null;
-        return ComplianceSubTask.builder().subTaskName(subTask.getSubTaskName())
-                .timelineValue(subTask.getTimelineValue()).timelineType(subTask.getTimelineType())
-                .status(subTask.getStatus()).approvalState(subTask.getApprovalState())
-                .applicableZone(subTask.getApplicableZone()).isEnable(true)
-                .createdAt(CommonUtil.getDate()).startDate(subTask.getStartDate())
-                .dueDate(subTask.getDueDate()).completedDate(subTask.getCompletedDate())
-                .reporterUserId(subTask.getReporterUserId()).assigneeUserId(subTask.getAssigneeUserId())
-                .criticality(subTask.getCriticality()).updatedAt(CommonUtil.getDate())
-                .description(subTask.getDescription()).complianceTask(complianceTask).build();
-
-    }
+//    public ComplianceSubTask mapToSaveComplianceSubTask(ComplianceSubTaskRequest subTask,ComplianceTask complianceTask) {
+//        if(subTask==null)return null;
+//        return ComplianceSubTask.builder().subTaskName(subTask.getSubTaskName())
+//                .timelineValue(subTask.getTimelineValue()).timelineType(subTask.getTimelineType())
+//                .status(subTask.getStatus()).approvalState(subTask.getApprovalState())
+//                .applicableZone(subTask.getApplicableZone()).isEnable(true)
+//                .createdAt(CommonUtil.getDate()).startDate(subTask.getStartDate())
+//                .dueDate(subTask.getDueDate()).completedDate(subTask.getCompletedDate())
+//                .reporterUserId(subTask.getReporterUserId()).assigneeUserId(subTask.getAssigneeUserId())
+//                .criticality(subTask.getCriticality()).updatedAt(CommonUtil.getDate())
+//                .description(subTask.getDescription()).complianceTask(complianceTask).build();
+//
+//    }
 
     public ComplianceSubTask mapToUpdateComplianceSubTask(ComplianceSubTaskRequest subTask, ComplianceTask complianceTask) {
         if(subTask==null)return null;

@@ -9,6 +9,8 @@ import com.lawzoom.complianceservice.utility.ResponseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class ReminderServiceImpl implements ReminderService {
 
@@ -24,7 +26,7 @@ public class ReminderServiceImpl implements ReminderService {
                 && reminder.getComplianceTask() == null && reminder.getComplianceSubTask() == null)
             return new ResponseEntity().badRequest("Please select compliance/Task/Sub-Task !!");
 
-        Reminder findReminder = this.reminderRepo.findReminderByComplianceOrTaskOrSubTask
+        Reminder findReminder = this.reminderRepo.findReminderByComplianceAndComplianceTaskAndComplianceSubTask
                 (reminder.getCompliance(), reminder.getComplianceTask(), reminder.getComplianceSubTask());
 
         if (findReminder != null)
@@ -59,15 +61,18 @@ public class ReminderServiceImpl implements ReminderService {
         return new ResponseEntity().ok();
     }
 
-    @Override
-    public ResponseEntity fetchReminder(Long id) {
 
-        Reminder reminder = this.reminderRepo.findReminderById(id);
-        if (reminder == null)
-            return new ResponseEntity().badRequest("Reminder Not Found !!");
+    public ResponseEntity<?> fetchReminder(Long id) {
+        Optional<Reminder> reminder = reminderRepo.findById(id);
 
-        return new ResponseEntity().ok(this.responseMapper.mapToReminderResponse(reminder));
+        if (!reminder.isPresent()) {
+
+            return new ResponseEntity().badRequest("Reminder Not Found");
+
+        }
+        return new ResponseEntity().ok(reminder.get());
     }
+
 
     @Override
     public ResponseEntity deleteReminder(Long id) {
@@ -75,7 +80,9 @@ public class ReminderServiceImpl implements ReminderService {
         if (reminderRepo.existsById(id)) {
             // If it exists, delete it from the database
             reminderRepo.deleteById(id);
-            return ResponseEntity.ok("Reminder with ID " + id + " deleted successfully");
+//            return ResponseEntity.ok("Reminder with ID " + id + " deleted successfully");
+
+            return new ResponseEntity().ok("Reminder with ID " + id + " deleted successfully");
         } else {
             // Handle the case where the reminder does not exist
             return ResponseEntity.notFound().build(); // You can customize this response as needed

@@ -80,8 +80,8 @@ public class Compliance {
 	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
 	private List<ComplianceTask> complianceTasks=new ArrayList<>();
 
-	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
-	private List<Document> complianceDocuments=new ArrayList<>();
+//	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
+//	private List<Document> complianceDocuments=new ArrayList<>();
 
 	@OneToOne(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
 	private Reminder complianceReminder;
@@ -108,7 +108,6 @@ public class Compliance {
 				", businessUnitId=" + businessUnitId +
 				", priority=" + priority +
 				", complianceTasks=" + complianceTasks +
-				", complianceDocuments=" + complianceDocuments +
 				", complianceReminder=" + complianceReminder +
 				'}';
 	}
