@@ -126,34 +126,44 @@ public class ComplianceSubTaskServiceImpl implements ComplianceSubTaskService {
         return new ResponseEntity().ok();
     }
 
-
     @Override
     public ResponseEntity fetchSubTaskById(Long taskId, Long subTaskId) {
-        Optional<ComplianceTask> complianceTask=this.taskRepository.findById(taskId);
-        if(complianceTask==null)
-            return new ResponseEntity().badRequest("Compliance Task Not Found !!");
-
-        ComplianceSubTask complianceSubTask=this.subTaskRepo.findSubTaskByTaskAndId(complianceTask,subTaskId);
-        if(complianceSubTask==null)
-            return new ResponseEntity().badRequest("Compliance Sub Task Not Found !!");
-
-        return new ResponseEntity().ok(this.responseMapper.mapToComplianceSubTaskResponse(complianceSubTask));
+        return null;
     }
 
     @Override
     public ResponseEntity deleteSubTaskById(Long taskId, Long subTaskId) {
-        ComplianceTask complianceTask=this.taskRepository.fetchComplianceTaskById(taskId);
-        if(complianceTask==null)
-            return new ResponseEntity().badRequest("Compliance Task Not Found !!");
-
-        ComplianceSubTask complianceSubTask=this.subTaskRepo.findSubTaskByTaskAndId(complianceTask,subTaskId);
-        if(complianceSubTask==null)
-            return new ResponseEntity().badRequest("Compliance Sub Task Not Found !!");
-
-        boolean deleteSubTask=this.subTaskRepo.delete(complianceSubTask);
-        if(!deleteSubTask)
-            return new ResponseEntity().internalServerError();
-
-        return new ResponseEntity().ok();
+        return null;
     }
+
+
+//    @Override
+//    public ResponseEntity fetchSubTaskById(Long taskId, Long subTaskId) {
+//        Optional<ComplianceTask> complianceTask=this.taskRepository.findById(taskId);
+//        if(complianceTask==null)
+//            return new ResponseEntity().badRequest("Compliance Task Not Found !!");
+//
+//        ComplianceSubTask complianceSubTask=this.subTaskRepo.findSubTaskByTaskAndId(complianceTask,subTaskId);
+//        if(complianceSubTask==null)
+//            return new ResponseEntity().badRequest("Compliance Sub Task Not Found !!");
+//
+//        return new ResponseEntity().ok(this.responseMapper.mapToComplianceSubTaskResponse(complianceSubTask));
+//    }
+//
+//    @Override
+//    public ResponseEntity deleteSubTaskById(Long taskId, Long subTaskId) {
+//        ComplianceTask complianceTask=this.taskRepository.fetchComplianceTaskById(taskId);
+//        if(complianceTask==null)
+//            return new ResponseEntity().badRequest("Compliance Task Not Found !!");
+//
+//        ComplianceSubTask complianceSubTask=this.subTaskRepo.findSubTaskByTaskAndId(complianceTask,subTaskId);
+//        if(complianceSubTask==null)
+//            return new ResponseEntity().badRequest("Compliance Sub Task Not Found !!");
+//
+//        boolean deleteSubTask=this.subTaskRepo.delete(complianceSubTask);
+//        if(!deleteSubTask)
+//            return new ResponseEntity().internalServerError();
+//
+//        return new ResponseEntity().ok();
+//    }
 }

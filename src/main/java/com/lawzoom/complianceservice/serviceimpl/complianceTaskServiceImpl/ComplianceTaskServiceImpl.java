@@ -84,26 +84,9 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         return new ResponseEntity().ok();
     }
 
-   /* @Override
-    public ResponseEntity updateTask(ComplianceTaskRequest taskRequest, Long complianceId) {
-        Compliance compliance=this.complianceRepo.findComplianceById(complianceId);
-        if(compliance==null)
-            return new ResponseEntity().badRequest("Compliance Not Found !!");
-
-        ComplianceTask findTask=this.complianceTaskRepository.findTaskByComplianceAndTaskNameAndIdNot(compliance,taskRequest.getTaskName(),taskRequest.getId());
-        if(findTask!=null)
-            return new ResponseEntity().badRequest("Compliance Task already exist !!");
-
-        ComplianceTask updateTask=this.complianceTaskRepository.updateComplianceTask(this.responseMapper.mapToUpdateComplianceTask(taskRequest,compliance));
-        if(updateTask==null)
-            return new ResponseEntity().internalServerError();
-
-        return new ResponseEntity().ok();
-    }*/
-
     @Override
     public ResponseEntity<?> updateTask(ComplianceTaskRequest taskRequest, Long complianceId) {
-        Compliance compliance = complianceRepo.findComplianceById(complianceId);
+        Optional<Compliance> compliance = complianceRepo.findById(complianceId);
         if (compliance == null) {
 //            return ResponseEntity.badRequest().body("Compliance Not Found !!");
             return new ResponseEntity().badRequest("Compliance Not Found ");
@@ -111,7 +94,7 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         }
 
         ComplianceTask existingTask = complianceTaskRepository.findTaskByComplianceAndTaskNameAndIdNot(
-                compliance, taskRequest.getTaskName(), taskRequest.getId());
+                compliance.get(), taskRequest.getTaskName(), taskRequest.getId());
 
         if (existingTask != null) {
 //            return ResponseEntity.badRequest().body("Compliance Task already exists !!");
@@ -137,7 +120,7 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         updatedTask.setCriticality(taskRequest.getCriticality());
         updatedTask.setUpdatedAt(CommonUtil.getDate());
         updatedTask.setDescription(taskRequest.getDescription());
-        updatedTask.setCompliance(compliance);
+        updatedTask.setCompliance(compliance.get());
 
         updatedTask = complianceTaskRepository.save(updatedTask);
 
