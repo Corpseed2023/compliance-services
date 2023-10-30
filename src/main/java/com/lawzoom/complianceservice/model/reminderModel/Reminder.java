@@ -30,18 +30,18 @@ public class Reminder {
 	@OneToOne(targetEntity = Compliance.class,fetch = FetchType.LAZY)
 	@JoinColumn(name = "compliance_id")
 	private Compliance compliance;
-	
-	@OneToOne(targetEntity = ComplianceTask.class,fetch = FetchType.LAZY)
-	@JoinColumn(name = "compliance_task_id")
-	private ComplianceTask complianceTask;
-	
-	@OneToOne(targetEntity = ComplianceSubTask.class,fetch = FetchType.LAZY)
-	@JoinColumn(name = "compliance_sub_task_id")
-	private ComplianceSubTask complianceSubTask;
+
+//	@OneToOne(targetEntity = ComplianceTask.class,fetch = FetchType.LAZY)
+//	@JoinColumn(name = "compliance_task_id")
+//	private ComplianceTask complianceTask;
+//
+//	@OneToOne(targetEntity = ComplianceSubTask.class,fetch = FetchType.LAZY)
+//	@JoinColumn(name = "compliance_sub_task_id")
+//	private ComplianceSubTask complianceSubTask;
 	
 	@Column(name = "reminder_date")
 //	@NotBeforeToday(message = "Please enter future date..!!")
-	@JsonFormat(pattern="yyyy-MM-dd")
+//	@JsonFormat(pattern="yyyy-MM-dd")
 	@Temporal(TemporalType.DATE)
 	private Date reminderDate;
 	
@@ -71,12 +71,12 @@ public class Reminder {
 
 	@Column(name = "created_at")
 	@Temporal(TemporalType.TIMESTAMP)
-	@JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
+//	@JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
 	private Date createdAt;
 
 	@Column(name = "updated_at")
 	@Temporal(TemporalType.TIMESTAMP)
-	@JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
+//	@JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
 	private Date updatedAt;
 
 	@Column(length = 1,name="is_enable",columnDefinition = "tinyint(1) default 1")

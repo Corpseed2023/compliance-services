@@ -1,5 +1,6 @@
 package com.lawzoom.complianceservice.controller.reminderController;
 
+import com.lawzoom.complianceservice.dto.reminderDto.ReminderRequest;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.response.ResponseEntity;
 import com.lawzoom.complianceservice.services.reminderService.ReminderService;
@@ -16,8 +17,8 @@ public class ReminderController {
 	private ReminderService reminderService;
 
 	@PostMapping("/setReminder")
-	public ResponseEntity saveReminder(@Valid @RequestBody Reminder reminder){
-		return this.reminderService.saveReminder(reminder);
+	public ResponseEntity saveReminder(@Valid @RequestBody ReminderRequest reminderRequest, @RequestParam Long compliance){
+		return this.reminderService.saveReminder(reminderRequest,compliance);
 	}
 	
 	@PutMapping("/updateReminder")

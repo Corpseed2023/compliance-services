@@ -86,8 +86,8 @@ public class ComplianceSubTask {
 //	@OneToMany(mappedBy = "complianceSubTask",cascade = CascadeType.ALL,orphanRemoval = true, fetch = FetchType.LAZY)
 //	private List<TaskAction> taskActionList=new ArrayList<>();
 
-	@OneToOne(mappedBy = "complianceSubTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
-	private Reminder complianceReminder;
+//	@OneToOne(mappedBy = "complianceSubTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+//	private Reminder complianceReminder;
 
 //	@OneToOne(mappedBy = "complianceSubTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
 //	private RenewalReminder complianceRenewal;
@@ -114,7 +114,7 @@ public class ComplianceSubTask {
 				", assigneeUserId=" + assigneeUserId +
 				", criticality='" + criticality + '\'' +
 				", complianceTask=" + complianceTask +
-				", complianceReminder=" + complianceReminder +
+//				", complianceReminder=" + complianceReminder +
 				'}';
 	}
 }

@@ -13,7 +13,6 @@ import com.lawzoom.complianceservice.dto.documentDto.DocumentRequest;
 import com.lawzoom.complianceservice.dto.documentDto.DocumentResponse;
 import com.lawzoom.complianceservice.dto.legalGuideDto.LegalGuideRequest;
 import com.lawzoom.complianceservice.dto.legalGuideDto.LegalGuideResponse;
-import com.lawzoom.complianceservice.dto.reminderResponse.ReminderResponse;
 import com.lawzoom.complianceservice.dto.renewalReminderResponse.RenewalReminderResponse;
 import com.lawzoom.complianceservice.dto.taskActionDto.TaskActionRequest;
 import com.lawzoom.complianceservice.dto.taskActionDto.TaskActionResponse;
@@ -23,13 +22,11 @@ import com.lawzoom.complianceservice.model.complianceSubTaskModel.ComplianceSubT
 import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
 import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.legalGuideModel.LegalGuide;
-import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.model.renewalModel.RenewalReminder;
 import com.lawzoom.complianceservice.model.taskActionModel.TaskAction;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -302,7 +299,7 @@ public class ResponseMapper {
         List<ComplianceTask> complianceTasks=cm.getComplianceTaskResponseList().stream()
                 .map(t->mapToSaveComplianceTaskInternal(t,compliance)).collect(Collectors.toList());
 
-        compliance.setComplianceTasks(complianceTasks);
+//        compliance.setComplianceTasks(complianceTasks);
 
         return compliance;
     }

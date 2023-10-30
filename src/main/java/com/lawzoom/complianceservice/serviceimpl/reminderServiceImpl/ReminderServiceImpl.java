@@ -1,5 +1,6 @@
 package com.lawzoom.complianceservice.serviceimpl.reminderServiceImpl;
 
+import com.lawzoom.complianceservice.dto.reminderDto.ReminderRequest;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.repository.ReminderRepo;
 import com.lawzoom.complianceservice.response.ResponseEntity;
@@ -14,53 +15,73 @@ import java.util.Optional;
 @Service
 public class ReminderServiceImpl implements ReminderService {
 
-    @Autowired
-    private ResponseMapper responseMapper;
 
     @Autowired
     private ReminderRepo reminderRepo;
 
+//    @Override
+//    public ResponseEntity saveReminder(Reminder reminder) {
+//        if (reminder.getCompliance() == null
+//                && reminder.getComplianceTask() == null && reminder.getComplianceSubTask() == null)
+//            return new ResponseEntity().badRequest("Please select compliance/Task/Sub-Task !!");
+//
+//        Reminder findReminder = this.reminderRepo.findByComplianceAndComplianceTaskAndComplianceSubTask
+//                (reminder.getCompliance(), reminder.getComplianceTask(), reminder.getComplianceSubTask());
+//
+//        if (findReminder != null)
+//            return new ResponseEntity().badRequest("Reminder already exist !!");
+//        reminder.setCreatedAt(CommonUtil.getDate());
+//        reminder.setUpdatedAt(CommonUtil.getDate());
+//        reminder.setEnable(true);
+//        Reminder saveReminder = this.reminderRepo.save(reminder);
+//        if (saveReminder == null)
+//            return new ResponseEntity().internalServerError();
+//
+//        return new ResponseEntity().ok();
+//    }
+
     @Override
-    public ResponseEntity saveReminder(Reminder reminder) {
-        if (reminder.getCompliance() == null
-                && reminder.getComplianceTask() == null && reminder.getComplianceSubTask() == null)
-            return new ResponseEntity().badRequest("Please select compliance/Task/Sub-Task !!");
+    public ResponseEntity saveReminder(ReminderRequest reminderRequest , Long compliance) {
 
-        Reminder findReminder = this.reminderRepo.findReminderByComplianceAndComplianceTaskAndComplianceSubTask
-                (reminder.getCompliance(), reminder.getComplianceTask(), reminder.getComplianceSubTask());
+        if (reminderRequest.getComplianceId()==null)
+            return  new ResponseEntity().badRequest("Please select Compliance");
 
-        if (findReminder != null)
-            return new ResponseEntity().badRequest("Reminder already exist !!");
-        reminder.setCreatedAt(CommonUtil.getDate());
-        reminder.setUpdatedAt(CommonUtil.getDate());
-        reminder.setEnable(true);
-        Reminder saveReminder = this.reminderRepo.save(reminder);
-        if (saveReminder == null)
-            return new ResponseEntity().internalServerError();
+        Reminder findReminder = this.reminderRepo.findByCompliance(reminderRequest.getComplianceId());
 
-        return new ResponseEntity().ok();
+        if (findReminder!=null)
+        return new ResponseEntity().badRequest("Reminder already exist");
+        reminderRequest.setReminderDate(reminderRequest.getReminderEndDate());
+
+        return  new ResponseEntity().ok();
     }
+
+//    @Override
+//    public ResponseEntity updateReminder(Reminder reminder) {
+//        if (reminder.getCompliance() == null
+//                && reminder.getComplianceTask() == null && reminder.getComplianceSubTask() == null)
+//            return new ResponseEntity().badRequest("Please select compliance/Task/Sub-Task !!");
+//
+//        Reminder findReminder = this.reminderRepo.findReminderByComplianceOrTaskOrSubTaskAndIdNot
+//                (reminder.getCompliance(), reminder.getComplianceTask(), reminder.getComplianceSubTask(), reminder.getId());
+//
+//        if (findReminder != null)
+//            return new ResponseEntity().badRequest("Reminder already exist !!");
+//
+//        reminder.setUpdatedAt(CommonUtil.getDate());
+//        Reminder updateReminder = this.reminderRepo.save(reminder);
+//        if (updateReminder == null)
+//            return new ResponseEntity().internalServerError();
+//
+//        return new ResponseEntity().ok();
+//    }
+
+
+
 
     @Override
     public ResponseEntity updateReminder(Reminder reminder) {
-        if (reminder.getCompliance() == null
-                && reminder.getComplianceTask() == null && reminder.getComplianceSubTask() == null)
-            return new ResponseEntity().badRequest("Please select compliance/Task/Sub-Task !!");
-
-        Reminder findReminder = this.reminderRepo.findReminderByComplianceOrTaskOrSubTaskAndIdNot
-                (reminder.getCompliance(), reminder.getComplianceTask(), reminder.getComplianceSubTask(), reminder.getId());
-
-        if (findReminder != null)
-            return new ResponseEntity().badRequest("Reminder already exist !!");
-
-        reminder.setUpdatedAt(CommonUtil.getDate());
-        Reminder updateReminder = this.reminderRepo.save(reminder);
-        if (updateReminder == null)
-            return new ResponseEntity().internalServerError();
-
-        return new ResponseEntity().ok();
+        return null;
     }
-
 
     public ResponseEntity<?> fetchReminder(Long id) {
         Optional<Reminder> reminder = reminderRepo.findById(id);

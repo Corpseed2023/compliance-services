@@ -1,16 +1,12 @@
-package com.lawzoom.complianceservice.dto.reminderResponse;
+package com.lawzoom.complianceservice.dto.reminderDto;
 
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.persistence.Column;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import jakarta.validation.constraints.Min;
+
 import java.util.Date;
 
 @Data

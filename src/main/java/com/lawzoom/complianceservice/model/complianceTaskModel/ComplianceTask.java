@@ -29,9 +29,9 @@ public class ComplianceTask {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@NotBlank
-	@NotNull
-	@NotEmpty
+//	@NotBlank
+//	@NotNull
+//	@NotEmpty
 	@Column(name = "task_name")
 	private String taskName;
 
@@ -101,8 +101,8 @@ public class ComplianceTask {
 //	private List<Document> complianceDocuments = new ArrayList<>();
 
 
-	@OneToOne(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
-	private Reminder complianceReminder;
+//	@OneToOne(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+//	private Reminder complianceReminder;
 
 //	@OneToOne(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
 //	private RenewalReminder complianceRenewal;

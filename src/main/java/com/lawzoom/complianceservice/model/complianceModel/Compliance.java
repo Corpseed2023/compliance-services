@@ -77,8 +77,8 @@ public class Compliance {
 	@Comment(value="1 : Mandatory Compliance, 2: Optional Compliance")
 	private int priority;
 
-	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
-	private List<ComplianceTask> complianceTasks=new ArrayList<>();
+//	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
+//	private List<ComplianceTask> complianceTasks=new ArrayList<>();
 
 //	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
 //	private List<Document> complianceDocuments=new ArrayList<>();
@@ -107,7 +107,7 @@ public class Compliance {
 				", companyId=" + companyId +
 				", businessUnitId=" + businessUnitId +
 				", priority=" + priority +
-				", complianceTasks=" + complianceTasks +
+//				", complianceTasks=" + complianceTasks +
 				", complianceReminder=" + complianceReminder +
 				'}';
 	}
