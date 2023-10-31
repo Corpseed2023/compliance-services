@@ -1,7 +1,9 @@
 package com.lawzoom.complianceservice.serviceimpl.reminderServiceImpl;
 
 import com.lawzoom.complianceservice.dto.reminderDto.ReminderRequest;
+import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
+import com.lawzoom.complianceservice.repository.ComplianceRepo;
 import com.lawzoom.complianceservice.repository.ReminderRepo;
 import com.lawzoom.complianceservice.response.ResponseEntity;
 import com.lawzoom.complianceservice.services.reminderService.ReminderService;
@@ -18,6 +20,11 @@ public class ReminderServiceImpl implements ReminderService {
 
     @Autowired
     private ReminderRepo reminderRepo;
+
+    @Autowired
+    private ComplianceRepo complianceRepo;
+
+
 
 //    @Override
 //    public ResponseEntity saveReminder(Reminder reminder) {
@@ -41,20 +48,27 @@ public class ReminderServiceImpl implements ReminderService {
 //    }
 
     @Override
-    public ResponseEntity saveReminder(ReminderRequest reminderRequest , Long compliance) {
+    public ResponseEntity saveReminder(ReminderRequest reminderRequest, Long complianceId) {
 
-        if (reminderRequest.getComplianceId()==null)
-            return  new ResponseEntity().badRequest("Please select Compliance");
+      Optional<Compliance> compliance = this.complianceRepo.findById(complianceId);
+//        Optional<ComplianceSubTask> complianceSubTask = this.complianceRepo.findById(complianceId);
+//        Optional<ComplianceTask> complianceTask = this.complianceRepo.findById(complianceId);
 
-        Reminder findReminder = this.reminderRepo.findByCompliance(reminderRequest.getComplianceId());
+        if (!compliance.isPresent()) {
+            return new ResponseEntity().badRequest("Please select Compliance");
+        }
+        Reminder reminder=new Reminder();
+//        Optional<Reminder> findReminder = this.reminderRepo.findById(reminder.getId());
 
-        if (findReminder!=null)
-        return new ResponseEntity().badRequest("Reminder already exist");
-        reminderRequest.setReminderDate(reminderRequest.getReminderEndDate());
+//        if (findReminder!=null)
+//        return new ResponseEntity().badRequest("Reminder already exist");
 
+        reminder.setReminderDate(reminderRequest.getReminderEndDate());
+
+        this.reminderRepo.save(reminder);
         return  new ResponseEntity().ok();
     }
-
+//
 //    @Override
 //    public ResponseEntity updateReminder(Reminder reminder) {
 //        if (reminder.getCompliance() == null

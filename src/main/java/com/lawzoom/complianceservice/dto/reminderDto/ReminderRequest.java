@@ -8,8 +8,6 @@ import java.util.Date;
 @Getter
 @Setter
 public class ReminderRequest {
-    private Long id;
-    private Long complianceId;
     private Date reminderDate;
     private int notificationTimelineValue;
     private String notificationTimelineType;
@@ -21,14 +19,8 @@ public class ReminderRequest {
     private Date updatedAt;
     private boolean isEnable;
 
-    // Constructors, getters, and setters
-
-    public ReminderRequest() {
-    }
 
     public ReminderRequest(Long id, Long complianceId, Date reminderDate, int notificationTimelineValue, String notificationTimelineType, int repeatTimelineValue, String repeatTimelineType, String repeatOnDay, Date reminderEndDate, Date createdAt, Date updatedAt, boolean isEnable) {
-        this.id = id;
-        this.complianceId = complianceId;
         this.reminderDate = reminderDate;
         this.notificationTimelineValue = notificationTimelineValue;
         this.notificationTimelineType = notificationTimelineType;

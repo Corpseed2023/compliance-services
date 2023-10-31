@@ -46,17 +46,17 @@ public class Reminder {
 	private Date reminderDate;
 	
 	@Column(name = "notification_timeline_value")
-	@Min(value = 1,message = "Minimum value should be 1")
+//	@Min(value = 1,message = "Minimum value should be 1")
 	private int notificationTimelineValue;
 	
-	@NotBlank
-	@NotEmpty
-	@NotNull
+//	@NotBlank
+//	@NotEmpty
+//	@NotNull
 	@Column(name ="notification_timeline_type" )
 	private String notificationTimelineType;
 	
 	@Column(name = "repeat_timeline_value")
-	@Min(value = 0,message = "Value should not be -ve.")
+//	@Min(value = 0,message = "Value should not be -ve.")
 	private int repeatTimelineValue;
 	
 	@Column(name ="repeat_timeline_type" )

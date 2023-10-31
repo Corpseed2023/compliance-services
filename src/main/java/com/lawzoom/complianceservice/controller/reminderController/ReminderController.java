@@ -17,8 +17,9 @@ public class ReminderController {
 	private ReminderService reminderService;
 
 	@PostMapping("/setReminder")
-	public ResponseEntity saveReminder(@Valid @RequestBody ReminderRequest reminderRequest, @RequestParam Long compliance){
-		return this.reminderService.saveReminder(reminderRequest,compliance);
+	public ResponseEntity saveReminder(@Valid @RequestBody ReminderRequest reminderRequest, @RequestParam(required = false) Long complianceId){
+
+		return this.reminderService.saveReminder(reminderRequest,complianceId);
 	}
 	
 	@PutMapping("/updateReminder")

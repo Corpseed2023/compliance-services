@@ -23,7 +23,7 @@ public interface ReminderRepo extends JpaRepository<Reminder,Long>
 //              @Param("id") Long id
 //      );
 
-      Reminder findByCompliance(Long compliance);
+      Reminder findByComplianceId(Long compliance);
 
 
 //    Reminder findReminderByComplianceOrTaskOrSubTask(Compliance compliance, ComplianceTask complianceTask, ComplianceSubTask complianceSubTask);
