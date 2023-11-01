@@ -46,7 +46,7 @@ public class Reminder {
 	private Date reminderDate;
 	
 	@Column(name = "notification_timeline_value")
-//	@Min(value = 1,message = "Minimum value should be 1")
+	@Min(value = 1,message = "Minimum value should be 1")
 	private int notificationTimelineValue;
 	
 //	@NotBlank

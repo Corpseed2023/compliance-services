@@ -7,8 +7,6 @@ import com.lawzoom.complianceservice.repository.ComplianceRepo;
 import com.lawzoom.complianceservice.repository.ReminderRepo;
 import com.lawzoom.complianceservice.response.ResponseEntity;
 import com.lawzoom.complianceservice.services.reminderService.ReminderService;
-import com.lawzoom.complianceservice.utility.CommonUtil;
-import com.lawzoom.complianceservice.utility.ResponseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -65,7 +63,15 @@ public class ReminderServiceImpl implements ReminderService {
 
         reminder.setReminderDate(reminderRequest.getReminderEndDate());
 
+        reminder.setRepeatTimelineValue(reminder.getRepeatTimelineValue());
+
+//        reminder.setNotificationTimelineValue(reminderRequest.getNotificationTimelineValue() == 0 ? 1 : reminderRequest.getNotificationTimelineValue());
+
+        reminder.setNotificationTimelineValue((reminderRequest.getNotificationTimelineValue()==0 ? 1 : reminderRequest.getNotificationTimelineValue()));
+
+
         this.reminderRepo.save(reminder);
+
         return  new ResponseEntity().ok();
     }
 //
@@ -123,4 +129,6 @@ public class ReminderServiceImpl implements ReminderService {
             return ResponseEntity.notFound().build(); // You can customize this response as needed
         }
     }
+
+
 }

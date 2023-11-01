@@ -4,6 +4,9 @@ import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
+import java.util.List;
+
 @Repository
 public interface ReminderRepo extends JpaRepository<Reminder,Long>
 
@@ -24,6 +27,8 @@ public interface ReminderRepo extends JpaRepository<Reminder,Long>
 //      );
 
       Reminder findByComplianceId(Long compliance);
+
+    List<Reminder> findByReminderDate(Date today);
 
 
 //    Reminder findReminderByComplianceOrTaskOrSubTask(Compliance compliance, ComplianceTask complianceTask, ComplianceSubTask complianceSubTask);
