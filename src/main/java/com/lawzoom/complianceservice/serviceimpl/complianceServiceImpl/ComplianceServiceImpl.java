@@ -55,7 +55,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
     public ComplianceResponse saveBusinessCompliance(ComplianceRequest complianceRequest, Long businessUnitId) {
         Compliance compliance = new Compliance();
-        compliance.setTitle(complianceRequest.getTitle());
+        compliance.setName(complianceRequest.getTitle());
         compliance.setDescription(complianceRequest.getDescription());
         compliance.setApprovalState(complianceRequest.getApprovalState());
         compliance.setApplicableZone(complianceRequest.getApplicableZone());
@@ -72,7 +72,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         ComplianceResponse complianceResponse = new ComplianceResponse();
 
-        complianceResponse.setTitle(compliance.getTitle());
+        complianceResponse.setTitle(compliance.getName());
         complianceResponse.setDescription(compliance.getDescription());
         complianceResponse.setApprovalState(compliance.getApprovalState());
         complianceResponse.setEnable(compliance.isEnable());
@@ -92,7 +92,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         Compliance existingCompliance = complianceRepository.findById(complianceRequest.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Compliance not found with ID: " ));
 
-        existingCompliance.setTitle(complianceRequest.getTitle());
+        existingCompliance.setName(complianceRequest.getTitle());
         existingCompliance.setDescription(complianceRequest.getDescription());
         existingCompliance.setApprovalState(complianceRequest.getApprovalState());
         existingCompliance.setApplicableZone(complianceRequest.getApplicableZone());
@@ -136,7 +136,7 @@ public class ComplianceServiceImpl implements ComplianceService {
                 .map(compliance -> {
                     ComplianceResponse response = new ComplianceResponse();
                     response.setId(compliance.getId());
-                    response.setTitle(compliance.getTitle());
+                    response.setTitle(compliance.getName());
                     response.setDescription(compliance.getDescription());
                     response.setApprovalState(compliance.getApprovalState());
                     response.setApplicableZone(compliance.getApplicableZone());
@@ -162,7 +162,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         try {
             // Create a new Compliance entity from the request
             Compliance compliance = new Compliance();
-            compliance.setTitle(complianceRequest.getTitle());
+            compliance.setName(complianceRequest.getTitle());
             compliance.setDescription(complianceRequest.getDescription());
             compliance.setApprovalState(complianceRequest.getApprovalState());
             compliance.setApplicableZone(complianceRequest.getApplicableZone());
@@ -181,7 +181,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
             ComplianceResponse response = new ComplianceResponse();
             response.setId(compliance.getId());
-            response.setTitle(compliance.getTitle());
+            response.setTitle(compliance.getName());
             response.setDescription(compliance.getDescription());
             response.setApprovalState(compliance.getApprovalState());
             response.setApplicableZone(compliance.getApplicableZone());
@@ -209,7 +209,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         if (optionalCompliance.isPresent()) {
             Compliance compliance = optionalCompliance.get();
 
-            compliance.setTitle(complianceRequest.getTitle());
+            compliance.setName(complianceRequest.getTitle());
             compliance.setDescription(complianceRequest.getDescription());
             compliance.setApprovalState(complianceRequest.getApprovalState());
             compliance.setApplicableZone(complianceRequest.getApplicableZone());
@@ -225,7 +225,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
             ComplianceResponse complianceResponse = new ComplianceResponse();
             complianceResponse.setId(compliance.getId());
-            complianceResponse.setTitle(compliance.getTitle());
+            complianceResponse.setTitle(compliance.getName());
             complianceResponse.setDescription(compliance.getDescription());
             complianceResponse.setApprovalState(compliance.getApprovalState());
             complianceResponse.setApplicableZone(compliance.getApplicableZone());
@@ -271,7 +271,7 @@ public class ComplianceServiceImpl implements ComplianceService {
             // Create a ComplianceResponse object and populate it with data from the Compliance entity
             ComplianceResponse response = new ComplianceResponse();
             response.setId(compliance.getId());
-            response.setTitle(compliance.getTitle());
+            response.setTitle(compliance.getName());
             response.setDescription(compliance.getDescription());
             response.setApprovalState(compliance.getApprovalState());
             response.setApplicableZone(compliance.getApplicableZone());
@@ -324,7 +324,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         ComplianceResponse response = new ComplianceResponse();
         response.setId(compliance.getId());
-        response.setTitle(compliance.getTitle());
+        response.setTitle(compliance.getName());
         response.setDescription(compliance.getDescription());
         response.setApprovalState(compliance.getApprovalState());
         response.setApplicableZone(compliance.getApplicableZone());

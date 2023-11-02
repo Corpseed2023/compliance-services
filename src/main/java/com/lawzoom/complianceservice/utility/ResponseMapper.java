@@ -55,7 +55,7 @@ public class ResponseMapper {
 
     public ComplianceResponse mapToComplianceResponse(Compliance compliance) {
         if(compliance==null)return null;
-        return ComplianceResponse.builder().id(compliance.getId()).title(compliance.getTitle())
+        return ComplianceResponse.builder().id(compliance.getId()).title(compliance.getName())
                 .description(compliance.getDescription()).approvalState(compliance.getApprovalState())
                 .applicableZone(compliance.getApplicableZone()).priority(compliance.getPriority())
                 .isEnable(compliance.isEnable()).createdAt(compliance.getCreatedAt()).updatedAt(compliance.getUpdatedAt())
@@ -65,7 +65,7 @@ public class ResponseMapper {
 
     public Compliance mapToSaveCompliance(ComplianceRequest cr, Long companyId,Long businessUnitId) {
         if(cr==null)return null;
-        return Compliance.builder().title(cr.getTitle()).description(cr.getDescription())
+        return Compliance.builder().name(cr.getTitle()).description(cr.getDescription())
                 .approvalState(cr.getApprovalState()).applicableZone(cr.getApplicableZone())
                 .isEnable(true).createdAt(CommonUtil.getDate()).updatedAt(CommonUtil.getDate())
                 .workStatus(0).priority(cr.getPriority()).startDate(cr.getStartDate())
@@ -75,7 +75,7 @@ public class ResponseMapper {
 
     public Compliance mapToUpdateCompliance(ComplianceRequest cr, Long companyId,Long businessUnitId) {
         if(cr==null)return null;
-        return Compliance.builder().id(cr.getId()).title(cr.getTitle()).description(cr.getDescription())
+        return Compliance.builder().id(cr.getId()).name(cr.getTitle()).description(cr.getDescription())
                 .approvalState(cr.getApprovalState()).applicableZone(cr.getApplicableZone()).priority(cr.getPriority())
                 .isEnable(cr.isEnable()).createdAt(cr.getCreatedAt()).updatedAt(CommonUtil.getDate()).workStatus(cr.getWorkStatus())
                 .startDate(cr.getStartDate()).dueDate(cr.getDueDate()).completedDate(cr.getCompletedDate())
@@ -289,7 +289,7 @@ public class ResponseMapper {
     public Compliance mapToSaveComplianceInternal(ComplianceMasterResponse cm,
                                                    Long companyId,Long businessUnitId) {
         if(cm==null)return null;
-        Compliance compliance=Compliance.builder().id(0L).title(cm.getTitle())
+        Compliance compliance=Compliance.builder().id(0L).name(cm.getTitle())
                 .description(cm.getDescription()).createdAt(CommonUtil.getDate())
                 .updatedAt(CommonUtil.getDate()).isEnable(true).duration(cm.getDuration())
                 .workStatus(0).categoryId(cm.getCategoryId()).companyId(companyId)

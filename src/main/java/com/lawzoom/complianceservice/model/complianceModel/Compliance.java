@@ -24,8 +24,8 @@ public class Compliance {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	private String title;
-	
+	@Column(name = "compliance_name")
+	private String name;
 
 	@Column(columnDefinition = "TEXT")
 	private String description;
@@ -91,7 +91,7 @@ public class Compliance {
 	public String toString() {
 		return "Compliance{" +
 				"id=" + id +
-				", title='" + title + '\'' +
+				", name='" + name + '\'' +
 				", description='" + description + '\'' +
 				", approvalState='" + approvalState + '\'' +
 				", applicableZone='" + applicableZone + '\'' +
