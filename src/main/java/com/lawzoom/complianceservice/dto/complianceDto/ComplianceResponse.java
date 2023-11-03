@@ -19,7 +19,7 @@ public class ComplianceResponse {
 
 	private Long id;
 	
-	private String title;
+	private String name;
 	
 	private String description;
 	
