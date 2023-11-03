@@ -159,8 +159,10 @@ public class ComplianceServiceImpl implements ComplianceService {
 
     @Override
     public ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long companyId) {
+
+
+
         try {
-            // Create a new Compliance entity from the request
             Compliance compliance = new Compliance();
             compliance.setTitle(complianceRequest.getTitle());
             compliance.setDescription(complianceRequest.getDescription());

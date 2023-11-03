@@ -57,16 +57,11 @@ public class ReminderServiceImpl implements ReminderService {
         }
         Reminder reminder=new Reminder();
 //        Optional<Reminder> findReminder = this.reminderRepo.findById(reminder.getId());
-
 //        if (findReminder!=null)
 //        return new ResponseEntity().badRequest("Reminder already exist");
 
-        reminder.setReminderDate(reminderRequest.getReminderEndDate());
-
+        reminder.setReminderDate(reminderRequest.getReminderDate());
         reminder.setRepeatTimelineValue(reminder.getRepeatTimelineValue());
-
-//        reminder.setNotificationTimelineValue(reminderRequest.getNotificationTimelineValue() == 0 ? 1 : reminderRequest.getNotificationTimelineValue());
-
         reminder.setNotificationTimelineValue((reminderRequest.getNotificationTimelineValue()==0 ? 1 : reminderRequest.getNotificationTimelineValue()));
 
 

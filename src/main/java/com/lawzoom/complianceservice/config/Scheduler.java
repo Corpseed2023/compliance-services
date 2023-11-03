@@ -36,7 +36,6 @@ public class Scheduler {
                     "dd-MM-yyyy HH:mm:ss.SSS");
 //
 //            String strDate = dateFormat.format(new Date());
-
             emailReminderService.sendEmail("kaushlendra.pratap@corpseed.com","ReminderTesting","You Compliance going to expire Soon");
 
             System.out.println("Task Started ");
@@ -47,6 +46,8 @@ public class Scheduler {
     public void sendDailyEmailReminders() {
         Date today = new Date();
         List<Reminder> reminders = reminderRepo.findByReminderDate(today);
+
+
 
         for (Reminder reminder : reminders) {
             emailReminderService.sendEmailReminder(reminder);
