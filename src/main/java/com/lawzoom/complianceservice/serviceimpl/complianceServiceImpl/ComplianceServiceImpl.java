@@ -125,37 +125,64 @@ public class ComplianceServiceImpl implements ComplianceService {
     public void saveAllCompliances(List<Compliance> complianceList) {
 
     }
-
+//to get all compliances using companyID write code in controller,service ,serviceimpl using all entity and DTO field which mentioned aboove
     @Override
-    public ResponseEntity fetchAllCompliances(Long companyId) {
-        // Retrieve all compliances for the given companyId
+    public List<ComplianceResponse> fetchAllCompliances(Long companyId) {
         List<Compliance> compliances = complianceRepository.findByCompanyId(companyId);
-
-        // Create a list to store the mapped DTOs
-        List<ComplianceResponse> complianceResponses = compliances.stream()
-                .map(compliance -> {
-                    ComplianceResponse response = new ComplianceResponse();
-                    response.setId(compliance.getId());
-                    response.setName(compliance.getName());
-                    response.setDescription(compliance.getDescription());
-                    response.setApprovalState(compliance.getApprovalState());
-                    response.setApplicableZone(compliance.getApplicableZone());
-                    response.setCreatedAt(compliance.getCreatedAt());
-                    response.setUpdatedAt(compliance.getUpdatedAt());
-                    response.setEnable(compliance.isEnable());
-                    response.setStartDate(compliance.getStartDate());
-                    response.setDueDate(compliance.getDueDate());
-                    response.setCompletedDate(compliance.getCompletedDate());
-                    response.setDuration(compliance.getDuration());
-                    response.setWorkStatus(compliance.getWorkStatus());
-                    response.setPriority(compliance.getPriority());
-                    return response;
-                })
+        return compliances.stream()
+                .map(this::mapToComplianceResponse)
                 .collect(Collectors.toList());
-
-        // Return the ResponseEntity with the list of ComplianceResponse
-        return ResponseEntity.creationComplete("Compliance successfully Create", HttpStatus.CREATED);
     }
+
+    private ComplianceResponse mapToComplianceResponse(Compliance compliance) {
+        ComplianceResponse response = new ComplianceResponse();
+        response.setId(compliance.getId());
+        response.setName(compliance.getName());
+        response.setDescription(compliance.getDescription());
+        response.setApprovalState(compliance.getApprovalState());
+        response.setApplicableZone(compliance.getApplicableZone());
+        response.setCreatedAt(compliance.getCreatedAt());
+        response.setUpdatedAt(compliance.getUpdatedAt());
+        response.setEnable(compliance.isEnable());
+        response.setStartDate(compliance.getStartDate());
+        response.setDueDate(compliance.getDueDate());
+        response.setCompletedDate(compliance.getCompletedDate());
+        response.setDuration(compliance.getDuration());
+        response.setWorkStatus(compliance.getWorkStatus());
+        response.setPriority(compliance.getPriority());
+        return response;
+    }
+
+//    @Override
+//    public ComplianceResponse fetchAllCompliances(Long companyId) {
+//        // Retrieve all compliances for the given companyId
+//        List<Compliance> compliances = complianceRepository.findByCompanyId(companyId);
+//
+//        // Create a list to store the mapped DTOs
+//        List<ComplianceResponse> complianceResponses = compliances.stream()
+//                .map(compliance -> {
+//                    ComplianceResponse response = new ComplianceResponse();
+//                    response.setId(compliance.getId());
+//                    response.setName(compliance.getName());
+//                    response.setDescription(compliance.getDescription());
+//                    response.setApprovalState(compliance.getApprovalState());
+//                    response.setApplicableZone(compliance.getApplicableZone());
+//                    response.setCreatedAt(compliance.getCreatedAt());
+//                    response.setUpdatedAt(compliance.getUpdatedAt());
+//                    response.setEnable(compliance.isEnable());
+//                    response.setStartDate(compliance.getStartDate());
+//                    response.setDueDate(compliance.getDueDate());
+//                    response.setCompletedDate(compliance.getCompletedDate());
+//                    response.setDuration(compliance.getDuration());
+//                    response.setWorkStatus(compliance.getWorkStatus());
+//                    response.setPriority(compliance.getPriority());
+//                    return response;
+//                })
+//                .collect(Collectors.toList());
+//
+//        // Return the ResponseEntity with the list of ComplianceResponse
+//        return complianceResponses;
+//    }
 
     @Override
     public ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long companyId) {
