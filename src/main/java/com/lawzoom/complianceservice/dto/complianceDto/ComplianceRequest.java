@@ -1,7 +1,6 @@
 package com.lawzoom.complianceservice.dto.complianceDto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Column;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -54,8 +53,8 @@ public class ComplianceRequest {
 	@Comment(value="1 : Mandatory Compliance, 2: Optional Compliance")
 	private int priority;
 
-	private Long companyId;
-
-	private Long businessUnitId;
+//	private Long companyId;
+//
+//	private Long businessUnitId;
 
 }

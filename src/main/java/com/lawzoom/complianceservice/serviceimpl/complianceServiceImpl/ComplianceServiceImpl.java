@@ -65,7 +65,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setDuration(complianceRequest.getDuration());
         compliance.setWorkStatus(complianceRequest.getWorkStatus());
         compliance.setPriority(complianceRequest.getPriority());
-        compliance.setCompanyId(complianceRequest.getCompanyId());
+//        compliance.setCompanyId(complianceRequest.getCompanyId());
         compliance.setBusinessUnitId(businessUnitId);
 
         Compliance savedCompliance = complianceRepository.save(compliance);
@@ -102,7 +102,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         existingCompliance.setDuration(complianceRequest.getDuration());
         existingCompliance.setWorkStatus(complianceRequest.getWorkStatus());
         existingCompliance.setPriority(complianceRequest.getPriority());
-        existingCompliance.setCompanyId(complianceRequest.getCompanyId());
+//        existingCompliance.setCompanyId(complianceRequest.getCompanyId());
 
         existingCompliance.setBusinessUnitId(businessUnitId);
 
@@ -185,12 +185,12 @@ public class ComplianceServiceImpl implements ComplianceService {
 //    }
 
     @Override
-    public ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long companyId) {
-
-
+    public ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long companyId, Long businessUnitId) {
 
         try {
             Compliance compliance = new Compliance();
+
+
             compliance.setName(complianceRequest.getName());
             compliance.setDescription(complianceRequest.getDescription());
             compliance.setApprovalState(complianceRequest.getApprovalState());
@@ -205,6 +205,7 @@ public class ComplianceServiceImpl implements ComplianceService {
             compliance.setWorkStatus(complianceRequest.getWorkStatus());
             compliance.setPriority(complianceRequest.getPriority());
             compliance.setCompanyId(companyId);
+            compliance.setBusinessUnitId(businessUnitId);
 
             complianceRepository.save(compliance);
 
@@ -223,6 +224,9 @@ public class ComplianceServiceImpl implements ComplianceService {
             response.setDuration(compliance.getDuration());
             response.setWorkStatus(compliance.getWorkStatus());
             response.setPriority(compliance.getPriority());
+            response.setCompanyId(companyId);
+            response.setBusinessUnitId(businessUnitId);
+
 
             return response;
         } catch (Exception e) {
@@ -248,7 +252,7 @@ public class ComplianceServiceImpl implements ComplianceService {
             compliance.setDuration(complianceRequest.getDuration());
             compliance.setWorkStatus(complianceRequest.getWorkStatus());
             compliance.setPriority(complianceRequest.getPriority());
-            compliance.setCompanyId(complianceRequest.getCompanyId());
+//            compliance.setCompanyId(complianceRequest.getCompanyId());
 
             complianceRepository.save(compliance);
 

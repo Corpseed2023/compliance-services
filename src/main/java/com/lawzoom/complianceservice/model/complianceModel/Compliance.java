@@ -1,15 +1,11 @@
 package com.lawzoom.complianceservice.model.complianceModel;
 
-import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
-import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
-
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -73,6 +69,9 @@ public class Compliance {
 
 	@Column(name = "business_unit_id")
 	private Long businessUnitId;
+
+	@Column(name = "team_id")
+	private Long teamId;
 
 	@Comment(value="1 : Mandatory Compliance, 2: Optional Compliance")
 	private int priority;
