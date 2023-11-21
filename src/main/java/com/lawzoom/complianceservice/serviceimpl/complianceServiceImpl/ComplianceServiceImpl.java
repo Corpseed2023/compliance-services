@@ -10,13 +10,11 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 //import com.lawzoom.complianceservice.response;
 
 
-
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -125,32 +123,38 @@ public class ComplianceServiceImpl implements ComplianceService {
     public void saveAllCompliances(List<Compliance> complianceList) {
 
     }
-//to get all compliances using companyID write code in controller,service ,serviceimpl using all entity and DTO field which mentioned aboove
-    @Override
-    public List<ComplianceResponse> fetchAllCompliances(Long companyId) {
-        List<Compliance> compliances = complianceRepository.findByCompanyId(companyId);
-        return compliances.stream()
-                .map(this::mapToComplianceResponse)
-                .collect(Collectors.toList());
-    }
+    public List<ComplianceResponse> fetchAllCompliances(Long companyId, Long businessUnitId) {
+        List<Compliance> compliances = complianceRepository.findByCompanyIdAndBusinessUnitId(companyId, businessUnitId);
 
-    private ComplianceResponse mapToComplianceResponse(Compliance compliance) {
-        ComplianceResponse response = new ComplianceResponse();
-        response.setId(compliance.getId());
-        response.setName(compliance.getName());
-        response.setDescription(compliance.getDescription());
-        response.setApprovalState(compliance.getApprovalState());
-        response.setApplicableZone(compliance.getApplicableZone());
-        response.setCreatedAt(compliance.getCreatedAt());
-        response.setUpdatedAt(compliance.getUpdatedAt());
-        response.setEnable(compliance.isEnable());
-        response.setStartDate(compliance.getStartDate());
-        response.setDueDate(compliance.getDueDate());
-        response.setCompletedDate(compliance.getCompletedDate());
-        response.setDuration(compliance.getDuration());
-        response.setWorkStatus(compliance.getWorkStatus());
-        response.setPriority(compliance.getPriority());
-        return response;
+        if (compliances.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No compliances found for the given CompanyId and BusinessUnitId");
+        }
+
+        List<ComplianceResponse> complianceResponses = new ArrayList<>();
+
+        for (Compliance compliance : compliances) {
+            ComplianceResponse response = new ComplianceResponse();
+            response.setId(compliance.getId());
+            response.setName(compliance.getName());
+            response.setDescription(compliance.getDescription());
+            response.setApprovalState(compliance.getApprovalState());
+            response.setApplicableZone(compliance.getApplicableZone());
+            response.setCreatedAt(compliance.getCreatedAt());
+            response.setUpdatedAt(compliance.getUpdatedAt());
+            response.setEnable(compliance.isEnable());
+            response.setStartDate(compliance.getStartDate());
+            response.setDueDate(compliance.getDueDate());
+            response.setCompletedDate(compliance.getCompletedDate());
+            response.setDuration(compliance.getDuration());
+            response.setWorkStatus(compliance.getWorkStatus());
+            response.setPriority(compliance.getPriority());
+            response.setBusinessUnitId(compliance.getBusinessUnitId());
+            response.setCompanyId(compliance.getCompanyId());
+
+            complianceResponses.add(response);
+        }
+
+        return complianceResponses;
     }
 
 //    @Override
@@ -235,9 +239,20 @@ public class ComplianceServiceImpl implements ComplianceService {
     }
 
     @Override
-    public ResponseEntity updateCompliance(ComplianceRequest complianceRequest, Long companyId) {
+    public ComplianceResponse updateCompliance(ComplianceRequest complianceRequest, Long companyId, Long businessUnitId) {
+
+        List<Compliance> compliances = complianceRepository.findByCompanyIdAndBusinessUnitId(companyId, businessUnitId);
+
+        if (compliances.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No compliances found for the given CompanyId and BusinessUnitId");
+        }
+
 
         Optional<Compliance> optionalCompliance = complianceRepository.findById(complianceRequest.getId());
+
+        if (optionalCompliance.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No compliances found");
+        }
 
         if (optionalCompliance.isPresent()) {
             Compliance compliance = optionalCompliance.get();
@@ -272,14 +287,13 @@ public class ComplianceServiceImpl implements ComplianceService {
             complianceResponse.setWorkStatus(compliance.getWorkStatus());
             complianceResponse.setPriority(compliance.getPriority());
 
-            return ResponseEntity.updatedStatus(complianceResponse+"Updated Successfully");
+            return complianceResponse;
 
         }
-        else
-        {
-             return ResponseEntity.notFound().build();
-        }
+        return null;
     }
+
+
 
 //    @Override
 //    public ResponseEntity updateCompliance(ComplianceRequest complianceRequest, Long companyId) {

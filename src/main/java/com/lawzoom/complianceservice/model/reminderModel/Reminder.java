@@ -31,13 +31,13 @@ public class Reminder {
 	@JoinColumn(name = "compliance_id")
 	private Compliance compliance;
 
-//	@OneToOne(targetEntity = ComplianceTask.class,fetch = FetchType.LAZY)
-//	@JoinColumn(name = "compliance_task_id")
-//	private ComplianceTask complianceTask;
-//
-//	@OneToOne(targetEntity = ComplianceSubTask.class,fetch = FetchType.LAZY)
-//	@JoinColumn(name = "compliance_sub_task_id")
-//	private ComplianceSubTask complianceSubTask;
+	@OneToOne(targetEntity = ComplianceTask.class,fetch = FetchType.LAZY)
+	@JoinColumn(name = "compliance_task_id")
+	private ComplianceTask complianceTask;
+
+	@OneToOne(targetEntity = ComplianceSubTask.class,fetch = FetchType.LAZY)
+	@JoinColumn(name = "compliance_sub_task_id")
+	private ComplianceSubTask complianceSubTask;
 	
 	@Column(name = "reminder_date")
 //	@NotBeforeToday(message = "Please enter future date..!!")

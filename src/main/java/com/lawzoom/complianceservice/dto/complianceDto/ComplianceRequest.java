@@ -53,8 +53,8 @@ public class ComplianceRequest {
 	@Comment(value="1 : Mandatory Compliance, 2: Optional Compliance")
 	private int priority;
 
-//	private Long companyId;
-//
-//	private Long businessUnitId;
+	private Long companyId;
+
+	private Long businessUnitId;
 
 }

@@ -25,11 +25,11 @@ public interface ComplianceService {
 //======================================================================================?
     void saveAllCompliances(List<Compliance> complianceList);
 
-    List<ComplianceResponse> fetchAllCompliances(Long companyId);
+    List<ComplianceResponse> fetchAllCompliances(Long companyId, Long businessUnitId);
 
     ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long companyId, Long businessUnitId);
 
-    ResponseEntity updateCompliance(ComplianceRequest complianceRequest, Long companyId);
+    ComplianceResponse updateCompliance(ComplianceRequest complianceRequest, Long companyId,Long businessUnitId);
 
     ComplianceResponse fetchCompliance(Long complianceId, Long companyId);
 
