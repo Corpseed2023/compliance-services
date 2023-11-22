@@ -189,7 +189,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 //    }
 
     @Override
-    public ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long companyId, Long businessUnitId) {
+    public ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long companyId, Long businessUnitId,Long teamId) {
 
         try {
             Compliance compliance = new Compliance();
@@ -210,6 +210,7 @@ public class ComplianceServiceImpl implements ComplianceService {
             compliance.setPriority(complianceRequest.getPriority());
             compliance.setCompanyId(companyId);
             compliance.setBusinessUnitId(businessUnitId);
+            compliance.setTeamId(teamId);
 
             complianceRepository.save(compliance);
 
@@ -230,6 +231,7 @@ public class ComplianceServiceImpl implements ComplianceService {
             response.setPriority(compliance.getPriority());
             response.setCompanyId(companyId);
             response.setBusinessUnitId(businessUnitId);
+            response.setTeamId(teamId);
 
 
             return response;
@@ -421,4 +423,15 @@ public class ComplianceServiceImpl implements ComplianceService {
 //
 //        return null;
 //    }
+
+
+    @Override
+    public ComplianceResponse getAllComplianceByCompanyUnitTeam(Long teamId, Long companyId, Long businessUnitId) {
+
+        List<Compliance> compliance = complianceRepository.
+                findByCompanyIdAndBusinessUnitIdAndTeamId(companyId,businessUnitId,teamId);
+
+        System.out.println(compliance);
+        return null;
+    }
 }

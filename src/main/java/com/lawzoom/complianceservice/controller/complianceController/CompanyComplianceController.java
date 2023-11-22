@@ -5,7 +5,6 @@ import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
 import com.lawzoom.complianceservice.services.complianceService.ComplianceService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,12 +33,13 @@ public class CompanyComplianceController {
 	@PostMapping("/saveCompliance")
 	public ComplianceResponse saveCompliance(@Valid @RequestBody ComplianceRequest complianceRequest,
 											 @RequestParam("companyId") Long companyId,
-											 @RequestParam("businessUnitId") Long businessUnitId) {
-		if (companyId == null || businessUnitId == null) {
+											 @RequestParam("businessUnitId") Long businessUnitId,
+	                                         @RequestParam("teamId") Long teamId) {
+		if (companyId == null || businessUnitId == null|| teamId==null) {
 			throw new IllegalArgumentException("Please provide  companyId and businessUnitId");
 		}
 
-		return this.complianceService.saveCompliance(complianceRequest, companyId, businessUnitId);
+		return this.complianceService.saveCompliance(complianceRequest, companyId, businessUnitId,teamId);
 	}
 
 
@@ -51,7 +51,19 @@ public class CompanyComplianceController {
 		}
 		return this.complianceService.updateCompliance(complianceRequest,companyId,businessUnitId);
 	}
-//
+
+	@GetMapping("/getAllComplianceByCompanyUnitTeam")
+	public ComplianceResponse getAllComplianceByCompanyUnitTeam(@RequestParam("companyId") Long companyId,
+																@RequestParam("businesUnitId") Long businessUnitId,
+																@RequestParam("teamId") Long teamId)
+	{
+		if (companyId == null || businessUnitId == null||teamId==null) {
+			throw new IllegalArgumentException("Please provide  companyId and businessUnitId");
+		}
+		return this.complianceService.getAllComplianceByCompanyUnitTeam(teamId,companyId,businessUnitId);
+
+	}
+
 ////	@GetMapping("/{complianceId}")
 //	@GetMapping("/showCompliance")
 ////write correct code i provided controller,service,serviceimpl i want to fetch all compliance is from database

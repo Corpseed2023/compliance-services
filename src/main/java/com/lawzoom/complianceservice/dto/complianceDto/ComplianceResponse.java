@@ -53,9 +53,9 @@ public class ComplianceResponse {
 	@Comment(value="1 : Mandatory Compliance, 2: Optional Compliance")
 	private int priority;
 
-	@Column
 	private Long businessUnitId;
 
-	@Column
 	private Long companyId;
+
+	private Long teamId;
 }

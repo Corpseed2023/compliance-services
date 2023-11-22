@@ -57,4 +57,7 @@ public class ComplianceRequest {
 
 	private Long businessUnitId;
 
+	private Long teamId;
+
+
 }

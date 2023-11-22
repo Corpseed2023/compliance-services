@@ -33,4 +33,6 @@ public interface ComplianceRepo extends JpaRepository<Compliance, Long> {
     Compliance findComplianceById(Long complianceId);
 
     List<Compliance> findByCompanyIdAndBusinessUnitId(Long companyId, Long businessUnitId);
+
+    List<Compliance> findByCompanyIdAndBusinessUnitIdAndTeamId(Long companyId, Long businessUnitId, Long teamId);
 }

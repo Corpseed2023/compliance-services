@@ -27,9 +27,11 @@ public interface ComplianceService {
 
     List<ComplianceResponse> fetchAllCompliances(Long companyId, Long businessUnitId);
 
-    ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long companyId, Long businessUnitId);
+    ComplianceResponse saveCompliance(ComplianceRequest complianceRequest,
+                                      Long companyId, Long businessUnitId, Long teamId);
 
-    ComplianceResponse updateCompliance(ComplianceRequest complianceRequest, Long companyId,Long businessUnitId);
+    ComplianceResponse updateCompliance(ComplianceRequest complianceRequest,
+                                        Long companyId,Long businessUnitId);
 
     ComplianceResponse fetchCompliance(Long complianceId, Long companyId);
 
@@ -41,6 +43,10 @@ public interface ComplianceService {
     ResponseEntity updateComplianceStatus(Long complianceId, int status);
 
     ResponseEntity fetchManageCompliancesByUserId(Long userId);
+
+
+    ComplianceResponse getAllComplianceByCompanyUnitTeam(Long teamId, Long companyId,
+                                                         Long businessUnitId);
 
 
 }
