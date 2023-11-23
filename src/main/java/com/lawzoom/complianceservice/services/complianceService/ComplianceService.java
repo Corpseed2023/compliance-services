@@ -7,6 +7,8 @@ import com.lawzoom.complianceservice.response.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+
 @Service
 public interface ComplianceService {
 
@@ -49,4 +51,5 @@ public interface ComplianceService {
                                                          Long businessUnitId);
 
 
+    Map<Long, List<ComplianceResponse>> getAllComplianceByCompanyId();
 }
