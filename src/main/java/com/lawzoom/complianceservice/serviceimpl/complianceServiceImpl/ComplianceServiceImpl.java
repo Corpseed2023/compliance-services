@@ -434,4 +434,36 @@ public class ComplianceServiceImpl implements ComplianceService {
         System.out.println(compliance);
         return null;
     }
+
+    @Override
+    public Map<Long, List<ComplianceResponse>> getAllComplianceByCompanyId() {
+        List<Compliance> allCompliances = complianceRepository.findAll();
+
+        Map<Long, List<ComplianceResponse>> mapalldata = new HashMap<>();
+
+        for (Compliance compliance : allCompliances) {
+            Long companyId = compliance.getCompanyId();
+
+            if (companyId != null) {
+                List<ComplianceResponse> companyComplianceList =
+                        mapalldata.getOrDefault(companyId, new ArrayList<>());
+
+                ComplianceResponse response = new ComplianceResponse();
+                response.setId(compliance.getId());
+                response.setName(compliance.getName());
+                response.setDescription(compliance.getDescription());
+
+                companyComplianceList.add(response);
+
+                mapalldata.put(companyId, companyComplianceList);
+            }
+        }
+
+        return mapalldata;
+    }
+
+
+
+
+
 }

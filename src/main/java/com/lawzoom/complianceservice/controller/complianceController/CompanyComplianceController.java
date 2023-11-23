@@ -2,12 +2,16 @@ package com.lawzoom.complianceservice.controller.complianceController;
 
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
+import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.services.complianceService.ComplianceService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -34,48 +38,40 @@ public class CompanyComplianceController {
 	public ComplianceResponse saveCompliance(@Valid @RequestBody ComplianceRequest complianceRequest,
 											 @RequestParam("companyId") Long companyId,
 											 @RequestParam("businessUnitId") Long businessUnitId,
-	                                         @RequestParam("teamId") Long teamId) {
-		if (companyId == null || businessUnitId == null|| teamId==null) {
+											 @RequestParam("teamId") Long teamId) {
+		if (companyId == null || businessUnitId == null || teamId == null) {
 			throw new IllegalArgumentException("Please provide  companyId and businessUnitId");
 		}
 
-		return this.complianceService.saveCompliance(complianceRequest, companyId, businessUnitId,teamId);
+		return this.complianceService.saveCompliance(complianceRequest, companyId, businessUnitId, teamId);
 	}
 
 
 	@PutMapping("/updateCompliance")
-	public ComplianceResponse updateCompliance(@Valid @RequestBody ComplianceRequest complianceRequest, @RequestParam("companyId") Long companyId,@RequestParam("businesUnitId") Long businessUnitId){
+	public ComplianceResponse updateCompliance(@Valid @RequestBody ComplianceRequest complianceRequest, @RequestParam("companyId") Long companyId, @RequestParam("businesUnitId") Long businessUnitId) {
 
 		if (companyId == null || businessUnitId == null) {
 			throw new IllegalArgumentException("Please provide  companyId and businessUnitId");
 		}
-		return this.complianceService.updateCompliance(complianceRequest,companyId,businessUnitId);
+		return this.complianceService.updateCompliance(complianceRequest, companyId, businessUnitId);
 	}
 
 	@GetMapping("/getAllComplianceByCompanyUnitTeam")
 	public ComplianceResponse getAllComplianceByCompanyUnitTeam(@RequestParam("companyId") Long companyId,
-																@RequestParam("businesUnitId") Long businessUnitId,
-																@RequestParam("teamId") Long teamId)
-	{
-		if (companyId == null || businessUnitId == null||teamId==null) {
+																@RequestParam("businessUnitId") Long businessUnitId,
+																@RequestParam("teamId") Long teamId) {
+		if (companyId == null || businessUnitId == null || teamId == null) {
 			throw new IllegalArgumentException("Please provide  companyId and businessUnitId");
 		}
-		return this.complianceService.getAllComplianceByCompanyUnitTeam(teamId,companyId,businessUnitId);
+		return this.complianceService.getAllComplianceByCompanyUnitTeam(teamId, companyId, businessUnitId);
 
 	}
 
-////	@GetMapping("/{complianceId}")
-//	@GetMapping("/showCompliance")
-////write correct code i provided controller,service,serviceimpl i want to fetch all compliance is from database
-//	public ComplianceResponse fetchCompliance(@RequestParam("id") Long complianceId, @RequestParam("companyId") Long companyId){
-//		return this.complianceService.fetchCompliance(complianceId,companyId);
-//	}
-//
-////	@DeleteMapping("/{complianceId}")
-//	@DeleteMapping("/removeCompliance")
-//
-//	public ResponseEntity deleteCompliance(@RequestParam("complianceId") Long complianceId,@RequestParam("companyId") Long companyId){
-//		return this.complianceService.deleteCompliance(complianceId,companyId);
-//	}
-//==========================================complete till delete on 14 sept 2023==================================================
+	@GetMapping("/getAllComplianceByUserId")
+	public ResponseEntity<Map<Long, List<ComplianceResponse>>> getAllComplianceByUserId() {
+		Map<Long, List<ComplianceResponse>> result = complianceService.getAllComplianceByCompanyId();
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
+
+
 }
