@@ -76,6 +76,9 @@ public class Compliance {
 	@Comment(value="1 : Mandatory Compliance, 2: Optional Compliance")
 	private int priority;
 
+	@Column(name="certificate_type")
+	private String certificateType;
+
 //	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
 //	private List<ComplianceTask> complianceTasks=new ArrayList<>();
 

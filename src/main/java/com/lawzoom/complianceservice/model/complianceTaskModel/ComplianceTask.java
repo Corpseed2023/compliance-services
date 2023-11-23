@@ -30,6 +30,7 @@ public class ComplianceTask {
 	private Long id;
 	
 //	@NotBlank
+
 //	@NotNull
 //	@NotEmpty
 	@Column(name = "task_name")

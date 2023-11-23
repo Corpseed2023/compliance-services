@@ -68,20 +68,39 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
 
     @Override
     public ResponseEntity saveTask(ComplianceTaskRequest taskRequest, Long complianceId) {
-        Compliance compliance=this.complianceRepo.findComplianceById(complianceId);
-        if(compliance==null)
+        Compliance compliance = this.complianceRepo.findComplianceById(complianceId);
+        if (compliance == null)
             return new ResponseEntity().badRequest("Compliance Not Found !!");
 
-        ComplianceTask findTask=this.complianceTaskRepository.findTaskByComplianceAndTaskName(compliance,taskRequest.getTaskName());
-        if(findTask!=null)
-            return new ResponseEntity().badRequest("Compliance Task already exist !!");
+        ComplianceTask findTask = this.complianceTaskRepository.findTaskByComplianceAndTaskName(compliance, taskRequest.getTaskName());
+        if (findTask != null)
+            return new ResponseEntity().badRequest("Compliance Task already exists !!");
 
-        ComplianceTask saveTask=this.complianceTaskRepository.save(this.responseMapper.mapToSaveComplianceTask(taskRequest,compliance));
+        ComplianceTask saveTask = new ComplianceTask();
+        saveTask.setTaskName(taskRequest.getTaskName());
+        saveTask.setTimelineValue(taskRequest.getTimelineValue());
+        saveTask.setTimelineType(taskRequest.getTimelineType());
+        saveTask.setStatus(taskRequest.getStatus());
+        saveTask.setApprovalState(taskRequest.getApprovalState());
+        saveTask.setApplicableZone(taskRequest.getApplicableZone());
+        saveTask.setEnable(true);
+        saveTask.setCreatedAt(CommonUtil.getDate());
+        saveTask.setStartDate(taskRequest.getStartDate());
+        saveTask.setDueDate(taskRequest.getDueDate());
+        saveTask.setCompletedDate(taskRequest.getCompletedDate());
+        saveTask.setReporterUserId(taskRequest.getReporterUserId());
+        saveTask.setAssigneeUserId(taskRequest.getAssigneeUserId());
+        saveTask.setCriticality(taskRequest.getCriticality());
+        saveTask.setDescription(taskRequest.getDescription());
+        saveTask.setUpdatedAt(CommonUtil.getDate());
+        saveTask.setCompliance(compliance);
 
-        if(saveTask==null)
+        ComplianceTask savedTask = this.complianceTaskRepository.save(saveTask);
+
+        if (savedTask == null)
             return new ResponseEntity().internalServerError();
 
-        return new ResponseEntity().ok();
+        return ResponseEntity.ok().build();
     }
 
     @Override
