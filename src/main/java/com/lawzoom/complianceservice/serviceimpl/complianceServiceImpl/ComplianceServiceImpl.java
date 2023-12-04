@@ -189,11 +189,10 @@ public class ComplianceServiceImpl implements ComplianceService {
 //    }
 
     @Override
-    public ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long companyId, Long businessUnitId,Long teamId) {
+    public ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long companyId, Long businessUnitId,Long teamMemberId) {
 
         try {
             Compliance compliance = new Compliance();
-
 
             compliance.setName(complianceRequest.getName());
             compliance.setDescription(complianceRequest.getDescription());
@@ -210,7 +209,7 @@ public class ComplianceServiceImpl implements ComplianceService {
             compliance.setPriority(complianceRequest.getPriority());
             compliance.setCompanyId(companyId);
             compliance.setBusinessUnitId(businessUnitId);
-            compliance.setTeamId(teamId);
+            compliance.setTeamId(teamMemberId);
 
             complianceRepository.save(compliance);
 
@@ -231,7 +230,7 @@ public class ComplianceServiceImpl implements ComplianceService {
             response.setPriority(compliance.getPriority());
             response.setCompanyId(companyId);
             response.setBusinessUnitId(businessUnitId);
-            response.setTeamId(teamId);
+            response.setTeamId(teamMemberId);
 
 
             return response;
@@ -462,8 +461,44 @@ public class ComplianceServiceImpl implements ComplianceService {
         return mapalldata;
     }
 
+    @Override
+    public Map<Long, Integer> getComplianceCount(){
+        List<Compliance>complianceList = complianceRepository.findAll();
+        Map<Long,Integer>resCount = new HashMap<>();
+        for(Compliance c : complianceList){
+            Long companyId = c.getCompanyId();
+            if(resCount.get(companyId)!=null){
+                int count  = resCount.get(companyId);
+                resCount.put(companyId,count+1);
+            }
+
+            else{
+                resCount.put(companyId,1);
+            }
+        }
+        return resCount;
+    }
 
 
+    @Override
+    public Map<Long, Map<Long, Integer>> getComplianceCountsByCompanyAndBusinessUnit() {
+        List<Compliance> compliances = complianceRepository.findAll();
+        Map<Long, Map<Long, Integer>> result = new HashMap<>();
 
+        for (Compliance compliance : compliances) {
+            Long companyId = compliance.getCompanyId();
+            Long businessUnitId = compliance.getBusinessUnitId();
 
+            if (result.containsKey(companyId)) {
+                Map<Long, Integer> businessUnitMap = result.get(companyId);
+                businessUnitMap.put(businessUnitId, businessUnitMap.getOrDefault(businessUnitId, 0) + 1);
+            } else {
+                Map<Long, Integer> businessUnitMap = new HashMap<>();
+                businessUnitMap.put(businessUnitId, 1);
+                result.put(companyId, businessUnitMap);
+            }
+        }
+
+        return result;
+    }
 }

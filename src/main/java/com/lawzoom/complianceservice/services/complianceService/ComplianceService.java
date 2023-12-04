@@ -30,7 +30,7 @@ public interface ComplianceService {
     List<ComplianceResponse> fetchAllCompliances(Long companyId, Long businessUnitId);
 
     ComplianceResponse saveCompliance(ComplianceRequest complianceRequest,
-                                      Long companyId, Long businessUnitId, Long teamId);
+                                      Long companyId, Long businessUnitId, Long teamMemberId);
 
     ComplianceResponse updateCompliance(ComplianceRequest complianceRequest,
                                         Long companyId,Long businessUnitId);
@@ -52,4 +52,8 @@ public interface ComplianceService {
 
 
     Map<Long, List<ComplianceResponse>> getAllComplianceByCompanyId();
+
+    Map<Long, Integer> getComplianceCount();
+
+    Map<Long, Map<Long, Integer>> getComplianceCountsByCompanyAndBusinessUnit();
 }
