@@ -16,6 +16,8 @@ import java.util.Date;
 public class ComplianceRequest {
 
 	private Long id;
+
+	private Long userId;
 	
 	private String name;
 	
@@ -57,7 +59,7 @@ public class ComplianceRequest {
 
 	private Long businessUnitId;
 
-	private Long teamId;
+	private Long teamMemberId;
 
 
 }

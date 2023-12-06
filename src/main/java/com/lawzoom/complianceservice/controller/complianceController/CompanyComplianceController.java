@@ -49,17 +49,16 @@ public class CompanyComplianceController {
 		return complianceService.getComplianceCountsByCompanyAndBusinessUnit();
 	}
 
-
 	@PostMapping("/saveCompliance")
 	public ComplianceResponse saveCompliance(@Valid @RequestBody ComplianceRequest complianceRequest,
 											 @RequestParam("companyId") Long companyId,
 											 @RequestParam("businessUnitId") Long businessUnitId,
-											 @RequestParam("teamId") Long teamMemberId) {
-		if (companyId == null || businessUnitId == null || teamMemberId == null) {
+											 @RequestParam("userId") Long userId ) {
+		if (companyId == null || businessUnitId == null ) {
 			throw new IllegalArgumentException("Please provide  companyId and businessUnitId");
 		}
 
-		return this.complianceService.saveCompliance(complianceRequest, companyId, businessUnitId, teamMemberId);
+		return this.complianceService.saveCompliance(complianceRequest, companyId, businessUnitId,userId);
 	}
 
 
@@ -103,7 +102,6 @@ public class CompanyComplianceController {
 				})
 				.collect(Collectors.toList());
 	}
-
 
 
 }

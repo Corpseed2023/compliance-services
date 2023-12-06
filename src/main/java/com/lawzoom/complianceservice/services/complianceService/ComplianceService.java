@@ -30,7 +30,7 @@ public interface ComplianceService {
     List<ComplianceResponse> fetchAllCompliances(Long companyId, Long businessUnitId);
 
     ComplianceResponse saveCompliance(ComplianceRequest complianceRequest,
-                                      Long companyId, Long businessUnitId, Long teamMemberId);
+                                      Long companyId, Long businessUnitId,Long userId);
 
     ComplianceResponse updateCompliance(ComplianceRequest complianceRequest,
                                         Long companyId,Long businessUnitId);

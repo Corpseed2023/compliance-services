@@ -3,8 +3,6 @@ package com.lawzoom.complianceservice.dto.complianceDto;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 import org.springframework.format.annotation.DateTimeFormat;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import java.util.Date;
@@ -18,6 +16,8 @@ import java.util.Date;
 public class ComplianceResponse {
 
 	private Long id;
+
+	private Long userId;
 	
 	private String name;
 	
@@ -57,5 +57,5 @@ public class ComplianceResponse {
 
 	private Long companyId;
 
-	private Long teamId;
+	private Long teamMemberId;
 }
