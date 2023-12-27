@@ -1,10 +1,14 @@
 package com.lawzoom.complianceservice.model.complianceModel;
 
+import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 @AllArgsConstructor
@@ -19,7 +23,6 @@ public class Compliance {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
 
 	@Column(name = "user_id")
 	private Long userId;
@@ -77,6 +80,9 @@ public class Compliance {
 	@Column(name = "team_id")
 	private Long teamId;
 
+	@Column(name = "team_member_id")
+	private Long teamMember;
+
 	@Comment(value="1 : Mandatory Compliance, 2: Optional Compliance")
 	private int priority;
 
@@ -94,8 +100,10 @@ public class Compliance {
 
 	private String businessUnitAddress;
 
-//	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
-//	private List<ComplianceTask> complianceTasks=new ArrayList<>();
+	private Long businessActivityId;
+
+	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
+	private List<ComplianceTask> complianceTasks=new ArrayList<>();
 
 //	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
 //	private List<Document> complianceDocuments=new ArrayList<>();
@@ -104,28 +112,5 @@ public class Compliance {
 	private Reminder complianceReminder;
 
 
-	@Override
-	public String toString() {
-		return "Compliance{" +
-				"id=" + id +
-				", name='" + name + '\'' +
-				", description='" + description + '\'' +
-				", approvalState='" + approvalState + '\'' +
-				", applicableZone='" + applicableZone + '\'' +
-				", createdAt=" + createdAt +
-				", updatedAt=" + updatedAt +
-				", isEnable=" + isEnable +
-				", startDate=" + startDate +
-				", dueDate=" + dueDate +
-				", completedDate=" + completedDate +
-				", duration='" + duration + '\'' +
-				", workStatus=" + workStatus +
-				", categoryId=" + categoryId +
-				", companyId=" + companyId +
-				", businessUnitId=" + businessUnitId +
-				", priority=" + priority +
-//				", complianceTasks=" + complianceTasks +
-				", complianceReminder=" + complianceReminder +
-				'}';
-	}
+
 }

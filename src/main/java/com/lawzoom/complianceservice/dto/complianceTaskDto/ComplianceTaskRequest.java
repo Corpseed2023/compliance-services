@@ -19,10 +19,9 @@ import java.util.Date;
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
 public class ComplianceTaskRequest {
 
-	private Long id;
+//	private Long id;
 	
 	private String taskName;
 
@@ -63,5 +62,11 @@ public class ComplianceTaskRequest {
 
 	@Comment(value = "1 : Active, 0 : Inactive")
 	private boolean isEnable;
+
+	private Long companyId;
+
+	private Long businessUnitId;
+
+	private Long businessActivityId;
 
 }

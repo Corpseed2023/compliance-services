@@ -2,14 +2,7 @@ package com.lawzoom.complianceservice.model.complianceTaskModel;
 
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.complianceSubTaskModel.ComplianceSubTask;
-import com.lawzoom.complianceservice.model.documentModel.Document;
-import com.lawzoom.complianceservice.model.reminderModel.Reminder;
-import com.lawzoom.complianceservice.model.renewalModel.RenewalReminder;
-import com.lawzoom.complianceservice.model.taskActionModel.TaskAction;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 import java.util.ArrayList;
@@ -28,11 +21,7 @@ public class ComplianceTask {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
-//	@NotBlank
 
-//	@NotNull
-//	@NotEmpty
 	@Column(name = "task_name")
 	private String taskName;
 
@@ -85,12 +74,21 @@ public class ComplianceTask {
 
 	private String criticality;
 
+	private Long companyId;
+
+	private Long businessUnitId;
+
+	private Long businessActivityId;
+
 	@ManyToOne(targetEntity = Compliance.class,fetch = FetchType.LAZY)
 	@JoinColumn(name = "compliance_id",nullable = false)
 	private Compliance compliance;
 
 	@OneToMany(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true)
 	private List<ComplianceSubTask> complianceSubTasks=new ArrayList<>();
+
+
+
 
 //	@OneToMany(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true)
 //	private List<TaskAction> taskActionList=new ArrayList<>();

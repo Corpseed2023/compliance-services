@@ -58,4 +58,6 @@ public class ComplianceResponse {
 	private Long companyId;
 
 	private Long teamMemberId;
+
+
 }
