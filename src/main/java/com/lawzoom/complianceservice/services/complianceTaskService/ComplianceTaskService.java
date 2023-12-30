@@ -21,4 +21,6 @@ public interface ComplianceTaskService {
     ComplianceTaskResponse saveTask(ComplianceTaskRequest taskRequest, Long complianceId, Long companyId, Long businessUnitId);
 
     List<ComplianceTaskResponse> getAllTaskByComplianceId(Long complianceId);
+
+
 }
