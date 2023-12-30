@@ -39,9 +39,6 @@ public class ComplianceTaskController {
 
     }
 
-
-
-
     @PutMapping("/update")
     public ResponseEntity updateTask(@RequestBody ComplianceTaskRequest taskRequest,@RequestParam("complianceId") Long complianceId){
         return this.complianceTaskService.updateTask(taskRequest,complianceId);

@@ -70,7 +70,7 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         Optional<Compliance> complianceData = complianceRepo.findById(complianceId);
 
         ComplianceTask savedTask = complianceData.map(compliance ->
-                        complianceTaskRepository.save(mapRequestToEntity(taskRequest, compliance)))
+                        complianceTaskRepository.save(mapRequestToEntity(taskRequest, compliance,companyId,businessUnitId)))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Compliance not found"));
 
         return mapEntityToResponse(savedTask);
@@ -83,7 +83,8 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
     }
 
     // Helper method to map request DTO to entity
-    private ComplianceTask mapRequestToEntity(ComplianceTaskRequest request, Compliance compliance) {
+    private ComplianceTask mapRequestToEntity(ComplianceTaskRequest request, Compliance compliance ,
+                                              Long businessUnitId , Long companyId) {
         ComplianceTask task = new ComplianceTask();
         task.setTaskName(request.getTaskName());
         task.setDescription(request.getDescription());
@@ -101,9 +102,11 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         task.setCreatedAt(request.getCreatedAt());
         task.setUpdatedAt(request.getUpdatedAt());
         task.setEnable(request.isEnable());
-        task.setCompanyId(request.getCompanyId());
-        task.setBusinessUnitId(request.getBusinessUnitId());
-        task.setBusinessActivityId(request.getBusinessActivityId());
+        task.setCompanyId(companyId);
+        task.setBusinessUnitId(businessUnitId);
+//        task.setCompanyId(request.getCompanyId());
+//        task.setBusinessUnitId(request.getBusinessUnitId());
+//        task.setBusinessActivityId(request.getBusinessActivityId());
         task.setCompliance(compliance);
 
         return task;

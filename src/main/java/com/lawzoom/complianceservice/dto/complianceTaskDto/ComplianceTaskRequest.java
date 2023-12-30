@@ -63,10 +63,10 @@ public class ComplianceTaskRequest {
 	@Comment(value = "1 : Active, 0 : Inactive")
 	private boolean isEnable;
 
-	private Long companyId;
+//	private Long companyId;
 
-	private Long businessUnitId;
+//	private Long businessUnitId;
 
-	private Long businessActivityId;
+//	private Long businessActivityId;
 
 }
