@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ComplianceTaskServiceImpl implements ComplianceTaskService {
@@ -29,38 +30,6 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
     @Autowired
     private  ComplianceTaskRepository complianceTaskRepository;
 
-
-
-//    @Override
-//    public ComplianceTaskResponse saveTask(ComplianceTaskRequest taskRequest, Long complianceId,
-//                                           Long companyId, Long businessUnitId) {
-//
-//        if (complianceId == null) {
-//            // Handle the case where complianceId is null
-//            // Return a 400 Bad Request response
-//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Compliance ID cannot be null");
-//        }
-//
-//        Optional<Compliance> complianceData = complianceRepo.findById(complianceId);
-//
-//        if (complianceData.isPresent()) {
-//            ComplianceTask newTask = mapRequestToEntity(taskRequest, complianceData.get());
-//
-//            ComplianceTask savedTask = complianceTaskRepository.save(newTask);
-//
-//            if (savedTask != null && savedTask.getId() != null) {
-//                return mapEntityToResponse(savedTask);
-//            } else {
-//                // Handle the case where the task data is not saved
-//                // Return a 500 Internal Server Error response
-//                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Task data not saved");
-//            }
-//        } else {
-//            // Handle the case where the compliance data is not found
-//            // Return a 404 error response
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Compliance not found");
-//        }
-//    }
 
     @Override
     public ComplianceTaskResponse saveTask(ComplianceTaskRequest taskRequest, Long complianceId,
@@ -140,161 +109,6 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         return response;
     }
 
-
-
-    @Override
-    public ResponseEntity<List<ComplianceTaskResponse>> findComplianceTaskByCompliance(Long complianceId) {
-        Optional<Compliance> optionalCompliance = complianceRepo.findById(complianceId);
-
-        if (optionalCompliance.isEmpty()) {
-            return new ResponseEntity().badRequest("Task Not Found !!");
-        }
-
-        List<ComplianceTask> complianceTaskList = complianceTaskRepository.findComplianceTaskByCompliance(optionalCompliance.get());
-        List<ComplianceTaskResponse> responseList = new ArrayList<>();
-
-        for (ComplianceTask t : complianceTaskList) {
-            ComplianceTaskResponse response = new ComplianceTaskResponse();
-            response.setId(t.getId());
-            response.setTaskName(t.getTaskName());
-            response.setTimelineValue(t.getTimelineValue());
-            response.setTimelineType(t.getTimelineType());
-            response.setStatus(t.getStatus());
-            response.setApprovalState(t.getApprovalState());
-            response.setApplicableZone(t.getApplicableZone());
-            response.setEnable(t.isEnable());
-            response.setCreatedAt(t.getCreatedAt());
-            response.setUpdatedAt(t.getUpdatedAt());
-            response.setStartDate(t.getStartDate());
-            response.setDueDate(t.getDueDate());
-            response.setCompletedDate(t.getCompletedDate());
-            response.setAssigneeUserId(t.getAssigneeUserId());
-            response.setReporterUserId(t.getReporterUserId());
-            response.setDescription(t.getDescription());
-            response.setCriticality(t.getCriticality());
-            responseList.add(response);
-        }
-
-        return new ResponseEntity().badRequest("Task Found !!");
-    }
-
-//    @Override
-//    public ComplianceTaskResponse saveTask(ComplianceTaskRequest taskRequest, Long complianceId) {
-//        Compliance compliance = this.complianceRepo.findComplianceById(complianceId);
-//        if (compliance == null)
-//            return new ResponseEntity().badRequest("Compliance Not Found !!");
-//
-//        ComplianceTask findTask = this.complianceTaskRepository.findTaskByComplianceAndTaskName(compliance, taskRequest.getTaskName());
-//        if (findTask != null)
-//            return new ResponseEntity().badRequest("Compliance Task already exists !!");
-//
-//        ComplianceTask saveTask = new ComplianceTask();
-//        saveTask.setTaskName(taskRequest.getTaskName());
-//        saveTask.setTimelineValue(taskRequest.getTimelineValue());
-//        saveTask.setTimelineType(taskRequest.getTimelineType());
-//        saveTask.setStatus(taskRequest.getStatus());
-//        saveTask.setApprovalState(taskRequest.getApprovalState());
-//        saveTask.setApplicableZone(taskRequest.getApplicableZone());
-//        saveTask.setEnable(true);
-//        saveTask.setCreatedAt(CommonUtil.getDate());
-//        saveTask.setStartDate(taskRequest.getStartDate());
-//        saveTask.setDueDate(taskRequest.getDueDate());
-//        saveTask.setCompletedDate(taskRequest.getCompletedDate());
-//        saveTask.setReporterUserId(taskRequest.getReporterUserId());
-//        saveTask.setAssigneeUserId(taskRequest.getAssigneeUserId());
-//        saveTask.setCriticality(taskRequest.getCriticality());
-//        saveTask.setDescription(taskRequest.getDescription());
-//        saveTask.setUpdatedAt(CommonUtil.getDate());
-//        saveTask.setCompliance(compliance);
-//
-//        ComplianceTask savedTask = this.complianceTaskRepository.save(saveTask);
-//
-//        if (savedTask == null)
-//            return new ResponseEntity().internalServerError();
-//
-//        return ResponseEntity.ok().build();
-//    }
-
-//    @Override
-//    public ResponseEntity<?> updateTask(ComplianceTaskRequest taskRequest, Long complianceId) {
-//        Optional<Compliance> compliance = complianceRepo.findById(complianceId);
-//        if (compliance == null) {
-////            return ResponseEntity.badRequest().body("Compliance Not Found !!");
-//            return new ResponseEntity().badRequest("Compliance Not Found ");
-//
-//        }
-//
-//        ComplianceTask existingTask = complianceTaskRepository.findTaskByComplianceAndTaskNameAndIdNot(
-//                compliance.get(), taskRequest.getTaskName(), taskRequest.getId());
-//
-//        if (existingTask != null) {
-////            return ResponseEntity.badRequest().body("Compliance Task already exists !!");
-//            return new ResponseEntity().badRequest("Compliance Task already exists");
-//
-//        }
-//
-//        ComplianceTask updatedTask = new ComplianceTask();
-//        updatedTask.setId(taskRequest.getId());
-//        updatedTask.setTaskName(taskRequest.getTaskName());
-//        updatedTask.setTimelineValue(taskRequest.getTimelineValue());
-//        updatedTask.setTimelineType(taskRequest.getTimelineType());
-//        updatedTask.setStatus(taskRequest.getStatus());
-//        updatedTask.setApprovalState(taskRequest.getApprovalState());
-//        updatedTask.setApplicableZone(taskRequest.getApplicableZone());
-//        updatedTask.setEnable(taskRequest.isEnable());
-//        updatedTask.setCreatedAt(taskRequest.getCreatedAt());
-//        updatedTask.setStartDate(taskRequest.getStartDate());
-//        updatedTask.setDueDate(taskRequest.getDueDate());
-//        updatedTask.setCompletedDate(taskRequest.getCompletedDate());
-//        updatedTask.setReporterUserId(taskRequest.getReporterUserId());
-//        updatedTask.setAssigneeUserId(taskRequest.getAssigneeUserId());
-//        updatedTask.setCriticality(taskRequest.getCriticality());
-//        updatedTask.setUpdatedAt(CommonUtil.getDate());
-//        updatedTask.setDescription(taskRequest.getDescription());
-//        updatedTask.setCompliance(compliance.get());
-//
-//        updatedTask = complianceTaskRepository.save(updatedTask);
-//
-//        if (updatedTask == null) {
-//            return new ResponseEntity().badRequest("Failed to update compliance task");
-//        }
-//
-//        return ResponseEntity.ok().build();
-//    }
-
-
-//
-//    @Override
-//    public ResponseEntity fetchTaskById(Long complianceId, Long taskId) {
-//        Compliance compliance=this.complianceTaskRepository.findComplianceById(complianceId);
-//        if(compliance==null)
-//            return new ResponseEntity().badRequest("Compliance Not Found !!");
-//
-//        ComplianceTask complianceTask=this.complianceTaskRepository.findTaskByComplianceAndId(compliance,taskId);
-//        if(complianceTask==null)
-//            return new ResponseEntity().badRequest("Compliance Task Not Found !!");
-//
-//        return new ResponseEntity().ok(this.responseMapper.mapToComplianceTaskResponse(complianceTask));
-//    }
-
-//    @Override
-//    public ResponseEntity deleteTaskById(Long complianceId, Long taskId) {
-//        Compliance compliance=this.complianceRepo.findComplianceById(complianceId);
-//        if(compliance==null)
-//            return new ResponseEntity().badRequest("Compliance Not Found !!");
-//
-//        ComplianceTask complianceTask=this.complianceTaskRepository.findTaskByComplianceAndId(compliance,taskId);
-//        if(complianceTask==null)
-//            return new ResponseEntity().badRequest("Compliance Task Not Found !!");
-//
-//        boolean deleteTask=this.complianceTaskRepository.delete(complianceTask);
-//
-//        if(!deleteTask)
-//            return new ResponseEntity().internalServerError();
-//
-//        return new ResponseEntity().ok();
-//    }
-
     @Override
     public ResponseEntity<?> deleteTaskById(Long complianceId, Long taskId) {
 
@@ -331,27 +145,44 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         return null;
     }
 
-    /*public ResponseEntity deleteTaskById(Long complianceId, Long taskId) {
-        Compliance compliance = complianceRepo.findById(complianceId).orElse(null);
-        if (compliance == null)
-            return ResponseEntity.badRequest().body("Compliance Not Found !!");
-
-        ComplianceTask complianceTask = complianceTaskRepository.findById(taskId).orElse(null);
-        if (complianceTask == null || !complianceTask.getCompliance().equals(compliance))
-            return ResponseEntity.badRequest().body("Compliance Task Not Found !!");
-
-        try {
-            complianceTaskRepository.delete(complianceTask);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
-    } */
 
     @Override
-    public ResponseEntity getAllTasksByComplianceId(Long complianceId) {
-        return null;
+    public List<ComplianceTaskResponse> getAllTaskByComplianceId(Long complianceId) {
+        // Assuming you have a method in the repository to get tasks by complianceId
+        List<ComplianceTask> complianceTasks = complianceTaskRepository.findByComplianceId(complianceId);
+
+        // Map the ComplianceTask entities to ComplianceTaskResponse DTOs
+        List<ComplianceTaskResponse> taskResponses = complianceTasks.stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
+
+        return taskResponses;
     }
 
+    private ComplianceTaskResponse mapToResponseDto(ComplianceTask complianceTask) {
+        // Map the fields from ComplianceTask entity to ComplianceTaskResponse DTO
+        ComplianceTaskResponse response = new ComplianceTaskResponse();
+        response.setId(complianceTask.getId());
+        response.setTaskName(complianceTask.getTaskName());
+        response.setDescription(complianceTask.getDescription());
+        response.setTimelineValue(complianceTask.getTimelineValue());
+        response.setTimelineType(complianceTask.getTimelineType());
+        response.setStatus(complianceTask.getStatus());
+        response.setApprovalState(complianceTask.getApprovalState());
+        response.setApplicableZone(complianceTask.getApplicableZone());
+        response.setCriticality(complianceTask.getCriticality());
+        response.setReporterUserId(complianceTask.getReporterUserId());
+        response.setAssigneeUserId(complianceTask.getAssigneeUserId());
+        response.setStartDate(complianceTask.getStartDate());
+        response.setDueDate(complianceTask.getDueDate());
+        response.setCompletedDate(complianceTask.getCompletedDate());
+        response.setCreatedAt(complianceTask.getCreatedAt());
+        response.setUpdatedAt(complianceTask.getUpdatedAt());
+        response.setEnable(complianceTask.isEnable());
+        response.setCompanyId(complianceTask.getCompanyId());
+        response.setBusinessUnitId(complianceTask.getBusinessUnitId());
+        response.setBusinessActivityId(complianceTask.getBusinessActivityId());
 
+        return response;
+    }
 }

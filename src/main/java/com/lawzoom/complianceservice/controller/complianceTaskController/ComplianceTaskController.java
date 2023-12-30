@@ -7,6 +7,8 @@ import com.lawzoom.complianceservice.services.complianceTaskService.ComplianceTa
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 //@RequestMapping("/compliance/task/{complianceId}")
 @RequestMapping("/compliance/task")
@@ -26,18 +28,13 @@ public class ComplianceTaskController {
         return this.complianceTaskService.saveTask(taskRequest,complianceId,companyId,businessUnitId);
     }
 
-    @GetMapping("/getAllCompliance")
-    public ResponseEntity fetchAllTask(@RequestParam("complianceId") Long complianceId){
-        return this.complianceTaskService.findComplianceTaskByCompliance(complianceId);
+
+    @GetMapping("/getAllComplianceTask")
+    public List<ComplianceTaskResponse> getAllTaskByCompliance(@RequestParam("complianceId") Long complianceId) {
+        return this.complianceTaskService.getAllTaskByComplianceId(complianceId);
     }
 
-    @GetMapping("/fetchComplianceTask")
-    public  ResponseEntity getAllTaskByCompliance(@RequestParam ("complianceId") Long complianceId)
-    {
-        return this.complianceTaskService.getAllTasksByComplianceId(complianceId);
 
-
-    }
 
     @PutMapping("/update")
     public ResponseEntity updateTask(@RequestBody ComplianceTaskRequest taskRequest,@RequestParam("complianceId") Long complianceId){

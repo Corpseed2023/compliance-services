@@ -4,8 +4,10 @@ import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskRequest
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskResponse;
 import com.lawzoom.complianceservice.response.ResponseEntity;
 
+import java.util.List;
+
 public interface ComplianceTaskService {
-    ResponseEntity findComplianceTaskByCompliance(Long complianceId);
+
 
 
     ResponseEntity updateTask(ComplianceTaskRequest taskRequest, Long complianceId);
@@ -14,7 +16,9 @@ public interface ComplianceTaskService {
 
     ResponseEntity deleteTaskById(Long complianceId, Long taskId);
 
-    ResponseEntity getAllTasksByComplianceId(Long complianceId);
+
 
     ComplianceTaskResponse saveTask(ComplianceTaskRequest taskRequest, Long complianceId, Long companyId, Long businessUnitId);
+
+    List<ComplianceTaskResponse> getAllTaskByComplianceId(Long complianceId);
 }

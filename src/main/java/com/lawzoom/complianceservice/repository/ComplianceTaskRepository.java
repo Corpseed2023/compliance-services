@@ -20,4 +20,6 @@ public interface ComplianceTaskRepository extends JpaRepository<ComplianceTask,L
     ComplianceTask findTaskByComplianceAndId(Compliance compliance, Long taskId);
 
     ComplianceTask findComplianceTaskById(Long taskId);
+
+    List<ComplianceTask> findByComplianceId(Long complianceId);
 }
