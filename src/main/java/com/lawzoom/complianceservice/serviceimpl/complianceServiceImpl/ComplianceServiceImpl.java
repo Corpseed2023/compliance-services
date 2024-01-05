@@ -2,14 +2,21 @@ package com.lawzoom.complianceservice.serviceimpl.complianceServiceImpl;
 
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
+import com.lawzoom.complianceservice.dto.userDto.UserRequest;
+import com.lawzoom.complianceservice.feignClient.AuthenticationFeignClient;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.repository.ComplianceRepo;
 import com.lawzoom.complianceservice.response.ResponseEntity;
 import com.lawzoom.complianceservice.services.complianceService.ComplianceService;
+import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 //import com.lawzoom.complianceservice.response;
 
@@ -23,6 +30,9 @@ public class ComplianceServiceImpl implements ComplianceService {
 
     @Autowired
     private ComplianceRepo complianceRepository;
+
+    @Autowired
+    private AuthenticationFeignClient authenticationFeignClient;
 
         @Override
       public ResponseEntity deleteBusinessCompliance(Long complianceId, Long companyId) {
@@ -188,12 +198,25 @@ public class ComplianceServiceImpl implements ComplianceService {
 //        return complianceResponses;
 //    }
 
-    @Override
-    public ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long companyId, Long businessUnitId, Long userId) {
+    @PostMapping("/saveCompliance")
+    public ComplianceResponse saveCompliance(@Valid @RequestBody ComplianceRequest complianceRequest,
+                                             @RequestParam("companyId") Long companyId,
+                                             @RequestParam("businessUnitId") Long businessUnitId,
+                                             @RequestParam("userId") Long userId) {
+        if (companyId == null || businessUnitId == null) {
+            throw new IllegalArgumentException("Please provide companyId and businessUnitId");
+        }
+
+        UserRequest userData = authenticationFeignClient.getUserId(userId);
+
+        if (userData == null || StringUtils.isBlank(userData.getEmail())) {
+            throw new IllegalArgumentException("Invalid user data. Cannot create compliance.");
+        }
 
         try {
             Compliance compliance = new Compliance();
 
+            // Set compliance properties
             compliance.setName(complianceRequest.getName());
             compliance.setDescription(complianceRequest.getDescription());
             compliance.setApprovalState(complianceRequest.getApprovalState());
@@ -209,36 +232,49 @@ public class ComplianceServiceImpl implements ComplianceService {
             compliance.setPriority(complianceRequest.getPriority());
             compliance.setCompanyId(companyId);
             compliance.setBusinessUnitId(businessUnitId);
-            compliance.setUserId(userId);
-//            compliance.setTeamId(teamMemberId);
+            compliance.setCreatedBy(userId);
 
+            // Save compliance entity
             complianceRepository.save(compliance);
 
-            ComplianceResponse response = new ComplianceResponse();
-            response.setId(compliance.getId());
-            response.setName(compliance.getName());
-            response.setDescription(compliance.getDescription());
-            response.setApprovalState(compliance.getApprovalState());
-            response.setApplicableZone(compliance.getApplicableZone());
-            response.setCreatedAt(compliance.getCreatedAt());
-            response.setUpdatedAt(compliance.getUpdatedAt());
-            response.setEnable(compliance.isEnable());
-            response.setStartDate(compliance.getStartDate());
-            response.setDueDate(compliance.getDueDate());
-            response.setCompletedDate(compliance.getCompletedDate());
-            response.setDuration(compliance.getDuration());
-            response.setWorkStatus(compliance.getWorkStatus());
-            response.setPriority(compliance.getPriority());
-            response.setCompanyId(companyId);
-            response.setBusinessUnitId(businessUnitId);
-            response.setUserId(userId);
-//            response.setTeamMemberId(teamMemberId);
+            // Check if data got saved successfully
+            if (compliance.getId() == null) {
+                // Data not saved, handle the scenario accordingly
+                throw new RuntimeException("Failed to save compliance. Database save operation did not return a valid ID.");
+            }
 
+            // Create and return ComplianceResponse
+            ComplianceResponse response = createComplianceResponse(compliance, companyId, businessUnitId, userId);
 
             return response;
+
+
         } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to save compliance");
         }
-        return null;
+    }
+
+    private ComplianceResponse createComplianceResponse(Compliance compliance, Long companyId, Long businessUnitId, Long userId) {
+        ComplianceResponse response = new ComplianceResponse();
+        response.setId(compliance.getId());
+        response.setName(compliance.getName());
+        response.setDescription(compliance.getDescription());
+        response.setApprovalState(compliance.getApprovalState());
+        response.setApplicableZone(compliance.getApplicableZone());
+        response.setCreatedAt(compliance.getCreatedAt());
+        response.setUpdatedAt(compliance.getUpdatedAt());
+        response.setEnable(compliance.isEnable());
+        response.setStartDate(compliance.getStartDate());
+        response.setDueDate(compliance.getDueDate());
+        response.setCompletedDate(compliance.getCompletedDate());
+        response.setDuration(compliance.getDuration());
+        response.setWorkStatus(compliance.getWorkStatus());
+        response.setPriority(compliance.getPriority());
+        response.setCompanyId(companyId);
+        response.setBusinessUnitId(businessUnitId);
+        response.setCreatedBy(userId);
+        return response;
     }
 
     @Override

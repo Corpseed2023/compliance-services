@@ -17,7 +17,7 @@ public class ComplianceResponse {
 
 	private Long id;
 
-	private Long userId;
+	private Long createdBy;
 	
 	private String name;
 	

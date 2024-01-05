@@ -72,6 +72,9 @@ public class ComplianceTask {
 	@Column(name = "assignee_id")
 	private Long assigneeUserId;
 
+	@Column(name = "assignee_mail")
+	private String assigneeMail;
+
 	private String criticality;
 
 	private Long companyId;

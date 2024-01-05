@@ -24,8 +24,8 @@ public class Compliance {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "user_id")
-	private Long userId;
+	@Column(name = "created_by")
+	private Long createdBy;
 
 	@Column(name = "compliance_name")
 	private String name;
