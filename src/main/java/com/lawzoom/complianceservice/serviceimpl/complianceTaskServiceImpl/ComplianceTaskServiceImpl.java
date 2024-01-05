@@ -30,7 +30,6 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
     @Autowired
     private  ComplianceTaskRepository complianceTaskRepository;
 
-
     @Override
     public ComplianceTaskResponse saveTask(ComplianceTaskRequest taskRequest, Long complianceId,
                                            Long companyId, Long businessUnitId) {
