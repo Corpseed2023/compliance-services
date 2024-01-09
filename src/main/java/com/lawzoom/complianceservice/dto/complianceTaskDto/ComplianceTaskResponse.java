@@ -67,4 +67,7 @@ public class ComplianceTaskResponse {
 
 	private Long businessActivityId;
 
+	private Long userId;
+
+
 }

@@ -34,6 +34,14 @@ public class ComplianceTaskController {
         return this.complianceTaskService.getAllTaskByComplianceId(complianceId);
     }
 
+    @GetMapping("/getAssigneeTasks")
+    public List<ComplianceTaskResponse> getAssigneeAllTasks(@RequestParam("userId") Long userId)
+    {
+
+        return this.complianceTaskService.getAssigneeAllTasks(userId);
+
+    }
+
 
 
     @PutMapping("/update")

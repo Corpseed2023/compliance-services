@@ -7,16 +7,11 @@ import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
 import com.lawzoom.complianceservice.repository.ComplianceRepo;
 import com.lawzoom.complianceservice.repository.ComplianceTaskRepository;
 import com.lawzoom.complianceservice.response.ResponseEntity;
-
 import com.lawzoom.complianceservice.services.complianceTaskService.ComplianceTaskService;
-import com.lawzoom.complianceservice.utility.CommonUtil;
-//import com.lawzoom.complianceservice.utility.ResponseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,8 +28,10 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
     @Override
     public ComplianceTaskResponse saveTask(ComplianceTaskRequest taskRequest, Long complianceId,
                                            Long companyId, Long businessUnitId) {
-        validateRequestParameters(complianceId);
 
+        if (complianceId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Compliance ID cannot be null");
+        }
         Optional<Compliance> complianceData = complianceRepo.findById(complianceId);
 
         ComplianceTask savedTask = complianceData.map(compliance ->
@@ -44,13 +41,6 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         return mapEntityToResponse(savedTask);
     }
 
-    private void validateRequestParameters(Long complianceId) {
-        if (complianceId == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Compliance ID cannot be null");
-        }
-    }
-
-    // Helper method to map request DTO to entity
     private ComplianceTask mapRequestToEntity(ComplianceTaskRequest request, Compliance compliance ,
                                               Long businessUnitId , Long companyId) {
         ComplianceTask task = new ComplianceTask();
@@ -72,10 +62,8 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         task.setEnable(request.isEnable());
         task.setCompanyId(companyId);
         task.setBusinessUnitId(businessUnitId);
-//        task.setCompanyId(request.getCompanyId());
-//        task.setBusinessUnitId(request.getBusinessUnitId());
-//        task.setBusinessActivityId(request.getBusinessActivityId());
         task.setCompliance(compliance);
+        task.setUserId(request.getUserId());
 
         return task;
     }
@@ -102,6 +90,7 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         response.setCompanyId(task.getCompanyId());
         response.setBusinessUnitId(task.getBusinessUnitId());
         response.setBusinessActivityId(task.getBusinessActivityId());
+        response.setUserId(task.getUserId());
 
         // Set other fields as needed
 
@@ -183,5 +172,12 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         response.setBusinessActivityId(complianceTask.getBusinessActivityId());
 
         return response;
+    }
+
+    @Override
+    public List<ComplianceTaskResponse> getAssigneeAllTasks(Long userId) {
+
+
+        return null;
     }
 }

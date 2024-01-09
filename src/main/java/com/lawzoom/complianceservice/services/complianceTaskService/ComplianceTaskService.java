@@ -23,4 +23,5 @@ public interface ComplianceTaskService {
     List<ComplianceTaskResponse> getAllTaskByComplianceId(Long complianceId);
 
 
+    List<ComplianceTaskResponse> getAssigneeAllTasks(Long userId);
 }

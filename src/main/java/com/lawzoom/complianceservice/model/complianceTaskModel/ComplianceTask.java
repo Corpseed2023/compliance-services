@@ -83,6 +83,8 @@ public class ComplianceTask {
 
 	private Long businessActivityId;
 
+	private Long userId;
+
 	@ManyToOne(targetEntity = Compliance.class,fetch = FetchType.LAZY)
 	@JoinColumn(name = "compliance_id",nullable = false)
 	private Compliance compliance;
