@@ -93,8 +93,6 @@ public class ComplianceTask {
 	private List<ComplianceSubTask> complianceSubTasks=new ArrayList<>();
 
 
-
-
 //	@OneToMany(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true)
 //	private List<TaskAction> taskActionList=new ArrayList<>();
 

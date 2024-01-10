@@ -139,6 +139,8 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         // Assuming you have a method in the repository to get tasks by complianceId
         List<ComplianceTask> complianceTasks = complianceTaskRepository.findByComplianceId(complianceId);
 
+
+
         // Map the ComplianceTask entities to ComplianceTaskResponse DTOs
         List<ComplianceTaskResponse> taskResponses = complianceTasks.stream()
                 .map(this::mapToResponseDto)
