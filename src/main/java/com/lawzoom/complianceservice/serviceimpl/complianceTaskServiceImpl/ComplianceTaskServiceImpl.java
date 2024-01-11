@@ -1,7 +1,9 @@
 package com.lawzoom.complianceservice.serviceimpl.complianceTaskServiceImpl;
 
+import com.lawzoom.complianceservice.dto.companyResponseDto.CompanyResponse;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskResponse;
+import com.lawzoom.complianceservice.feignClient.CompanyFeignClient;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
 import com.lawzoom.complianceservice.repository.ComplianceRepo;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -24,6 +27,9 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
 
     @Autowired
     private  ComplianceTaskRepository complianceTaskRepository;
+
+    @Autowired
+    private CompanyFeignClient companyFeignClient;
 
     @Override
     public ComplianceTaskResponse saveTask(ComplianceTaskRequest taskRequest, Long complianceId,
@@ -177,7 +183,15 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
     }
 
     @Override
-    public List<ComplianceTaskResponse> getAssigneeAllTasks(Long userId) {
+    public List<Map<String, List<String>>> getAssigneeAllTasks(Long userId) {
+
+        ComplianceTask complianceTaskData= complianceTaskRepository.findByUserId();
+
+        Long companyId = complianceTaskData.getCompanyId();
+
+        CompanyResponse companyDetails = companyFeignClient.getCompanyData(companyId);
+
+
 
 
         return null;

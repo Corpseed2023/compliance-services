@@ -1,14 +1,12 @@
 package com.lawzoom.complianceservice.dto.companyResponseDto;
 
-import jakarta.persistence.Column;
+
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import lombok.*;
-import org.hibernate.annotations.Comment;
-
-import java.time.LocalDate;
+import org.springframework.format.annotation.DateTimeFormat;
 import java.util.Date;
-import java.util.List;
+
 
 @Data
 @Getter
@@ -20,9 +18,19 @@ public class CompanyResponse {
 
     private Long companyId;
 
+    private Long userId;
+
     private String companyType;
 
     private String companyName;
+
+    private String firstName;
+
+    private String lastName;
+
+    private String businessEmailId;
+
+    private String designation;
 
     private String companyState;
 
@@ -30,12 +38,11 @@ public class CompanyResponse {
 
     private String companyRegistrationNumber;
 
+    @DateTimeFormat(pattern="yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
-    private LocalDate companyRegistrationDate;
+    private Date companyRegistrationDate;
 
     private String companyCINNumber;
-
-    private String companyActiveStatus;
 
     private String companyRemarks;
 
@@ -43,27 +50,25 @@ public class CompanyResponse {
 
     private String companyAddress;
 
-    private Long companyTurnover;
+    private long companyTurnover;
 
     private String locatedAt;
 
-    private String businessActivity;
+    private String businessActivityName;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date updatedAt;
+
+    private boolean isEnable;
 
     private int permanentEmployee;
 
     private int contractEmployee;
 
-    private List<Integer> gstListId;
+    private String gstNumber;
 
-    @Column(name = "created_at",insertable = false,updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
-
-    @Column(name = "updated_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
-
-    @Column(length = 1,name="is_enable",columnDefinition = "tinyint(1) default 1")
-    @Comment(value = "1 : Active, 0 : Inactive")
-    private boolean isEnable;
+    private String operationUnitAddress;
 }

@@ -13,4 +13,6 @@ public interface AuthenticationFeignClient {
 
     @GetMapping("/api/auth/user/getUserId")
     UserRequest getUserId(@RequestParam Long userId);
+
+
 }

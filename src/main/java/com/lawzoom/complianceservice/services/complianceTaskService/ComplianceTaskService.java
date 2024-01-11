@@ -5,6 +5,7 @@ import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskRespons
 import com.lawzoom.complianceservice.response.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ComplianceTaskService {
 
@@ -23,5 +24,5 @@ public interface ComplianceTaskService {
     List<ComplianceTaskResponse> getAllTaskByComplianceId(Long complianceId);
 
 
-    List<ComplianceTaskResponse> getAssigneeAllTasks(Long userId);
+    List<Map<String, List<String>>> getAssigneeAllTasks(Long userId);
 }

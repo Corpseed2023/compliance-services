@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 //@RequestMapping("/compliance/task/{complianceId}")
@@ -34,15 +35,14 @@ public class ComplianceTaskController {
         return this.complianceTaskService.getAllTaskByComplianceId(complianceId);
     }
 
+
     @GetMapping("/getAssigneeTasks")
-    public List<ComplianceTaskResponse> getAssigneeAllTasks(@RequestParam("userId") Long userId)
-    {
+    public List<Map<String, List<String>>> getAssigneeAllTasks(@RequestParam("userId") Long userId) {
 
-        return this.complianceTaskService.getAssigneeAllTasks(userId);
+        List<Map<String, List<String>>> taskData = complianceTaskService.getAssigneeAllTasks(userId);
 
+        return taskData;
     }
-
-
 
     @PutMapping("/update")
     public ResponseEntity updateTask(@RequestBody ComplianceTaskRequest taskRequest,@RequestParam("complianceId") Long complianceId){
