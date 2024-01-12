@@ -1,5 +1,6 @@
 package com.lawzoom.complianceservice.serviceimpl.complianceTaskServiceImpl;
 
+import com.lawzoom.complianceservice.dto.businessUnitDto.BusinessUnitResponse;
 import com.lawzoom.complianceservice.dto.companyResponseDto.CompanyResponse;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskResponse;
@@ -9,14 +10,14 @@ import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
 import com.lawzoom.complianceservice.repository.ComplianceRepo;
 import com.lawzoom.complianceservice.repository.ComplianceTaskRepository;
 import com.lawzoom.complianceservice.response.ResponseEntity;
+import com.lawzoom.complianceservice.services.complianceService.ComplianceService;
 import com.lawzoom.complianceservice.services.complianceTaskService.ComplianceTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +31,9 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
 
     @Autowired
     private CompanyFeignClient companyFeignClient;
+
+    @Autowired
+    private ComplianceService complianceService;
 
     @Override
     public ComplianceTaskResponse saveTask(ComplianceTaskRequest taskRequest, Long complianceId,
@@ -182,18 +186,72 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         return response;
     }
 
+//    @Override
+//    public List<Map<String, List<String>>> getAssigneeAllTasks(Long userId) {
+//        List<Map<String, List<String>>> taskData = new ArrayList<>();
+//
+//        List<ComplianceTask> complianceTasks = complianceTaskRepository.findByUserId(userId);
+//
+//        for (ComplianceTask complianceTaskData : complianceTasks) {
+//            System.out.println(complianceTaskData.getTaskName());
+//
+//            Long companyId = complianceTaskData.getCompanyId();
+//
+//            CompanyResponse companyDetails = companyFeignClient.getCompanyData(companyId);
+//
+//            Long businessUnitId = complianceTaskData.getBusinessUnitId();
+//
+//
+//            BusinessUnitResponse businessUnitResponseDetails = companyFeignClient.getBusinessUnitDetails(businessUnitId);
+//
+//            // Construct your task data map here
+//            Map<String, List<String>> taskMap = new HashMap<>();
+//            taskMap.put("taskName", Collections.singletonList(complianceTaskData.getTaskName()));
+//            // Add more task attributes as needed
+//
+//            taskData.add(taskMap);
+//        }
+//
+//        return taskData;
+//    }
+
+
+
     @Override
-    public List<Map<String, List<String>>> getAssigneeAllTasks(Long userId) {
+    public List<Map<String, Object>> getCompanyTasks(Long companyId) {
+        List<Map<String, Object>> companyTaskData = new ArrayList<>();
 
-        ComplianceTask complianceTaskData= complianceTaskRepository.findByUserId();
-
-        Long companyId = complianceTaskData.getCompanyId();
-
+        // Fetch company details
         CompanyResponse companyDetails = companyFeignClient.getCompanyData(companyId);
 
+        // Fetch business units for the company
+        List<BusinessUnitResponse> businessUnits = companyFeignClient.getBusinessUnitDetails(companyId);
+
+        for (BusinessUnitResponse businessUnit : businessUnits) {
+            // Fetch compliances for each business unit
+            List<Compliance> compliances = complianceService.getCompliancesByBusinessUnitId(businessUnit.getId());
+
+            for (Compliance compliance : compliances) {
+                // Fetch tasks for each compliance
+                List<ComplianceTask> tasks = complianceTaskRepository.findByComplianceId(compliance.getId());
 
 
+                for (ComplianceTask task : tasks) {
+                    // Construct your task data map here
+                    Map<String, Object> taskMap = new HashMap<>();
+                    taskMap.put("companyName", companyDetails.getCompanyName());
+                    taskMap.put("businessUnit", businessUnit.getAddress());
+                    taskMap.put("complianceName", compliance.getName());
+                    taskMap.put("taskId", task.getId());
+                    taskMap.put("taskName", task.getTaskName());
+                    taskMap.put("description", task.getDescription());
+                    // Add more task attributes as needed
 
-        return null;
+                    companyTaskData.add(taskMap);
+                }
+            }
+        }
+
+        return companyTaskData;
     }
 }

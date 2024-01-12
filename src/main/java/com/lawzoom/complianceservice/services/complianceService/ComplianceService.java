@@ -56,4 +56,6 @@ public interface ComplianceService {
     Map<Long, Integer> getComplianceCount();
 
     Map<Long, Map<Long, Integer>> getComplianceCountsByCompanyAndBusinessUnit();
+
+    List<Compliance> getCompliancesByBusinessUnitId(Long id);
 }

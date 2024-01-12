@@ -36,12 +36,9 @@ public class ComplianceTaskController {
     }
 
 
-    @GetMapping("/getAssigneeTasks")
-    public List<Map<String, List<String>>> getAssigneeAllTasks(@RequestParam("userId") Long userId) {
-
-        List<Map<String, List<String>>> taskData = complianceTaskService.getAssigneeAllTasks(userId);
-
-        return taskData;
+    @GetMapping("/getCompanyTasks")
+    public List<Map<String, Object>> getCompanyTasks(@RequestParam("companyId") Long companyId) {
+        return complianceTaskService.getCompanyTasks(companyId);
     }
 
     @PutMapping("/update")

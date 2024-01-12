@@ -14,10 +14,10 @@ import java.util.List;
 @Service
 public interface CompanyFeignClient {
 
-    @GetMapping("/companyServices/company/getCompanyDetails")
+    @GetMapping("/companyServices/company/getCompanyDataForTasks")
     CompanyResponse getCompanyData(@RequestParam Long companyId);
 
-    @GetMapping("/companyServices/business-unit/getBusinessUnitdetails")
+    @GetMapping("/companyServices/business-unit/getBusinessUnit detailsForTasks")
     List<BusinessUnitResponse> getBusinessUnitDetails(@RequestParam Long businessUnitId);
 
 }

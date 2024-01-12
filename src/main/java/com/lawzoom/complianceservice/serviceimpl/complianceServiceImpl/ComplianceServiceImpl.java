@@ -539,4 +539,9 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         return result;
     }
+
+    @Override
+    public List<Compliance> getCompliancesByBusinessUnitId(Long id) {
+        return null;
+    }
 }
