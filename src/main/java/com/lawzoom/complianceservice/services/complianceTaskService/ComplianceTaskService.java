@@ -26,5 +26,5 @@ public interface ComplianceTaskService {
 
 //    List<Map<String, List<String>>> getAssigneeAllTasks(Long userId);
 
-    List<Map<String, Object>> getCompanyTasks(Long companyId);
+    List<Map<String, Object>> getCompanyTasks(Long userId);
 }

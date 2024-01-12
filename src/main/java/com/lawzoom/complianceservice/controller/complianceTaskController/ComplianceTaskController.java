@@ -37,8 +37,8 @@ public class ComplianceTaskController {
 
 
     @GetMapping("/getCompanyTasks")
-    public List<Map<String, Object>> getCompanyTasks(@RequestParam("companyId") Long companyId) {
-        return complianceTaskService.getCompanyTasks(companyId);
+    public List<Map<String, Object>> getCompanyTasks(@RequestParam("userId") Long userId) {
+        return complianceTaskService.getCompanyTasks(userId);
     }
 
     @PutMapping("/update")

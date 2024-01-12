@@ -215,43 +215,64 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
 //        return taskData;
 //    }
 
-
-
     @Override
-    public List<Map<String, Object>> getCompanyTasks(Long companyId) {
+    public List<Map<String, Object>> getCompanyTasks(Long userId) {
         List<Map<String, Object>> companyTaskData = new ArrayList<>();
 
-        // Fetch company details
-        CompanyResponse companyDetails = companyFeignClient.getCompanyData(companyId);
+        List<ComplianceTask> complianceTaskList = complianceTaskRepository.findByUserId(userId);
 
-        // Fetch business units for the company
-        List<BusinessUnitResponse> businessUnits = companyFeignClient.getBusinessUnitDetails(companyId);
+        // Check if complianceTaskList is not empty before proceeding
+        if (!complianceTaskList.isEmpty()) {
+            // Fetch company details using Feign client
+            CompanyResponse companyDetails = companyFeignClient.getCompanyData(complianceTaskList.get(0).getCompanyId());
 
-        for (BusinessUnitResponse businessUnit : businessUnits) {
-            // Fetch compliances for each business unit
-            List<Compliance> compliances = complianceService.getCompliancesByBusinessUnitId(businessUnit.getId());
+            // Check if companyDetails is not null before proceeding
+            if (companyDetails != null) {
+                Long companyId = companyDetails.getCompanyId();
 
-            for (Compliance compliance : compliances) {
-                // Fetch tasks for each compliance
-                List<ComplianceTask> tasks = complianceTaskRepository.findByComplianceId(compliance.getId());
+                // Fetch business units for the company using Feign client
+                List<BusinessUnitResponse> businessUnits = companyFeignClient.getAllBusinessUnits(companyId);
 
+                // Check if businessUnits is not empty before proceeding
+                if (!businessUnits.isEmpty()) {
+                    for (BusinessUnitResponse businessUnit : businessUnits) {
+                        // Fetch compliances for each business unit using Feign client
+                        List<Compliance> compliances = complianceService.getCompliancesByBusinessUnitId(businessUnit.getId());
 
-                for (ComplianceTask task : tasks) {
-                    // Construct your task data map here
-                    Map<String, Object> taskMap = new HashMap<>();
-                    taskMap.put("companyName", companyDetails.getCompanyName());
-                    taskMap.put("businessUnit", businessUnit.getAddress());
-                    taskMap.put("complianceName", compliance.getName());
-                    taskMap.put("taskId", task.getId());
-                    taskMap.put("taskName", task.getTaskName());
-                    taskMap.put("description", task.getDescription());
-                    // Add more task attributes as needed
+                        // Check if compliances is not null before proceeding
+                        if (compliances != null) {
+                            for (Compliance compliance : compliances) {
+                                // Fetch tasks for each compliance from the repository
+                                List<ComplianceTask> tasks = complianceTaskRepository.findByComplianceId(compliance.getId());
 
-                    companyTaskData.add(taskMap);
+                                // Check if tasks is not empty before proceeding
+                                if (!tasks.isEmpty()) {
+                                    for (ComplianceTask task : tasks) {
+                                        // Construct your task data map here
+                                        Map<String, Object> taskMap = new HashMap<>();
+                                        taskMap.put("companyName", companyDetails.getCompanyName());
+                                        taskMap.put("businessUnit", businessUnit.getAddress());
+                                        taskMap.put("complianceName", compliance.getName());
+                                        taskMap.put("taskId", task.getId());
+                                        taskMap.put("taskName", task.getTaskName());
+                                        taskMap.put("description", task.getDescription());
+                                        // Add more task attributes as needed
+
+                                        companyTaskData.add(taskMap);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
 
+        // Log the final result
+        System.out.println("companyTaskData: " + companyTaskData);
+
         return companyTaskData;
     }
+
+
 }
