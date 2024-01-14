@@ -1,5 +1,6 @@
 package com.lawzoom.complianceservice.services.complianceTaskService;
 
+import com.lawzoom.complianceservice.dto.TaskResponse;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskResponse;
 import com.lawzoom.complianceservice.response.ResponseEntity;
@@ -26,5 +27,5 @@ public interface ComplianceTaskService {
 
 //    List<Map<String, List<String>>> getAssigneeAllTasks(Long userId);
 
-    List<Map<String, Object>> getCompanyTasks(Long userId);
+    Map<Long, List<TaskResponse>> getCompanyTasks(Long userId);
 }

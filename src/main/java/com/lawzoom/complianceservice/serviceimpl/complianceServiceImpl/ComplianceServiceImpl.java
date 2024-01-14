@@ -542,6 +542,11 @@ public class ComplianceServiceImpl implements ComplianceService {
 
     @Override
     public List<Compliance> getCompliancesByBusinessUnitId(Long id) {
-        return null;
+
+            List<Compliance> complianceList = complianceRepository.findByBusinessUnitId(id);
+
+        return  complianceList;
+
+
     }
 }

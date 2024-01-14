@@ -1,5 +1,6 @@
 package com.lawzoom.complianceservice.controller.complianceTaskController;
 
+import com.lawzoom.complianceservice.dto.TaskResponse;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskResponse;
 import com.lawzoom.complianceservice.response.ResponseEntity;
@@ -37,7 +38,7 @@ public class ComplianceTaskController {
 
 
     @GetMapping("/getCompanyTasks")
-    public List<Map<String, Object>> getCompanyTasks(@RequestParam("userId") Long userId) {
+    public Map<Long, List<TaskResponse>> getCompanyTasks(@RequestParam("userId") Long userId) {
         return complianceTaskService.getCompanyTasks(userId);
     }
 

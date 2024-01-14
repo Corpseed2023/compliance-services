@@ -19,5 +19,9 @@ public interface CompanyFeignClient {
 
     @GetMapping("/companyServices/business-unit/getAllBusinessUnits")
     List<BusinessUnitResponse> getAllBusinessUnits(@RequestParam Long companyId);
+    @GetMapping("/companyServices/business-unit/fetchBusinessData")
+    BusinessUnitResponse getBusinessUnitById(@RequestParam Long businessUnitId);
+
+
 
 }
