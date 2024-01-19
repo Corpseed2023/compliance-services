@@ -2,6 +2,7 @@ package com.lawzoom.complianceservice.model.complianceTaskModel;
 
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.complianceSubTaskModel.ComplianceSubTask;
+import com.lawzoom.complianceservice.model.documentModel.Document;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -92,15 +93,14 @@ public class ComplianceTask {
 	@OneToMany(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true)
 	private List<ComplianceSubTask> complianceSubTasks=new ArrayList<>();
 
+	@OneToMany(mappedBy = "complianceTask", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Document> complianceDocuments = new ArrayList<>();
+
+
 
 //	@OneToMany(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true)
 //	private List<TaskAction> taskActionList=new ArrayList<>();
 
-//	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
-//	private List<Document> complianceDocuments=new ArrayList<>();
-
-//	@OneToMany(mappedBy = "complianceTask", cascade = CascadeType.ALL, orphanRemoval = true)
-//	private List<Document> complianceDocuments = new ArrayList<>();
 
 
 //	@OneToOne(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
