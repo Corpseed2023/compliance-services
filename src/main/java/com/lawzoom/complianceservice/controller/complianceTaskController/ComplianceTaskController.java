@@ -36,7 +36,6 @@ public class ComplianceTaskController {
         return this.complianceTaskService.getAllTaskByComplianceId(complianceId);
     }
 
-
     @GetMapping("/getCompanyTasks")
     public Map<Long, List<TaskResponse>> getCompanyTasks(@RequestParam("userId") Long userId) {
         return complianceTaskService.getCompanyTasks(userId);
