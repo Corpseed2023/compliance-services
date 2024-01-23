@@ -1,4 +1,4 @@
-package com.lawzoom.complianceservice.controller.reminderController;
+package com.lawzoom.complianceservice.controller;
 
 import com.lawzoom.complianceservice.dto.documentDto.DocumentRequest;
 import com.lawzoom.complianceservice.services.DocumentService;

@@ -24,10 +24,11 @@ public class ComplianceTaskController {
     public ComplianceTaskResponse saveTask(@RequestBody ComplianceTaskRequest taskRequest,
                                            @RequestParam("complianceId") Long complianceId,
                                            @RequestParam("company_Id") Long companyId,
-                                           @RequestParam("businessUnit_ID") Long businessUnitId)
+                                           @RequestParam("businessUnit_ID") Long businessUnitId,
+                                           @RequestParam("task_Created_By") Long taskCreatedBy)
 
     {
-        return this.complianceTaskService.saveTask(taskRequest,complianceId,companyId,businessUnitId);
+        return this.complianceTaskService.saveTask(taskRequest,complianceId,companyId,businessUnitId,taskCreatedBy);
     }
 
 
@@ -54,5 +55,12 @@ public class ComplianceTaskController {
     @DeleteMapping("/taskId")
     public ResponseEntity deleteTaskById(@RequestParam("complianceId") Long complianceId,@RequestParam("taskId") Long taskId){
         return this.complianceTaskService.deleteTaskById(complianceId,taskId);
+    }
+
+    @PutMapping("/assignTask")
+    public ResponseEntity assignTask(@RequestParam Long assigneeId,
+                                     @RequestParam("taskId") Long taskId,
+                                     @RequestParam Long assignedBy){
+        return this.complianceTaskService.assignTask(assigneeId,taskId,assignedBy);
     }
 }

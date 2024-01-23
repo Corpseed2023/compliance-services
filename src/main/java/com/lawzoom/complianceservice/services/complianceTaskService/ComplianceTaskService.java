@@ -20,7 +20,7 @@ public interface ComplianceTaskService {
 
 
 
-    ComplianceTaskResponse saveTask(ComplianceTaskRequest taskRequest, Long complianceId, Long companyId, Long businessUnitId);
+    ComplianceTaskResponse saveTask(ComplianceTaskRequest taskRequest, Long complianceId, Long companyId, Long businessUnitId,Long taskCreatedBy);
 
     List<ComplianceTaskResponse> getAllTaskByComplianceId(Long complianceId);
 
@@ -28,4 +28,6 @@ public interface ComplianceTaskService {
 //    List<Map<String, List<String>>> getAssigneeAllTasks(Long userId);
 
     Map<Long, List<TaskResponse>> getCompanyTasks(Long userId);
+
+    ResponseEntity assignTask(Long assigneeId, Long taskId, Long assignedBy);
 }

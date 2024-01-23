@@ -3,6 +3,7 @@ package com.lawzoom.complianceservice.model.complianceTaskModel;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.complianceSubTaskModel.ComplianceSubTask;
 import com.lawzoom.complianceservice.model.documentModel.Document;
+import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -68,13 +69,19 @@ public class ComplianceTask {
 	private Date completedDate;
 	
 	@Column(name = "reporter_id")
-	private Long reporterUserId;
+	private Long   taskReporter;
 	
 	@Column(name = "assignee_id")
-	private Long assigneeUserId;
+	private Long   assignedTo;
+
+	@Column(name = "assigned_By")
+	private Long   assignedBy ;
 
 	@Column(name = "assignee_mail")
 	private String assigneeMail;
+
+	@Column(name = "task_created_by")
+	private Long taskCreatedBy;
 
 	private String criticality;
 
@@ -96,24 +103,22 @@ public class ComplianceTask {
 	@OneToMany(mappedBy = "complianceTask", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Document> complianceDocuments = new ArrayList<>();
 
-
-
 //	@OneToMany(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true)
 //	private List<TaskAction> taskActionList=new ArrayList<>();
 
-
-
-//	@OneToOne(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
-//	private Reminder complianceReminder;
+	@OneToOne(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+	private Reminder complianceTaskReminder;
 
 //	@OneToOne(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
 //	private RenewalReminder complianceRenewal;
+
 
 	@Override
 	public String toString() {
 		return "ComplianceTask{" +
 				"id=" + id +
 				", taskName='" + taskName + '\'' +
+				", description='" + description + '\'' +
 				", timelineValue=" + timelineValue +
 				", timelineType='" + timelineType + '\'' +
 				", status='" + status + '\'' +
@@ -125,10 +130,19 @@ public class ComplianceTask {
 				", startDate=" + startDate +
 				", dueDate=" + dueDate +
 				", completedDate=" + completedDate +
-				", reporterUserId=" + reporterUserId +
-				", assigneeUserId=" + assigneeUserId +
+				", taskReporter=" + taskReporter +
+				", assignedTo=" + assignedTo +
+				", assignedBy=" + assignedBy +
+				", assigneeMail='" + assigneeMail + '\'' +
 				", criticality='" + criticality + '\'' +
+				", companyId=" + companyId +
+				", businessUnitId=" + businessUnitId +
+				", businessActivityId=" + businessActivityId +
+				", userId=" + userId +
+				", compliance=" + compliance +
 				", complianceSubTasks=" + complianceSubTasks +
+				", complianceDocuments=" + complianceDocuments +
+				", complianceTaskReminder=" + complianceTaskReminder +
 				'}';
 	}
 }

@@ -1,11 +1,11 @@
 package com.lawzoom.complianceservice.serviceimpl.complianceTaskServiceImpl;
 
 import com.lawzoom.complianceservice.dto.TaskResponse;
-import com.lawzoom.complianceservice.dto.businessUnitDto.BusinessUnitResponse;
-import com.lawzoom.complianceservice.dto.companyResponseDto.CompanyResponse;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskResponse;
-import com.lawzoom.complianceservice.feignClient.CompanyFeignClient;
+import com.lawzoom.complianceservice.dto.userDto.UserRequest;
+import com.lawzoom.complianceservice.dto.userDto.UserResponse;
+import com.lawzoom.complianceservice.feignClient.AuthenticationFeignClient;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
 import com.lawzoom.complianceservice.repository.ComplianceRepo;
@@ -30,17 +30,26 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
     @Autowired
     private  ComplianceTaskRepository complianceTaskRepository;
 
-    @Autowired
-    private CompanyFeignClient companyFeignClient;
 
     @Autowired
     private ComplianceService complianceService;
+
+    @Autowired
+    private AuthenticationFeignClient authenticationFeignClient;
 
 
 
     @Override
     public ComplianceTaskResponse saveTask(ComplianceTaskRequest taskRequest, Long complianceId,
-                                           Long companyId, Long businessUnitId) {
+                                           Long companyId, Long businessUnitId,Long taskCreatedBy) {
+
+        // Fetch user information using Feign Client
+        UserResponse userRequestData = authenticationFeignClient.getUserId(taskCreatedBy);
+        List<String> roles = userRequestData.getRoles();
+
+        if (roles == null || !(roles.contains("SUPER_ADMIN") || roles.contains("ADMIN"))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User does not have the required role");
+        }
 
         if (complianceId == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Compliance ID cannot be null");
@@ -48,14 +57,16 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         Optional<Compliance> complianceData = complianceRepo.findById(complianceId);
 
         ComplianceTask savedTask = complianceData.map(compliance ->
-                        complianceTaskRepository.save(mapRequestToEntity(taskRequest, compliance,companyId,businessUnitId)))
+                        complianceTaskRepository.save(mapRequestToEntity(taskRequest,
+                                compliance,companyId,businessUnitId,taskCreatedBy)))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Compliance not found"));
 
         return mapEntityToResponse(savedTask);
     }
 
+
     private ComplianceTask mapRequestToEntity(ComplianceTaskRequest request, Compliance compliance ,
-                                              Long businessUnitId , Long companyId) {
+                                              Long businessUnitId , Long companyId,Long taskCreatedBy) {
         ComplianceTask task = new ComplianceTask();
         task.setTaskName(request.getTaskName());
         task.setDescription(request.getDescription());
@@ -65,8 +76,7 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         task.setApprovalState(request.getApprovalState());
         task.setApplicableZone(request.getApplicableZone());
         task.setCriticality(request.getCriticality());
-        task.setReporterUserId(request.getReporterUserId());
-        task.setAssigneeUserId(request.getAssigneeUserId());
+        task.setTaskCreatedBy(taskCreatedBy);
         task.setStartDate(request.getStartDate());
         task.setDueDate(request.getDueDate());
         task.setCompletedDate(request.getCompletedDate());
@@ -92,8 +102,7 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         response.setApprovalState(task.getApprovalState());
         response.setApplicableZone(task.getApplicableZone());
         response.setCriticality(task.getCriticality());
-        response.setReporterUserId(task.getReporterUserId());
-        response.setAssigneeUserId(task.getAssigneeUserId());
+        response.setTaskCreatedBy(task.getTaskCreatedBy());
         response.setStartDate(task.getStartDate());
         response.setDueDate(task.getDueDate());
         response.setCompletedDate(task.getCompletedDate());
@@ -137,7 +146,8 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
     }
 
     @Override
-    public ResponseEntity updateTask(ComplianceTaskRequest taskRequest, Long complianceId) {
+    public ResponseEntity updateTask(ComplianceTaskRequest taskRequest, Long complianceId
+                                     ) {
         return null;
     }
 
@@ -151,8 +161,6 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
     public List<ComplianceTaskResponse> getAllTaskByComplianceId(Long complianceId) {
         // Assuming you have a method in the repository to get tasks by complianceId
         List<ComplianceTask> complianceTasks = complianceTaskRepository.findByComplianceId(complianceId);
-
-
 
         // Map the ComplianceTask entities to ComplianceTaskResponse DTOs
         List<ComplianceTaskResponse> taskResponses = complianceTasks.stream()
@@ -174,8 +182,7 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         response.setApprovalState(complianceTask.getApprovalState());
         response.setApplicableZone(complianceTask.getApplicableZone());
         response.setCriticality(complianceTask.getCriticality());
-        response.setReporterUserId(complianceTask.getReporterUserId());
-        response.setAssigneeUserId(complianceTask.getAssigneeUserId());
+
         response.setStartDate(complianceTask.getStartDate());
         response.setDueDate(complianceTask.getDueDate());
         response.setCompletedDate(complianceTask.getCompletedDate());
@@ -313,14 +320,35 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         for(ComplianceTask complianceTask : complianceTaskList){
             TaskResponse taskResponse = new TaskResponse();
             taskResponse.setTaskName(complianceTask.getTaskName());
-            CompanyResponse companyDetails = companyFeignClient.getCompanyData(complianceTask.getCompanyId());
-            taskResponse.setCompanyName(companyDetails.getCompanyName());
-            Long businessUnitId = complianceTask.getBusinessUnitId();
-            BusinessUnitResponse businessUnitResponse = companyFeignClient.getBusinessUnitById(businessUnitId);
-            taskResponse.setBusinessAddress(businessUnitResponse.getAddress());
+//            CompanyResponse companyDetails = companyFeignClient.getCompanyData(complianceTask.getCompanyId());
+//            taskResponse.setCompanyName(companyDetails.getCompanyName());
+//            Long businessUnitId = complianceTask.getBusinessUnitId();
+//            BusinessUnitResponse businessUnitResponse = companyFeignClient.getBusinessUnitById(businessUnitId);
+//            taskResponse.setBusinessAddress(businessUnitResponse.getAddress());
             resp.add(taskResponse);
         }
         return resp;
+    }
+
+
+    public ResponseEntity assignTask(Long assigneeId, Long taskId, Long assignedBy) {
+        // Retrieve the ComplianceTask by ID
+        ComplianceTask complianceTaskData = complianceTaskRepository.findComplianceTaskById(taskId);
+
+        if (complianceTaskData == null) {
+            // Task not found
+            return new ResponseEntity().notFound().build();
+        }
+
+        // Update assignee and assignedBy
+        complianceTaskData.setAssignedTo(assigneeId);
+        complianceTaskData.setAssignedBy(assignedBy);
+
+        // Save the updated task
+        ComplianceTask updatedTask = complianceTaskRepository.save(complianceTaskData);
+
+        // You can return the updated task or any other response as needed
+        return new ResponseEntity().ok("Task assigned successfully");
     }
 
 

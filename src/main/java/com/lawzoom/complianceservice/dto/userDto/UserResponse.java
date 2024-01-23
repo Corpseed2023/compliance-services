@@ -3,6 +3,7 @@ package com.lawzoom.complianceservice.dto.userDto;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -35,6 +36,8 @@ public class UserResponse {
 	private boolean isAssociated;
 
 	private Long userId;
+
+	private List<String> roles;
 
 
 }

@@ -47,10 +47,16 @@ public class ComplianceTaskRequest {
 
 	@JsonFormat(pattern="yyyy-MM-dd")
 	private Date completedDate;
-	
-	private Long reporterUserId;
-	
-	private Long assigneeUserId;
+
+	private Long   taskReporter;
+
+	private Long   assignedTo;
+
+	private Long   assignedBy ;
+
+	private String assigneeMail;
+
+	private Long taskCreatedBy;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")

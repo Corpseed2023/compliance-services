@@ -39,9 +39,16 @@ public class ComplianceTaskResponse {
 
 	private String criticality;
 
-	private Long reporterUserId;
+	private Long   taskCreatedBy;
 
-	private Long assigneeUserId;
+	private Long   taskReporter;
+
+	private Long   assignedTo;
+
+	private Long   assignedBy ;
+
+	private String assigneeMail;
+
 
 	@DateTimeFormat(pattern="yyyy/MM/dd")
 	private Date startDate;

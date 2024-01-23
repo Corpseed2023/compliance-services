@@ -3,6 +3,7 @@ package com.lawzoom.complianceservice.serviceimpl.complianceServiceImpl;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
 import com.lawzoom.complianceservice.dto.userDto.UserRequest;
+import com.lawzoom.complianceservice.dto.userDto.UserResponse;
 import com.lawzoom.complianceservice.feignClient.AuthenticationFeignClient;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.repository.ComplianceRepo;
@@ -207,7 +208,7 @@ public class ComplianceServiceImpl implements ComplianceService {
             throw new IllegalArgumentException("Please provide companyId and businessUnitId");
         }
 
-        UserRequest userData = authenticationFeignClient.getUserId(userId);
+        UserResponse userData = authenticationFeignClient.getUserId(userId);
 
         if (userData == null || StringUtils.isBlank(userData.getEmail())) {
             throw new IllegalArgumentException("Invalid user data. Cannot create compliance.");
