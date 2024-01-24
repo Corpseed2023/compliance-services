@@ -59,8 +59,10 @@ public class ComplianceTaskController {
 
     @PutMapping("/assignTask")
     public ResponseEntity assignTask(@RequestParam Long assigneeId,
-                                     @RequestParam("taskId") Long taskId,
+                                     @RequestParam List<Long> taskId,
                                      @RequestParam Long assignedBy){
         return this.complianceTaskService.assignTask(assigneeId,taskId,assignedBy);
     }
+
+
 }

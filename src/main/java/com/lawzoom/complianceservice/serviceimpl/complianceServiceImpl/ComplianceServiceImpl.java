@@ -214,6 +214,12 @@ public class ComplianceServiceImpl implements ComplianceService {
             throw new IllegalArgumentException("Invalid user data. Cannot create compliance.");
         }
 
+        // Check if the user has the role of SUPER_ADMIN or ADMIN
+        List<String> userRoles = userData.getRoles();
+        if (!userRoles.contains("SUPER_ADMIN") && !userRoles.contains("ADMIN")) {
+            throw new IllegalArgumentException("User must have SUPER_ADMIN or ADMIN role to create compliance.");
+        }
+
         try {
             Compliance compliance = new Compliance();
 
@@ -243,6 +249,9 @@ public class ComplianceServiceImpl implements ComplianceService {
                 // Data not saved, handle the scenario accordingly
                 throw new RuntimeException("Failed to save compliance. Database save operation did not return a valid ID.");
             }
+
+
+
 
             // Create and return ComplianceResponse
             ComplianceResponse response = createComplianceResponse(compliance, companyId, businessUnitId, userId);

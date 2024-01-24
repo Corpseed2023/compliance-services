@@ -29,5 +29,5 @@ public interface ComplianceTaskService {
 
     Map<Long, List<TaskResponse>> getCompanyTasks(Long userId);
 
-    ResponseEntity assignTask(Long assigneeId, Long taskId, Long assignedBy);
+    ResponseEntity assignTask(Long assigneeId, List<Long> taskId, Long assignedBy);
 }

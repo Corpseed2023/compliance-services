@@ -71,7 +71,7 @@ public class ComplianceTask {
 	@Column(name = "reporter_id")
 	private Long   taskReporter;
 	
-	@Column(name = "assignee_id")
+	@Column(name = "assignee_to")
 	private Long   assignedTo;
 
 	@Column(name = "assigned_By")
