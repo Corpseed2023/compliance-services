@@ -28,7 +28,7 @@ public class Compliance {
 	private Long createdBy;
 
 	@Column(name = "compliance_name")
-	private String name;
+	private String complianceName;
 
 	@Column(columnDefinition = "TEXT")
 	private String description;

@@ -12,7 +12,6 @@ import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
 import com.lawzoom.complianceservice.repository.ComplianceRepo;
 import com.lawzoom.complianceservice.repository.ComplianceTaskRepository;
 import com.lawzoom.complianceservice.response.ResponseEntity;
-import com.lawzoom.complianceservice.services.complianceService.ComplianceService;
 import com.lawzoom.complianceservice.services.complianceTaskService.ComplianceTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,9 +30,6 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
     @Autowired
     private  ComplianceTaskRepository complianceTaskRepository;
 
-
-    @Autowired
-    private ComplianceService complianceService;
 
     @Autowired
     private AuthenticationFeignClient authenticationFeignClient;
@@ -65,7 +61,6 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         return mapEntityToResponse(savedTask);
     }
 
-
     private ComplianceTask mapRequestToEntity(ComplianceTaskRequest request, Compliance compliance ,
                                               Long businessUnitId , Long companyId,Long taskCreatedBy) {
         ComplianceTask task = new ComplianceTask();
@@ -87,7 +82,6 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         task.setCompanyId(companyId);
         task.setBusinessUnitId(businessUnitId);
         task.setCompliance(compliance);
-        task.setUserId(request.getUserId());
 
         return task;
     }
@@ -115,7 +109,6 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         response.setBusinessActivityId(task.getBusinessActivityId());
         response.setUserId(task.getUserId());
 
-        // Set other fields as needed
 
         return response;
     }
@@ -197,65 +190,57 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         return response;
     }
 
-//    @Override
-//    public List<Map<String, List<String>>> getAssigneeAllTasks(Long userId) {
-//        List<Map<String, List<String>>> taskData = new ArrayList<>();
-//
-//        List<ComplianceTask> complianceTasks = complianceTaskRepository.findByUserId(userId);
-//
-//        for (ComplianceTask complianceTaskData : complianceTasks) {
-//            System.out.println(complianceTaskData.getTaskName());
-//
-//            Long companyId = complianceTaskData.getCompanyId();
-//
-//            CompanyResponse companyDetails = companyFeignClient.getCompanyData(companyId);
-//
-//            Long businessUnitId = complianceTaskData.getBusinessUnitId();
-//
-//
-//            BusinessUnitResponse businessUnitResponseDetails = companyFeignClient.getBusinessUnitDetails(businessUnitId);
-//
-//            // Construct your task data map here
-//            Map<String, List<String>> taskMap = new HashMap<>();
-//            taskMap.put("taskName", Collections.singletonList(complianceTaskData.getTaskName()));
-//            // Add more task attributes as needed
-//
-//            taskData.add(taskMap);
-//        }
-//
-//        return taskData;
-//    }
-
     @Override
     public Map<Long, List<TaskResponse>> getCompanyTasks(Long userId) {
-        List<Map<String, Object>> companyTaskData = new ArrayList<>();
-        List<TaskResponse> taskResponseList = new ArrayList<>();
+        // Fetch user information using Feign Client
+        UserResponse userRequestData = authenticationFeignClient.getUserId(userId);
+        List<String> roles = userRequestData.getRoles();
 
-        Map<Long,List<TaskResponse>> responseMap = new HashMap<>();
+        Map<Long, List<TaskResponse>> responseMap = new HashMap<>();
 
+        if (roles == null || !(roles.contains("SUPER_ADMIN") || roles.contains("ADMIN"))) {
+            // User is not SUPER_ADMIN or ADMIN, fetch tasks assigned to the user
+            List<ComplianceTask> complianceTaskList = complianceTaskRepository.findByAssignedTo(userId);
+            List<TaskResponse> taskResponses = getResponseMap(complianceTaskList);
+            responseMap.put(userId, taskResponses);
+        } else {
+            // User is SUPER_ADMIN or ADMIN, fetch all tasks
+            List<ComplianceTask> complianceTaskList = complianceTaskRepository.findAll();
+            List<TaskResponse> taskResponses = getResponseMap(complianceTaskList);
+            responseMap.put(userId, taskResponses);
+        }
 
-        List<ComplianceTask> complianceTaskList = complianceTaskRepository.findByUserId(userId);
-
-        List<TaskResponse> taskResponses = getResponseMap(complianceTaskList);
-        responseMap.put(userId,taskResponses);
         return responseMap;
-
-
     }
 
     private List<TaskResponse> getResponseMap(List<ComplianceTask> complianceTaskList) {
         List<TaskResponse> resp = new ArrayList<>();
 
-        for(ComplianceTask complianceTask : complianceTaskList){
+        for (ComplianceTask complianceTask : complianceTaskList) {
             TaskResponse taskResponse = new TaskResponse();
+            taskResponse.setTaskId(complianceTask.getId());
             taskResponse.setTaskName(complianceTask.getTaskName());
+
+
             CompanyResponse companyDetails = authenticationFeignClient.getCompanyData(complianceTask.getCompanyId());
+            System.out.println(companyDetails);
+            taskResponse.setCompanyId(companyDetails.getCompanyId());
             taskResponse.setCompanyName(companyDetails.getCompanyName());
+
+            Optional<Compliance> complianceData = complianceRepo.findById(complianceTask.getCompliance().getId());
+
+            taskResponse.setComplianceId(complianceData.get().getId());
+            taskResponse.setComplianceName(complianceData.get().getComplianceName());
+
+
             Long businessUnitId = complianceTask.getBusinessUnitId();
             BusinessUnitResponse businessUnitResponse = authenticationFeignClient.getBusinessUnitById(businessUnitId);
             taskResponse.setBusinessAddress(businessUnitResponse.getAddress());
+            taskResponse.setBusinessId(businessUnitResponse.getId());
+            taskResponse.setTaskDescription(complianceTask.getDescription());
             resp.add(taskResponse);
         }
+
         return resp;
     }
 
