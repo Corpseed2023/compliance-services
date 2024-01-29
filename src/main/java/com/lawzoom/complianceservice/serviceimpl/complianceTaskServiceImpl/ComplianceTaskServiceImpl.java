@@ -131,7 +131,7 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         try {
 
             this.complianceTaskRepository.delete(complianceTask);
-            return ResponseEntity.ok().build();
+            return new ResponseEntity().ok("Deleted");
         } catch (Exception e) {
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete compliance task");
             return new ResponseEntity().internalServerError().badRequest("Failed to delete compliance task");

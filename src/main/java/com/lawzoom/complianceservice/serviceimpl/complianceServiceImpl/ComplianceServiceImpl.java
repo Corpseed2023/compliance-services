@@ -47,7 +47,7 @@ public class ComplianceServiceImpl implements ComplianceService {
             compliance.setEnable(false);
             complianceRepository.save(compliance);
 
-            return  ResponseEntity.ok();
+            return new ResponseEntity().ok("Saved Compliance");
         } else {
             return ResponseEntity.notFound();
         }
@@ -420,7 +420,7 @@ public class ComplianceServiceImpl implements ComplianceService {
             compliance.setEnable(false);
             complianceRepository.delete(compliance);
 
-            return  ResponseEntity.ok();
+            return new ResponseEntity().ok("deleted");
         } else {
             return ResponseEntity.notFound();
         }

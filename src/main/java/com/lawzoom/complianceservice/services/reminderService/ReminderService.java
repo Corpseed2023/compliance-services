@@ -12,5 +12,5 @@ public interface ReminderService {
 
     ResponseEntity deleteReminder(Long id);
 
-    ResponseEntity saveReminder(ReminderRequest reminderRequest, Long complianceId);
+    ResponseEntity saveReminder(ReminderRequest reminderRequest);
 }

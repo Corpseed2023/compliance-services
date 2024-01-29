@@ -8,7 +8,11 @@ import java.util.Date;
 @Getter
 @Setter
 public class ReminderRequest {
-    private Date reminderDate;
+
+    private Long complianceId;
+    private Long taskId;
+    private Long subTaskId;
+      private Date reminderDate;
     private int notificationTimelineValue;
     private String notificationTimelineType;
     private int repeatTimelineValue;
@@ -18,21 +22,6 @@ public class ReminderRequest {
     private Date createdAt;
     private Date updatedAt;
     private boolean isEnable;
-
-
-    public ReminderRequest(Long id, Long complianceId, Date reminderDate, int notificationTimelineValue, String notificationTimelineType, int repeatTimelineValue, String repeatTimelineType, String repeatOnDay, Date reminderEndDate, Date createdAt, Date updatedAt, boolean isEnable) {
-        this.reminderDate = reminderDate;
-        this.notificationTimelineValue = notificationTimelineValue;
-        this.notificationTimelineType = notificationTimelineType;
-        this.repeatTimelineValue = repeatTimelineValue;
-        this.repeatTimelineType = repeatTimelineType;
-        this.repeatOnDay = repeatOnDay;
-        this.reminderEndDate = reminderEndDate;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.isEnable = isEnable;
-    }
-
 
 
 }

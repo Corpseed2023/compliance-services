@@ -3,10 +3,6 @@ package com.lawzoom.complianceservice.response;
 import ch.qos.logback.core.joran.action.Action;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
 import org.springframework.http.HttpStatus;
-
-import org.springframework.http.HttpStatus;
-
-
 import java.util.Date;
 
 public class ResponseEntity<T> {
@@ -66,18 +62,6 @@ public class ResponseEntity<T> {
   }
 
 
-  public static ResponseEntity ok() {
-//    setMessage("success");
-//    setStatus(HttpStatus.OK);
-//    setStatusCode(HttpStatus.OK.value());
-//    return this;
-    return null;
-  }
-
-  public ResponseEntity ok(T body) {
-
-    return null;
-  }
 
   public ResponseEntity ok(T body, String msg) {
     setBody(body);
@@ -94,6 +78,9 @@ public class ResponseEntity<T> {
     setMessage(msg);
     return this;
   }
+
+
+
 
   public ResponseEntity noContent() {
     setBody(null);
@@ -164,4 +151,6 @@ public class ResponseEntity<T> {
     public ResponseEntity successfullStatus(String s) {
       return null;
     }
+
+
 }
