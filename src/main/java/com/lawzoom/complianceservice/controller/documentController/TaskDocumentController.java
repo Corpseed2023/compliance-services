@@ -21,19 +21,21 @@ public class TaskDocumentController {
 		return this.documentService.fetchAllTaskDocument(taskId);
 	}
 
-	@PostMapping("/save/{taskId}")
+	@PostMapping(value = "/save", consumes = {"multipart/form-data"})
 	public ResponseEntity<String> saveDocument(
-											   @RequestPart(name = "file", required = false) MultipartFile file,
-											   @PathVariable("taskId") Long taskId) {
-		documentService.saveTaskDocument(taskId,file);
+			@RequestPart(name = "file", required = false) MultipartFile file,
+			@RequestParam Long taskId,
+			@RequestBody DocumentRequest documentRequest) {
+		documentService.saveTaskDocument(taskId, file, documentRequest);
 		return new ResponseEntity().ok("Document saved successfully.");
 	}
 
-//	@PutMapping("/update")
-//	public ResponseEntity updateDocument(@Valid @RequestPart DocumentRequest documentRequest,
-//			@RequestParam("file") Optional<MultipartFile> file,@PathVariable("taskId") Long taskId){
-//		return this.documentService.updateTaskDocument(documentRequest,file,taskId);
-//	}
+
+	@PutMapping("/update")
+	public ResponseEntity updateDocument(
+			@RequestParam("file") Optional<MultipartFile> file,@PathVariable("taskId") Long taskId){
+		return this.documentService.updateTaskDocument(file,taskId);
+	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity fetchDocument(@PathVariable("id") Long id,@PathVariable("taskId") Long taskId){

@@ -11,7 +11,10 @@ public interface DocumentService {
 
 
 
-//    ResponseEntity updateTaskDocument(Optional<MultipartFile> file, Long taskId);
+
+    void saveTaskDocument(Long taskId, MultipartFile file,DocumentRequest documentRequest);
+
+    ResponseEntity updateTaskDocument(Optional<MultipartFile> file, Long taskId);
 
 
     ResponseEntity fetchTaskDocument(Long id, Long taskId);
@@ -20,5 +23,4 @@ public interface DocumentService {
 
     ResponseEntity fetchAllTaskDocument(Long taskId);
 
-    void saveTaskDocument(Long taskId, MultipartFile file);
 }
