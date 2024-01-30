@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
 import java.util.Optional;
 
 
@@ -27,38 +26,28 @@ public class DocumentServiceImpl implements DocumentService {
     private DocumentRepository documentRepository;
 
     @Override
-    public void saveTaskDocument(Long taskId, MultipartFile file, DocumentRequest documentRequest) {
-        // Here you can perform additional validations or business logic if needed
+    public void saveTaskDocument(Long taskId, MultipartFile file){
 
-        // Create a Document entity to save in the database
-        Document document = new Document();
-        document.setDocumentName(documentRequest.getDocumentName());
-        document.setFileName(documentRequest.getFileName());
-        document.setIssueDate(documentRequest.getIssueDate());
-        document.setReferenceNumber(documentRequest.getReferenceNumber());
-        document.setRemarks(documentRequest.getRemarks());
-        document.setUploadDate(new Date()); // Assuming you want to set the upload date to the current date
-        // Set other properties based on your needs
+//        Document document = new Document();
+//        document.setDocumentName(documentRequest.getDocumentName());
+//        document.setFileName(documentRequest.getFileName());
+//        document.setIssueDate(documentRequest.getIssueDate());
+//        document.setReferenceNumber(documentRequest.getReferenceNumber());
+//        document.setRemarks(documentRequest.getRemarks());
+//        document.setUploadDate(new Date()); // Assuming you want to set the upload date to the current date
 
-        // Set the association with the task (assuming a ManyToOne relationship with ComplianceTask)
-        // You may need to modify this based on your actual data model
-        // For simplicity, assuming that each document is associated with a task using taskId
-        ComplianceTask task = new ComplianceTask();
-        task.setId(taskId);
-        document.setComplianceTask(task);
+//        ComplianceTask task = new ComplianceTask();
+//        task.setId(taskId);
+//        document.setComplianceTask(task);
+//
+//        documentRepository.save(document);
 
-        // Save the document in the database
-        documentRepository.save(document);
-
-        // Handle file upload - Save the file to a specific location (D:\?uploadedFile)
         if (file != null && !file.isEmpty()) {
             try {
-                // Create the directory if it doesn't exist
 
                 Files.createDirectories(Paths.get("D:/uploadedFile"));
 
-                // Save the file to the specified location
-                Path filePath = Paths.get("D:/uploadedFile", document.getFileName());
+                Path filePath = Paths.get("D:/uploadedFile");
 
                 Files.write(filePath, file.getBytes());
             } catch (IOException e) {
@@ -68,10 +57,10 @@ public class DocumentServiceImpl implements DocumentService {
         }
 
     }
-    @Override
-    public ResponseEntity updateTaskDocument(DocumentRequest documentRequest, Optional<MultipartFile> file, Long taskId) {
-        return null;
-    }
+//    @Override
+//    public ResponseEntity updateTaskDocument(DocumentRequest documentRequest, Optional<MultipartFile> file, Long taskId) {
+//        return null;
+//    }
 
     @Override
     public ResponseEntity fetchTaskDocument(Long id, Long taskId) {
