@@ -24,9 +24,9 @@ public class TaskDocumentController {
 	@PostMapping(value = "/save", consumes = {"multipart/form-data"})
 	public ResponseEntity<String> saveDocument(
 			@RequestPart(name = "file", required = false) MultipartFile file,
-			@RequestParam Long taskId,
-			@RequestBody DocumentRequest documentRequest) {
-		documentService.saveTaskDocument(taskId, file, documentRequest);
+			@RequestParam Long taskId,@ModelAttribute DocumentRequest documentRequest
+		) {
+		documentService.saveTaskDocument(taskId, file,documentRequest);
 		return new ResponseEntity().ok("Document saved successfully.");
 	}
 
