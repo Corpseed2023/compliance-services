@@ -4,6 +4,7 @@ import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.complianceSubTaskModel.ComplianceSubTask;
 import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
+import com.lawzoom.complianceservice.model.reminderModel.TaskReminder;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -107,7 +108,11 @@ public class ComplianceTask {
 //	private List<TaskAction> taskActionList=new ArrayList<>();
 
 	@OneToOne(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
-	private Reminder complianceTaskReminder;
+	private Reminder reminder;
+
+	@OneToMany(mappedBy = "complianceTask", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<TaskReminder> taskReminders;
+
 
 //	@OneToOne(mappedBy = "complianceTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
 //	private RenewalReminder complianceRenewal;
@@ -142,7 +147,6 @@ public class ComplianceTask {
 				", compliance=" + compliance +
 				", complianceSubTasks=" + complianceSubTasks +
 				", complianceDocuments=" + complianceDocuments +
-				", complianceTaskReminder=" + complianceTaskReminder +
 				'}';
 	}
 }

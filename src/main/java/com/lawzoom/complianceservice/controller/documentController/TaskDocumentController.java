@@ -3,7 +3,6 @@ package com.lawzoom.complianceservice.controller.documentController;
 import com.lawzoom.complianceservice.dto.documentDto.DocumentRequest;
 import com.lawzoom.complianceservice.response.ResponseEntity;
 import com.lawzoom.complianceservice.services.DocumentService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

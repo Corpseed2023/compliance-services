@@ -3,7 +3,6 @@ package com.lawzoom.complianceservice.repository;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import java.util.Date;
 import java.util.List;
 

@@ -3,7 +3,6 @@ package com.lawzoom.complianceservice.serviceimpl.reminderServiceImpl;
 import com.lawzoom.complianceservice.dto.reminderDto.ReminderRequest;
 import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
-import com.lawzoom.complianceservice.repository.ComplianceRepo;
 import com.lawzoom.complianceservice.repository.ComplianceTaskRepository;
 import com.lawzoom.complianceservice.repository.ReminderRepo;
 import com.lawzoom.complianceservice.response.ResponseEntity;
@@ -21,8 +20,6 @@ public class ReminderServiceImpl implements ReminderService {
     @Autowired
     private ReminderRepo reminderRepo;
 
-    @Autowired
-    private ComplianceRepo complianceRepo;
 
     @Autowired
     private ComplianceTaskRepository complianceTaskRepository;
@@ -82,23 +79,6 @@ public class ReminderServiceImpl implements ReminderService {
         reminder.setReminderDate(calendar.getTime());
     }
 
-
-
-//    @Override
-//    public ResponseEntity updateReminder(Reminder reminder) {
-//        return null;
-//    }
-//
-//    public ResponseEntity<?> fetchReminder(Long id) {
-//        Optional<Reminder> reminder = reminderRepo.findById(id);
-//
-//        if (!reminder.isPresent()) {
-//
-//            return new ResponseEntity().badRequest("Reminder Not Found");
-//
-//        }
-//        return new ResponseEntity().ok(reminder.get());
-//    }
 
 
     @Override
