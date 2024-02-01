@@ -60,4 +60,8 @@ public class TaskReminder {
     @Column(length = 1, name="is_enable", columnDefinition = "tinyint(1) default 1")
     @Comment(value = "1 : Active, 0 : Inactive")
     private boolean isEnable;
+
+    @Column(name = "reminder_sent", columnDefinition = "tinyint(1) default 0")
+    @Comment(value = "0: Not sent, 1: Sent")
+    private boolean reminderSent;
 }

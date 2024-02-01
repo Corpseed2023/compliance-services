@@ -53,7 +53,7 @@ public class ReminderController {
 		return this.reminderService.updateReminder(reminder);
 	}
 	
-	@GetMapping("/seeTheReminder")
+	@GetMapping("/fetchTheReminder")
 	public ResponseEntity fetchReminder(@RequestParam("id") Long id){
 		return this.reminderService.fetchReminder(id);
 	}

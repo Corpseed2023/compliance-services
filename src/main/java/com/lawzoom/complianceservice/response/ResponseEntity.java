@@ -14,7 +14,7 @@ public class ResponseEntity<T> {
 
   private Date currentTimeStamp=new Date();
 
-  public static ResponseEntity notFound() {
+  public static ResponseEntity notFound(String taskReminderNotFound) {
     return null;
   }
 

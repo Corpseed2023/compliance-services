@@ -7,4 +7,6 @@ public interface TaskReminderService {
 
 
     ResponseEntity<String> saveTaskReminder(TaskReminderRequest taskReminderRequest);
+
+    ResponseEntity<String> updateTaskReminder(TaskReminderRequest taskReminderRequest,Long taskReminderId);
 }

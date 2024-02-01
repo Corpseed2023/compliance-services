@@ -38,7 +38,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         if (!complianceRepository.existsById(complianceId)) {
 
-            return ResponseEntity.notFound();
+            return ResponseEntity.notFound("Task Reminder not found");
         }
 
         Compliance compliance = complianceRepository.findById(complianceId).orElse(null);
@@ -49,7 +49,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
             return new ResponseEntity().ok("Saved Compliance");
         } else {
-            return ResponseEntity.notFound();
+            return ResponseEntity.notFound("Task Reminder not found");
         }
     }
 
@@ -124,7 +124,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         if (compliance != null) {
             return ResponseEntity.creationComplete(" successfully ", HttpStatus.CREATED);
         }
-        return ResponseEntity.notFound();
+        return ResponseEntity.notFound("Task Reminder not found");
     }
 
     @Override
@@ -411,7 +411,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         if (!complianceRepository.existsById(complianceId)) {
 
-            return ResponseEntity.notFound();
+            return ResponseEntity.notFound("Task Reminder not found");
         }
 
         Compliance compliance = complianceRepository.findById(complianceId).orElse(null);
@@ -422,7 +422,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
             return new ResponseEntity().ok("deleted");
         } else {
-            return ResponseEntity.notFound();
+            return ResponseEntity.notFound("Task Reminder not found");
         }
     }
 

@@ -11,6 +11,7 @@ import jakarta.ws.rs.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -50,6 +51,44 @@ public class TaskReminderServiceImpl implements TaskReminderService {
             throw new NotFoundException("Compliance Task not found");
         }
     }
+
+
+    @Override
+    public ResponseEntity<String> updateTaskReminder(TaskReminderRequest taskReminderRequest, Long taskReminderId) {
+        Optional<TaskReminder> existingTaskReminderOptional = taskReminderRepository.findById(taskReminderId);
+
+        if (existingTaskReminderOptional.isPresent()) {
+            TaskReminder existingTaskReminder = existingTaskReminderOptional.get();
+
+            // Perform any necessary validations or checks before updating
+
+            Date currentDate = new Date();
+
+            // Check if the reminder has already been sent
+            if (existingTaskReminder.isReminderSent()) {
+                return new ResponseEntity<>().badRequest("Update not allowed. Reminder has already been sent.");
+            }
+
+            // Check if the update is allowed (before reminder date and before reminder end date)
+            if (currentDate.before(existingTaskReminder.getReminderDate()) && currentDate.before(existingTaskReminder.getReminderEndDate())) {
+                existingTaskReminder.setReminderDate(taskReminderRequest.getReminderDate());
+                existingTaskReminder.setReminderEndDate(taskReminderRequest.getReminderEndDate());
+                existingTaskReminder.setTaskRemark(taskReminderRequest.getTaskRemark());
+                existingTaskReminder.setSetByUser(taskReminderRequest.getSetByUser());
+                existingTaskReminder.setUpdatedAt(new Date());
+
+                taskReminderRepository.save(existingTaskReminder);
+
+                return new ResponseEntity().ok("Reminder updated successfully");
+            } else {
+                return new ResponseEntity<>().badRequest("Update not allowed. Reminder date or end date has passed.");
+            }
+        } else {
+            return new ResponseEntity<>().notFound("Task Reminder not found");
+        }
+    }
+
+
 
 
 }

@@ -102,7 +102,7 @@ public class ReminderServiceImpl implements ReminderService {
             return new ResponseEntity().ok("Reminder with ID " + id + " deleted successfully");
         } else {
             // Handle the case where the reminder does not exist
-            return ResponseEntity.notFound().build(); // You can customize this response as needed
+            return ResponseEntity.notFound("Task Reminder not found").build(); // You can customize this response as needed
         }
     }
 

@@ -252,7 +252,7 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
 
         if (assigneeResponse == null || assigneeResponse.getUserId() == null) {
             // Assignee not found
-            return new ResponseEntity().notFound().ok("Assignee not found with id: " + assigneeId);
+            return new ResponseEntity().notFound("Task Reminder not found").ok("Assignee not found with id: " + assigneeId);
         }
 
         // Retrieve the ComplianceTask entities by a list of task IDs
@@ -260,7 +260,7 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
 
         if (complianceTasks.isEmpty()) {
             // No tasks found
-            return new ResponseEntity().notFound().build();
+            return new ResponseEntity().notFound("Task Reminder not found").build();
         }
 
         // Update assignee and assignedBy for each task
