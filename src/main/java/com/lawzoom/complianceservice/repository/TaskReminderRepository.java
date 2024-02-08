@@ -10,5 +10,5 @@ import java.util.List;
 
 @Repository
 public interface TaskReminderRepository extends JpaRepository<TaskReminder,Long> {
-    List<TaskReminder> findByIsEnableAndReminderDateBeforeAndReminderEndDateAfter(boolean b, Date currentDate, Date currentDate1);
+    List<TaskReminder> findByIsEnableAndReminderDateBefore(boolean b, Date currentDate);
 }

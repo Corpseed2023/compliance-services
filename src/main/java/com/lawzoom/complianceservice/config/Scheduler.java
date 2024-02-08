@@ -5,21 +5,21 @@ import com.lawzoom.complianceservice.repository.TaskReminderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
 import java.util.Date;
 import java.util.List;
-
 @Component
 public class Scheduler {
+
+
+
+    @Autowired
+    private TaskReminderRepository taskReminderRepository;
 
     @Autowired
     private NotificationService notificationService;
 
     @Autowired
     private EmailReminderService emailReminderService;
-
-    @Autowired
-    private TaskReminderRepository taskReminderRepository;
 
     // Scheduled to run every 30 seconds
     @Scheduled(cron = "*/30 * * * * *")
@@ -29,8 +29,8 @@ public class Scheduler {
         System.out.println(currentDate);
 
         // Retrieve only enabled tasks with a reminder date in the past and a reminder end date not yet reached
-        List<TaskReminder> taskReminders = taskReminderRepository.findByIsEnableAndReminderDateBeforeAndReminderEndDateAfter(
-                true, currentDate, currentDate);
+        List<TaskReminder> taskReminders = taskReminderRepository.findByIsEnableAndReminderDateBefore(
+                true, currentDate);
 
         for (TaskReminder taskReminder : taskReminders) {
             // Check if the reminder has not been sent
@@ -42,7 +42,7 @@ public class Scheduler {
                 notificationService.sendNotification(toUser, notificationSubject, notificationMessage);
 
                 // Send the email update
-                String toEmail = "kaushlendra.pratap@corpseed.com";
+                String toEmail = "kaushuthakur610@gmail.com";
                 String emailSubject = "Update: " + taskReminder.getComplianceTask().getTaskName();
                 String emailMessage = "Your Compliance is going to expire soon. Task ID: " + taskReminder.getId();
                 emailReminderService.sendEmail(toEmail, emailSubject, emailMessage);
@@ -50,12 +50,17 @@ public class Scheduler {
                 // Set the reminderSent flag to true
                 taskReminder.setReminderSent(true);
 
+                // Set isEnable to false since the reminder has been sent
+                taskReminder.setEnable(false);
+                taskReminderRepository.save(taskReminder); // Update the reminder's isEnable and reminderSent properties
+
                 // For additional actions or logging if needed
                 System.out.println("Notification and Email update sent for Task ID: " + taskReminder.getId());
+                System.out.println("Task Reminder for Task ID: " + taskReminder.getId() + " marked as inactive.");
             }
 
-            // Check if reminderEndDate has passed, and if so, mark the reminder as inactive
-            if (currentDate.after(taskReminder.getReminderEndDate())) {
+            // Check if reminderDate has passed, and if so, mark the reminder as inactive
+            if (currentDate.after(taskReminder.getReminderDate())) {
                 taskReminder.setEnable(false);
                 taskReminderRepository.save(taskReminder); // Update the reminder's isEnable property
 

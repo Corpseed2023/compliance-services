@@ -18,13 +18,13 @@ public class TaskReminderController {
 
 
     @PostMapping("/createTaskReminder")
-    public ResponseEntity<String> saveReminder(@RequestBody @Valid TaskReminderRequest taskReminderRequest) {
+    public ResponseEntity<String> saveReminder(@RequestBody @Valid TaskReminderRequest taskReminderRequest,@RequestParam Long userId) {
         try {
             if (!isFutureDate(taskReminderRequest.getReminderDate())) {
                 return new ResponseEntity<>().badRequest("Please enter a future date for the reminder");
             }
 
-            taskReminderService.saveTaskReminder(taskReminderRequest);
+            taskReminderService.saveTaskReminder(taskReminderRequest,userId);
             return new ResponseEntity().ok("Reminder created successfully");
         } catch (Exception e) {
             return new ResponseEntity<>().internalServerError();
@@ -37,7 +37,7 @@ public class TaskReminderController {
     }
 
 
-    @PostMapping("/updateTaskReminder")
+    @PutMapping("/updateTaskReminder")
     public ResponseEntity<String> updateReminder(@RequestParam Long taskReminderId, @RequestBody @Valid TaskReminderRequest taskReminderRequest) {
         try {
 

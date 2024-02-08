@@ -6,7 +6,7 @@ import com.lawzoom.complianceservice.response.ResponseEntity;
 public interface TaskReminderService {
 
 
-    ResponseEntity<String> saveTaskReminder(TaskReminderRequest taskReminderRequest);
+    ResponseEntity<String> saveTaskReminder(TaskReminderRequest taskReminderRequest,Long userId);
 
     ResponseEntity<String> updateTaskReminder(TaskReminderRequest taskReminderRequest,Long taskReminderId);
 }

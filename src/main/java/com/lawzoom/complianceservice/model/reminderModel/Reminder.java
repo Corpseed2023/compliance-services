@@ -1,7 +1,7 @@
 package com.lawzoom.complianceservice.model.reminderModel;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.lawzoom.complianceservice.annotation.NotBeforeToday;
+//import com.lawzoom.complianceservice.annotation.NotBeforeToday;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.complianceSubTaskModel.ComplianceSubTask;
 import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
@@ -39,7 +39,7 @@ public class Reminder {
 	private ComplianceSubTask complianceSubTask;
 	
 	@Column(name = "reminder_date")
-	@NotBeforeToday(message = "Please enter future date..!!")
+//	@NotBeforeToday(message = "Please enter future date..!!")
 	@JsonFormat(pattern="yyyy-MM-dd")
 	@Temporal(TemporalType.DATE)
 	private Date reminderDate;
