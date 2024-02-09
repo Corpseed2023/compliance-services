@@ -40,6 +40,9 @@ public class CompanyComplianceController {
 
 	@GetMapping("/getComplianceCount")
 	public Map<Long,Integer> getComplianceCount(){
+
+		System.out.println("API Hiting by auth");
+
 		return complianceService.getComplianceCount();
 
 	}
@@ -90,6 +93,8 @@ public class CompanyComplianceController {
 
 	@GetMapping("/compliance-count")
 	public List<Map<String, Object>> getComplianceCountPerCompanyAndBusinessUnit() {
+
+		System.out.println("Got hit by authentication");
 		List<Object[]> result = complianceRepository.countCompliancePerCompanyAndBusinessUnit();
 
 		return result.stream()
