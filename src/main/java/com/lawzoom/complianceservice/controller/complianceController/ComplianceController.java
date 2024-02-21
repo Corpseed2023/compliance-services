@@ -24,4 +24,12 @@ public class ComplianceController {
     public ResponseEntity updateStatus(@RequestParam("complianceId") Long complianceId,@RequestParam("status") int status){
         return this.complianceService.updateComplianceStatus(complianceId,status);
     }
+
+    @GetMapping("/testApi")
+    public String test()
+    {
+        System.out.println("Perfetc");
+
+        return "Working fine";
+    }
 }

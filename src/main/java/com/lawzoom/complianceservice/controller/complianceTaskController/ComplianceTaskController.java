@@ -28,7 +28,8 @@ public class ComplianceTaskController {
                                            @RequestParam("task_Created_By") Long taskCreatedBy)
 
     {
-        return this.complianceTaskService.saveTask(taskRequest,complianceId,companyId,businessUnitId,taskCreatedBy);
+        return this.complianceTaskService.saveTask(taskRequest,complianceId,companyId,
+                                                   businessUnitId,taskCreatedBy);
     }
 
 
@@ -59,8 +60,10 @@ public class ComplianceTaskController {
 
     @PutMapping("/assignTask")
     public ResponseEntity assignTask(@RequestParam Long assigneeId,
-                                     @RequestParam("taskId") Long taskId,
+                                     @RequestParam List<Long> taskId,
                                      @RequestParam Long assignedBy){
         return this.complianceTaskService.assignTask(assigneeId,taskId,assignedBy);
     }
+
+
 }

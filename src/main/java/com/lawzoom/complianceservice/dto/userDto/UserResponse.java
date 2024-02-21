@@ -39,5 +39,4 @@ public class UserResponse {
 
 	private List<String> roles;
 
-
 }

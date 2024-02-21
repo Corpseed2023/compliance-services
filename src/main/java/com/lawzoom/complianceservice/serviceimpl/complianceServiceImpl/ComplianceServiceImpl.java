@@ -1,8 +1,9 @@
 package com.lawzoom.complianceservice.serviceimpl.complianceServiceImpl;
 
+import com.lawzoom.complianceservice.dto.businessUnitDto.BusinessUnitResponse;
+import com.lawzoom.complianceservice.dto.companyResponseDto.CompanyResponse;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
-import com.lawzoom.complianceservice.dto.userDto.UserRequest;
 import com.lawzoom.complianceservice.dto.userDto.UserResponse;
 import com.lawzoom.complianceservice.feignClient.AuthenticationFeignClient;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
@@ -19,15 +20,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
-//import com.lawzoom.complianceservice.response;
-
-
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ComplianceServiceImpl implements ComplianceService {
-//
+
 
     @Autowired
     private ComplianceRepo complianceRepository;
@@ -41,7 +38,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         if (!complianceRepository.existsById(complianceId)) {
 
-            return ResponseEntity.notFound();
+            return ResponseEntity.notFound("Task Reminder not found");
         }
 
         Compliance compliance = complianceRepository.findById(complianceId).orElse(null);
@@ -50,9 +47,9 @@ public class ComplianceServiceImpl implements ComplianceService {
             compliance.setEnable(false);
             complianceRepository.save(compliance);
 
-            return  ResponseEntity.ok();
+            return new ResponseEntity().ok("Saved Compliance");
         } else {
-            return ResponseEntity.notFound();
+            return ResponseEntity.notFound("Task Reminder not found");
         }
     }
 
@@ -64,7 +61,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
     public ComplianceResponse saveBusinessCompliance(ComplianceRequest complianceRequest, Long businessUnitId) {
         Compliance compliance = new Compliance();
-        compliance.setName(complianceRequest.getName());
+        compliance.setComplianceName(complianceRequest.getName());
         compliance.setDescription(complianceRequest.getDescription());
         compliance.setApprovalState(complianceRequest.getApprovalState());
         compliance.setApplicableZone(complianceRequest.getApplicableZone());
@@ -81,7 +78,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         ComplianceResponse complianceResponse = new ComplianceResponse();
 
-        complianceResponse.setName(compliance.getName());
+        complianceResponse.setName(compliance.getComplianceName());
         complianceResponse.setDescription(compliance.getDescription());
         complianceResponse.setApprovalState(compliance.getApprovalState());
         complianceResponse.setEnable(compliance.isEnable());
@@ -101,7 +98,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         Compliance existingCompliance = complianceRepository.findById(complianceRequest.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Compliance not found with ID: " ));
 
-        existingCompliance.setName(complianceRequest.getName());
+        existingCompliance.setComplianceName(complianceRequest.getName());
         existingCompliance.setDescription(complianceRequest.getDescription());
         existingCompliance.setApprovalState(complianceRequest.getApprovalState());
         existingCompliance.setApplicableZone(complianceRequest.getApplicableZone());
@@ -127,7 +124,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         if (compliance != null) {
             return ResponseEntity.creationComplete(" successfully ", HttpStatus.CREATED);
         }
-        return ResponseEntity.notFound();
+        return ResponseEntity.notFound("Task Reminder not found");
     }
 
     @Override
@@ -146,7 +143,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         for (Compliance compliance : compliances) {
             ComplianceResponse response = new ComplianceResponse();
             response.setId(compliance.getId());
-            response.setName(compliance.getName());
+            response.setName(compliance.getComplianceName());
             response.setDescription(compliance.getDescription());
             response.setApprovalState(compliance.getApprovalState());
             response.setApplicableZone(compliance.getApplicableZone());
@@ -214,11 +211,29 @@ public class ComplianceServiceImpl implements ComplianceService {
             throw new IllegalArgumentException("Invalid user data. Cannot create compliance.");
         }
 
+        CompanyResponse companyData = authenticationFeignClient.getCompanyData(companyId);
+        if (companyData == null || companyData.getCompanyId() == null) {
+            throw new IllegalArgumentException("Company with ID " + companyId + " does not exist.");
+        }
+
+    BusinessUnitResponse businessUnitData = authenticationFeignClient.getBusinessUnitData(businessUnitId);
+
+
+        if (businessUnitData == null ||  businessUnitData.getId() == null) {
+            throw new IllegalArgumentException("Business Unit with ID " + businessUnitId + " does not exist.");
+        }
+
+        // Check if the user has the role of SUPER_ADMIN or ADMIN
+        List<String> userRoles = userData.getRoles();
+        if (!userRoles.contains("SUPER_ADMIN") && !userRoles.contains("ADMIN")) {
+            throw new IllegalArgumentException("User must have SUPER_ADMIN or ADMIN role to create compliance.");
+        }
+
         try {
             Compliance compliance = new Compliance();
 
             // Set compliance properties
-            compliance.setName(complianceRequest.getName());
+            compliance.setComplianceName(complianceRequest.getName());
             compliance.setDescription(complianceRequest.getDescription());
             compliance.setApprovalState(complianceRequest.getApprovalState());
             compliance.setApplicableZone(complianceRequest.getApplicableZone());
@@ -231,7 +246,16 @@ public class ComplianceServiceImpl implements ComplianceService {
             compliance.setDuration(complianceRequest.getDuration());
             compliance.setWorkStatus(complianceRequest.getWorkStatus());
             compliance.setPriority(complianceRequest.getPriority());
-            compliance.setCompanyId(companyId);
+
+            // Check if the company exists (additional check)
+            if (companyData == null || companyData.getCompanyId() == null) {
+                throw new IllegalArgumentException("Company with ID " + companyId + " does not exist.");
+            }
+            compliance.setCompanyId(companyData.getCompanyId());
+
+            if (businessUnitData == null  || businessUnitData.getId() == null) {
+                throw new IllegalArgumentException("Business Unit with ID " + businessUnitId + " does not exist.");
+            }
             compliance.setBusinessUnitId(businessUnitId);
             compliance.setCreatedBy(userId);
 
@@ -243,6 +267,9 @@ public class ComplianceServiceImpl implements ComplianceService {
                 // Data not saved, handle the scenario accordingly
                 throw new RuntimeException("Failed to save compliance. Database save operation did not return a valid ID.");
             }
+
+
+
 
             // Create and return ComplianceResponse
             ComplianceResponse response = createComplianceResponse(compliance, companyId, businessUnitId, userId);
@@ -259,7 +286,7 @@ public class ComplianceServiceImpl implements ComplianceService {
     private ComplianceResponse createComplianceResponse(Compliance compliance, Long companyId, Long businessUnitId, Long userId) {
         ComplianceResponse response = new ComplianceResponse();
         response.setId(compliance.getId());
-        response.setName(compliance.getName());
+        response.setName(compliance.getComplianceName());
         response.setDescription(compliance.getDescription());
         response.setApprovalState(compliance.getApprovalState());
         response.setApplicableZone(compliance.getApplicableZone());
@@ -297,7 +324,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         if (optionalCompliance.isPresent()) {
             Compliance compliance = optionalCompliance.get();
 
-            compliance.setName(complianceRequest.getName());
+            compliance.setComplianceName(complianceRequest.getName());
             compliance.setDescription(complianceRequest.getDescription());
             compliance.setApprovalState(complianceRequest.getApprovalState());
             compliance.setApplicableZone(complianceRequest.getApplicableZone());
@@ -313,7 +340,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
             ComplianceResponse complianceResponse = new ComplianceResponse();
             complianceResponse.setId(compliance.getId());
-            complianceResponse.setName(compliance.getName());
+            complianceResponse.setName(compliance.getComplianceName());
             complianceResponse.setDescription(compliance.getDescription());
             complianceResponse.setApprovalState(compliance.getApprovalState());
             complianceResponse.setApplicableZone(compliance.getApplicableZone());
@@ -358,7 +385,7 @@ public class ComplianceServiceImpl implements ComplianceService {
             // Create a ComplianceResponse object and populate it with data from the Compliance entity
             ComplianceResponse response = new ComplianceResponse();
             response.setId(compliance.getId());
-            response.setName(compliance.getName());
+            response.setName(compliance.getComplianceName());
             response.setDescription(compliance.getDescription());
             response.setApprovalState(compliance.getApprovalState());
             response.setApplicableZone(compliance.getApplicableZone());
@@ -384,7 +411,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         if (!complianceRepository.existsById(complianceId)) {
 
-            return ResponseEntity.notFound();
+            return ResponseEntity.notFound("Task Reminder not found");
         }
 
         Compliance compliance = complianceRepository.findById(complianceId).orElse(null);
@@ -393,9 +420,9 @@ public class ComplianceServiceImpl implements ComplianceService {
             compliance.setEnable(false);
             complianceRepository.delete(compliance);
 
-            return  ResponseEntity.ok();
+            return new ResponseEntity().ok("deleted");
         } else {
-            return ResponseEntity.notFound();
+            return ResponseEntity.notFound("Task Reminder not found");
         }
     }
 
@@ -411,7 +438,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         ComplianceResponse response = new ComplianceResponse();
         response.setId(compliance.getId());
-        response.setName(compliance.getName());
+        response.setName(compliance.getComplianceName());
         response.setDescription(compliance.getDescription());
         response.setApprovalState(compliance.getApprovalState());
         response.setApplicableZone(compliance.getApplicableZone());
@@ -432,36 +459,6 @@ public class ComplianceServiceImpl implements ComplianceService {
     public ResponseEntity fetchManageCompliancesByUserId(Long userId) {
         return null;
     }
-
-//    @Override
-//    public ResponseEntity<List<ComplianceResponse>> fetchManageCompliancesByUserId(Long userId) {
-//
-//        List<Compliance> compliances = complianceRepository.findByUserId(userId);
-//
-//        List<ComplianceResponse> complianceResponses = compliances.stream()
-//                .map(compliance -> {
-//                    ComplianceResponse response = new ComplianceResponse();
-//                    response.setId(compliance.getId());
-//                    response.setTitle(compliance.getTitle());
-//                    response.setDescription(compliance.getDescription());
-//                    response.setApprovalState(compliance.getApprovalState());
-//                    response.setApplicableZone(compliance.getApplicableZone());
-//                    response.setCreatedAt(compliance.getCreatedAt());
-//                    response.setUpdatedAt(compliance.getUpdatedAt());
-//                    response.setEnable(compliance.isEnable());
-//                    response.setStartDate(compliance.getStartDate());
-//                    response.setDueDate(compliance.getDueDate());
-//                    response.setCompletedDate(compliance.getCompletedDate());
-//                    response.setDuration(compliance.getDuration());
-//                    response.setWorkStatus(compliance.getWorkStatus());
-//                    response.setPriority(compliance.getPriority());
-//                    return response;
-//                })
-//                .collect(Collectors.toList());
-//
-//        return null;
-//    }
-
 
     @Override
     public ComplianceResponse getAllComplianceByCompanyUnitTeam(Long teamId, Long companyId, Long businessUnitId) {
@@ -488,7 +485,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
                 ComplianceResponse response = new ComplianceResponse();
                 response.setId(compliance.getId());
-                response.setName(compliance.getName());
+                response.setName(compliance.getComplianceName());
                 response.setDescription(compliance.getDescription());
 
                 companyComplianceList.add(response);

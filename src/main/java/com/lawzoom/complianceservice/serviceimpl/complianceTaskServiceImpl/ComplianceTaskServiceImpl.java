@@ -1,9 +1,10 @@
 package com.lawzoom.complianceservice.serviceimpl.complianceTaskServiceImpl;
 
 import com.lawzoom.complianceservice.dto.TaskResponse;
+import com.lawzoom.complianceservice.dto.businessUnitDto.BusinessUnitResponse;
+import com.lawzoom.complianceservice.dto.companyResponseDto.CompanyResponse;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceTaskResponse;
-import com.lawzoom.complianceservice.dto.userDto.UserRequest;
 import com.lawzoom.complianceservice.dto.userDto.UserResponse;
 import com.lawzoom.complianceservice.feignClient.AuthenticationFeignClient;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
@@ -11,7 +12,6 @@ import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
 import com.lawzoom.complianceservice.repository.ComplianceRepo;
 import com.lawzoom.complianceservice.repository.ComplianceTaskRepository;
 import com.lawzoom.complianceservice.response.ResponseEntity;
-import com.lawzoom.complianceservice.services.complianceService.ComplianceService;
 import com.lawzoom.complianceservice.services.complianceTaskService.ComplianceTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,9 +30,6 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
     @Autowired
     private  ComplianceTaskRepository complianceTaskRepository;
 
-
-    @Autowired
-    private ComplianceService complianceService;
 
     @Autowired
     private AuthenticationFeignClient authenticationFeignClient;
@@ -64,7 +61,6 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         return mapEntityToResponse(savedTask);
     }
 
-
     private ComplianceTask mapRequestToEntity(ComplianceTaskRequest request, Compliance compliance ,
                                               Long businessUnitId , Long companyId,Long taskCreatedBy) {
         ComplianceTask task = new ComplianceTask();
@@ -86,7 +82,6 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         task.setCompanyId(companyId);
         task.setBusinessUnitId(businessUnitId);
         task.setCompliance(compliance);
-        task.setUserId(request.getUserId());
 
         return task;
     }
@@ -114,7 +109,6 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         response.setBusinessActivityId(task.getBusinessActivityId());
         response.setUserId(task.getUserId());
 
-        // Set other fields as needed
 
         return response;
     }
@@ -137,7 +131,7 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         try {
 
             this.complianceTaskRepository.delete(complianceTask);
-            return ResponseEntity.ok().build();
+            return new ResponseEntity().ok("Deleted");
         } catch (Exception e) {
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete compliance task");
             return new ResponseEntity().internalServerError().badRequest("Failed to delete compliance task");
@@ -196,159 +190,90 @@ public class ComplianceTaskServiceImpl implements ComplianceTaskService {
         return response;
     }
 
-//    @Override
-//    public List<Map<String, List<String>>> getAssigneeAllTasks(Long userId) {
-//        List<Map<String, List<String>>> taskData = new ArrayList<>();
-//
-//        List<ComplianceTask> complianceTasks = complianceTaskRepository.findByUserId(userId);
-//
-//        for (ComplianceTask complianceTaskData : complianceTasks) {
-//            System.out.println(complianceTaskData.getTaskName());
-//
-//            Long companyId = complianceTaskData.getCompanyId();
-//
-//            CompanyResponse companyDetails = companyFeignClient.getCompanyData(companyId);
-//
-//            Long businessUnitId = complianceTaskData.getBusinessUnitId();
-//
-//
-//            BusinessUnitResponse businessUnitResponseDetails = companyFeignClient.getBusinessUnitDetails(businessUnitId);
-//
-//            // Construct your task data map here
-//            Map<String, List<String>> taskMap = new HashMap<>();
-//            taskMap.put("taskName", Collections.singletonList(complianceTaskData.getTaskName()));
-//            // Add more task attributes as needed
-//
-//            taskData.add(taskMap);
-//        }
-//
-//        return taskData;
-//    }
-
     @Override
     public Map<Long, List<TaskResponse>> getCompanyTasks(Long userId) {
-        List<Map<String, Object>> companyTaskData = new ArrayList<>();
-        List<TaskResponse> taskResponseList = new ArrayList<>();
+        // Fetch user information using Feign Client
+        UserResponse userRequestData = authenticationFeignClient.getUserId(userId);
+        List<String> roles = userRequestData.getRoles();
 
-        Map<Long,List<TaskResponse>> responseMap = new HashMap<>();
+        Map<Long, List<TaskResponse>> responseMap = new HashMap<>();
 
-
-        List<ComplianceTask> complianceTaskList = complianceTaskRepository.findByUserId(userId);
-
-        List<TaskResponse> taskResponses = getResponseMap(complianceTaskList);
-        responseMap.put(userId,taskResponses);
-        return responseMap;
-
-        // Check if complianceTaskList is not empty before proceeding
-        /*if (!complianceTaskList.isEmpty()) {
-            // Fetch company details using Feign client
-            CompanyResponse companyDetails = companyFeignClient.getCompanyData(complianceTaskList.get(0).getCompanyId());
-
-            // Check if companyDetails is not null before proceeding
-            if (companyDetails != null) {
-                Long companyId = companyDetails.getCompanyId();
-
-                // Fetch business units for the company using Feign client
-                List<BusinessUnitResponse> businessUnits = companyFeignClient.getAllBusinessUnits(companyId);
-
-                // Check if businessUnits is not empty before proceeding
-                if (!businessUnits.isEmpty()) {
-                    for (BusinessUnitResponse businessUnit : businessUnits) {
-                        TaskResponse taskResponse = new TaskResponse();
-
-                        // Fetch compliances for each business unit using Feign client
-                        List<Compliance> compliances = complianceService.getCompliancesByBusinessUnitId(businessUnit.getId());
-                        taskResponse.setCompanyName(companyDetails.getCompanyName());
-                        taskResponse.setBusinessAddress(businessUnit.getAddress());
-//                        taskResponse.setTaskName(task.getTaskName());
-                        // Check if compliances is not null before proceeding
-                        if (compliances != null) {
-                            for (Compliance compliance : compliances) {
-                                // Fetch tasks for each compliance from the repository
-                                List<ComplianceTask> tasks = complianceTaskRepository.findByComplianceId(compliance.getId());
-                                // Check if tasks is not empty before proceeding
-                                if (!tasks.isEmpty()) {
-                                    for (ComplianceTask task : tasks) {
-                                        taskResponse.setCompanyName(companyDetails.getCompanyName());
-                                        taskResponse.setBusinessAddress(businessUnit.getAddress());
-                                        taskResponse.setTaskName(task.getTaskName());
-
-                                        // Construct your task data map here
-                                       *//* Map<String, Object> taskMap = new HashMap<>();
-                                        taskMap.put("companyName", companyDetails.getCompanyName());
-                                        taskMap.put("businessUnit", businessUnit.getAddress());
-                                        taskMap.put("complianceName", compliance.getName());
-                                        taskMap.put("taskId", task.getId());
-                                        taskMap.put("taskName", task.getTaskName());
-                                        taskMap.put("description", task.getDescription());
-
-
-                                        taskMap.put("companyName", companyDetails.getCompanyName());
-                                        taskMap.put("businessUnit", businessUnit.getAddress());
-                                        taskMap.put("complianceName", compliance.getName());
-                                        taskMap.put("taskId", task.getId());
-                                        taskMap.put("taskName", task.getTaskName());
-                                        taskMap.put("description", task.getDescription());*//*
-
-
-
-                                        // Add more task attributes as needed
-
-                                       // companyTaskData.add(taskMap);
-
-                                    }
-                                }
-                            }
-                        }
-                        taskResponseList.add(taskResponse);
-
-                    }
-                }
-            }
-            responseMap.put(userId,taskResponseList);
+        if (roles == null || !(roles.contains("SUPER_ADMIN") || roles.contains("ADMIN"))) {
+            // User is not SUPER_ADMIN or ADMIN, fetch tasks assigned to the user
+            List<ComplianceTask> complianceTaskList = complianceTaskRepository.findByAssignedTo(userId);
+            List<TaskResponse> taskResponses = getResponseMap(complianceTaskList);
+            responseMap.put(userId, taskResponses);
+        } else {
+            // User is SUPER_ADMIN or ADMIN, fetch all tasks
+            List<ComplianceTask> complianceTaskList = complianceTaskRepository.findAll();
+            List<TaskResponse> taskResponses = getResponseMap(complianceTaskList);
+            responseMap.put(userId, taskResponses);
         }
 
-        // Log the final result
-        System.out.println("companyTaskData: " + companyTaskData);
-
-        return responseMap;*/
+        return responseMap;
     }
 
     private List<TaskResponse> getResponseMap(List<ComplianceTask> complianceTaskList) {
         List<TaskResponse> resp = new ArrayList<>();
 
-        for(ComplianceTask complianceTask : complianceTaskList){
+        for (ComplianceTask complianceTask : complianceTaskList) {
             TaskResponse taskResponse = new TaskResponse();
+            taskResponse.setTaskId(complianceTask.getId());
             taskResponse.setTaskName(complianceTask.getTaskName());
-//            CompanyResponse companyDetails = companyFeignClient.getCompanyData(complianceTask.getCompanyId());
-//            taskResponse.setCompanyName(companyDetails.getCompanyName());
-//            Long businessUnitId = complianceTask.getBusinessUnitId();
-//            BusinessUnitResponse businessUnitResponse = companyFeignClient.getBusinessUnitById(businessUnitId);
-//            taskResponse.setBusinessAddress(businessUnitResponse.getAddress());
+
+
+            CompanyResponse companyDetails = authenticationFeignClient.getCompanyData(complianceTask.getCompanyId());
+            System.out.println(companyDetails);
+            taskResponse.setCompanyId(companyDetails.getCompanyId());
+            taskResponse.setCompanyName(companyDetails.getCompanyName());
+
+            Optional<Compliance> complianceData = complianceRepo.findById(complianceTask.getCompliance().getId());
+
+            taskResponse.setComplianceId(complianceData.get().getId());
+            taskResponse.setComplianceName(complianceData.get().getComplianceName());
+
+
+            Long businessUnitId = complianceTask.getBusinessUnitId();
+            BusinessUnitResponse businessUnitResponse = authenticationFeignClient.getBusinessUnitById(businessUnitId);
+            taskResponse.setBusinessAddress(businessUnitResponse.getAddress());
+            taskResponse.setBusinessId(businessUnitResponse.getId());
+            taskResponse.setTaskDescription(complianceTask.getDescription());
             resp.add(taskResponse);
         }
+
         return resp;
     }
 
 
-    public ResponseEntity assignTask(Long assigneeId, Long taskId, Long assignedBy) {
-        // Retrieve the ComplianceTask by ID
-        ComplianceTask complianceTaskData = complianceTaskRepository.findComplianceTaskById(taskId);
+    public ResponseEntity assignTask(Long assigneeId, List<Long> taskIds, Long assignedBy) {
 
-        if (complianceTaskData == null) {
-            // Task not found
-            return new ResponseEntity().notFound().build();
+
+        UserResponse assigneeResponse = authenticationFeignClient.getUserId(assigneeId);
+
+        if (assigneeResponse == null || assigneeResponse.getUserId() == null) {
+            // Assignee not found
+            return new ResponseEntity().notFound("Task Reminder not found").ok("Assignee not found with id: " + assigneeId);
         }
 
-        // Update assignee and assignedBy
-        complianceTaskData.setAssignedTo(assigneeId);
-        complianceTaskData.setAssignedBy(assignedBy);
+        // Retrieve the ComplianceTask entities by a list of task IDs
+        List<ComplianceTask> complianceTasks = complianceTaskRepository.findAllByIdIn(taskIds);
 
-        // Save the updated task
-        ComplianceTask updatedTask = complianceTaskRepository.save(complianceTaskData);
+        if (complianceTasks.isEmpty()) {
+            // No tasks found
+            return new ResponseEntity().notFound("Task Reminder not found").build();
+        }
 
-        // You can return the updated task or any other response as needed
-        return new ResponseEntity().ok("Task assigned successfully");
+        // Update assignee and assignedBy for each task
+        for (ComplianceTask task : complianceTasks) {
+            task.setAssignedTo(assigneeId);
+            task.setAssignedBy(assignedBy);
+        }
+
+        // Save the updated tasks
+        complianceTaskRepository.saveAll(complianceTasks);
+
+        // You can return the updated tasks or any other response as needed
+        return new ResponseEntity().ok("Tasks assigned successfully");
     }
 
 
