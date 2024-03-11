@@ -1,4 +1,4 @@
-package com.lawzoom.complianceservice.controller.reminderController;
+package com.lawzoom.complianceservice;
 
 public class Test {
 
