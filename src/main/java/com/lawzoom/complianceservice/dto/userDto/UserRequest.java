@@ -1,50 +1,85 @@
 package com.lawzoom.complianceservice.dto.userDto;
 
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+
+import com.lawzoom.complianceservice.model.Roles;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Comment;
 
-import java.util.Date;
+import jakarta.validation.constraints.Email;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class  UserRequest {
+public class UserRequest {
 
     private Long id;
 
-    private String userName;
+    private String firstName;
+
+    private String lastName;
 
     private String email;
 
     @Size(min = 10,max = 13,message = "Mobile length should be 10 to 13 digits..")
+
     private String mobile;
 
-    private Long departmentId;
+    private String otp;
 
-    private Long designationId;
+    @Size(min = 6,message = "Password length should be minimum 6.")
 
-    private Long resourceTypeId;
+    private String password;
 
-    @Temporal(TemporalType.TIMESTAMP)
+    private String designation;
+
+    private String resourceType;
+
     private Date createdAt;
 
-    @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
 
     @Comment(value = "1 : Active, 0 : Inactive")
     private boolean isEnable;
 
-    private Long roleId;
+    private Set<Roles> roles;
 
     private boolean isAssociated;
 
     private Long companyId;
 
-    private Long subscriptionId;
+    private boolean isSubscribed;
 
+
+    @Override
+    public String toString() {
+        return "UserRequest{" +
+                "firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", otp='" + otp + '\'' +
+                ", password='" + password + '\'' +
+                ", designation='" + designation + '\'' +
+                ", resourceType='" + resourceType + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", isEnable=" + isEnable +
+                ", roles=" + roles +
+                ", isAssociated=" + isAssociated +
+                ", companyId=" + companyId +
+                '}';
+    }
 }

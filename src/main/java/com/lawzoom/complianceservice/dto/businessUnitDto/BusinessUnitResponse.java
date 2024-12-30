@@ -1,54 +1,55 @@
 package com.lawzoom.complianceservice.dto.businessUnitDto;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
 public class BusinessUnitResponse {
 
 	private Long id;
 
 	private Long companyId;
 
+	private String companyName;
+
+	private Long countryId;
+
+	private String countryName;
+
+	private Long businessActivityId;
+
 	private String businessActivity;
+
+	private Long cityId;
 
 	private String city;
 
+	private Long locatedAtId;
+
 	private String locatedAt;
 
-	private int permanentEmployee;
-
-	private int contractEmployee;
-
 	private String address;
-
-	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdAt;
-
-	@Temporal(TemporalType.TIMESTAMP)
 	private Date updatedAt;
-
-	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "date_registration")
-	private Date dateRegistration;
 
 	private boolean isEnable;
 
-//	private List<Long> teamIds;
-
-//	private List<TeamResponse> teams;
-
 	private String gstNumber;
 
-	private String states;
+	private Long stateId;
+
+	private String state;
+
+	private Long subscriptionId;
+
+
 
 }

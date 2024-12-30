@@ -1,41 +1,44 @@
 package com.lawzoom.complianceservice.model;
 
 
-
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.Comment;
+import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.util.Date;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Setter
+@Table(name = "subscription")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Subscription {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @ManyToMany(mappedBy = "subscriptions", fetch = FetchType.LAZY)
+    private Set<User> users = new HashSet<>();
 
-    @Column(name = "start_date", nullable = false)
-    private Date startDate;
+    @Column(nullable = false, unique = true)
+    private String type;
 
-    @Column(name = "end_date", nullable = false)
-    private Date endDate;
 
-    private LocalDate date;
-
-    @OneToMany(mappedBy = "subscription", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Company> companies = new ArrayList<>();
 }

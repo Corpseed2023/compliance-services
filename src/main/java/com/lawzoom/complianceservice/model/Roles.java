@@ -1,6 +1,5 @@
 package com.lawzoom.complianceservice.model;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -9,9 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Comment;
-
+import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,11 +28,14 @@ public class Roles {
     @NotNull
     @NotBlank
     @NotEmpty
-    private String role;
+    private String roleName;
 
-
+    @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
 
+    @Column(name = "updated_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
 
     @Column(length = 1, name = "is_enable", columnDefinition = "tinyint(1) default 1")
@@ -43,6 +46,14 @@ public class Roles {
     @Comment(value = "1: Deleted, 0: Not Deleted")
     private boolean isDeleted;
 
+
     private LocalDate date;
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "role_privileges",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "privilege_id")
+    )
+    private Set<Privilege> privileges;
 }

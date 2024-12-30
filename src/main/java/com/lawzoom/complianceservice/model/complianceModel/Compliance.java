@@ -1,5 +1,8 @@
 package com.lawzoom.complianceservice.model.complianceModel;
 
+import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
+import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
+import com.lawzoom.complianceservice.model.companyModel.Company;
 import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import jakarta.persistence.*;
@@ -22,9 +25,6 @@ public class Compliance {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	@Column(name = "created_by")
-	private Long createdBy;
 
 	@Column(name = "compliance_name")
 	private String complianceName;
@@ -69,18 +69,11 @@ public class Compliance {
 
 	@Column(name="category_id")
 	private Long categoryId;
-	
-	@Column(name ="company_id" )
-	private Long companyId;
 
-	@Column(name = "business_unit_id")
-	private Long businessUnitId;
 
-	@Column(name = "team_id")
-	private Long teamId;
-
-	@Column(name = "team_member_id")
-	private Long teamMember;
+	@ManyToOne
+	@JoinColumn(name = "business_unit_id", nullable = false)
+	private BusinessUnit businessUnit;
 
 	@Comment(value="1 : Mandatory Compliance, 2: Optional Compliance")
 	private int priority;
@@ -89,17 +82,7 @@ public class Compliance {
 	private String certificateType;
 
 	@Column
-	private String companyName;
-
-	@Column
-	private String teamName;
-
-	@Column
-	private String businessActivity;
-
-	private String businessUnitAddress;
-
-	private Long businessActivityId;
+	private BusinessActivity businessActivity;
 
 	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
 	private List<ComplianceTask> complianceTasks=new ArrayList<>();

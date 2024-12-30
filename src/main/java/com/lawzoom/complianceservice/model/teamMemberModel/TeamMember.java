@@ -1,12 +1,12 @@
 package com.lawzoom.complianceservice.model.teamMemberModel;
 
 
-import com.lawzoom.complianceservice.model.Company;
-import com.lawzoom.complianceservice.model.Roles;
-import com.lawzoom.complianceservice.model.Subscription;
-import com.lawzoom.complianceservice.model.User;
+
+import com.lawzoom.complianceservice.model.*;
+import com.lawzoom.complianceservice.model.companyModel.Company;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +37,7 @@ public class TeamMember {
 	@JoinColumn(name = "role_id")
 	private Roles roles;
 
+	@NotNull
 	@NotBlank
 	private String memberMail;
 
@@ -76,6 +77,13 @@ public class TeamMember {
 	@JoinColumn(name = "super_admin_id")
 	private User superAdminId;
 
+	@ManyToOne
+	@JoinColumn(name = "department_id")
+	private Department department;
+
+	@ManyToOne
+	@JoinColumn(name = "designation_id")
+	private Designation designation;
 
 	@ManyToMany(mappedBy = "teamMembers")
 	private List<Company> companies = new ArrayList<>();

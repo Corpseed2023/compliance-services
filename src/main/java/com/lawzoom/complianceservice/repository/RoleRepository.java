@@ -1,6 +1,5 @@
 package com.lawzoom.complianceservice.repository;
 
-
 import com.lawzoom.complianceservice.model.Roles;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
