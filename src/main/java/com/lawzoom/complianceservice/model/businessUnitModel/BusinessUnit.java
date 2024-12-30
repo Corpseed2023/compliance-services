@@ -119,7 +119,7 @@ public class BusinessUnit {
 	private User updatedBy;
 
 	@OneToMany(mappedBy = "businessUnit", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Compliance> compliances = new ArrayList<>();
+	private List<Compliance> compliance = new ArrayList<>();
 
 
 

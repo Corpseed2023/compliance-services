@@ -81,8 +81,6 @@ public class Compliance {
 	@Column(name="certificate_type")
 	private String certificateType;
 
-	@Column
-	private BusinessActivity businessActivity;
 
 	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
 	private List<ComplianceTask> complianceTasks=new ArrayList<>();
