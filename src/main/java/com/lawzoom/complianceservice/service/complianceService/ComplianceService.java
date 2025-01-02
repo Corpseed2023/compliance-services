@@ -1,12 +1,14 @@
 package com.lawzoom.complianceservice.service.complianceService;
 
-import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
-import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
-import com.lawzoom.complianceservice.model.complianceModel.Compliance;
-import jakarta.validation.Valid;
+
+import com.authentication.dto.complianceDto.CompanyComplianceDTO;
+import com.authentication.dto.complianceDto.ComplianceRequest;
+import com.authentication.dto.complianceDto.ComplianceResponse;
+import com.authentication.model.complianceModel.Compliance;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +59,9 @@ public interface ComplianceService {
 
     ComplianceResponse saveCompliance(@Valid ComplianceRequest complianceRequest, Long businessUnitId, Long userId);
 
-    ComplianceResponse updateCompliance(@Valid ComplianceRequest complianceRequest, java.lang.Long businessUnitId,Long complianceId);
+    ComplianceResponse updateCompliance(@Valid ComplianceRequest complianceRequest, Long businessUnitId,Long complianceId);
 
     List<ComplianceResponse> fetchCompliancesByBusinessUnit(Long businessUnitId);
+
+    List<CompanyComplianceDTO> getCompanyComplianceDetails(Long userId);
 }

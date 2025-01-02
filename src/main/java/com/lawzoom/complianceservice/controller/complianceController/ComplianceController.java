@@ -1,21 +1,19 @@
 package com.lawzoom.complianceservice.controller.complianceController;
 
-import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
-import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
-import com.lawzoom.complianceservice.repository.ComplianceRepo;
-import com.lawzoom.complianceservice.service.complianceService.ComplianceService;
-import jakarta.validation.Valid;
+
+import com.authentication.dto.complianceDto.CompanyComplianceDTO;
+import com.authentication.dto.complianceDto.ComplianceRequest;
+import com.authentication.dto.complianceDto.ComplianceResponse;
+import com.authentication.repository.ComplianceRepo;
+import com.authentication.service.complianceService.ComplianceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.lawzoom.complianceservice.dto.companyResponseDto.CompanyResponse;
 import org.springframework.web.server.ResponseStatusException;
 
-
-import java.util.HashMap;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -106,6 +104,12 @@ public class ComplianceController {
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch compliances: " + e.getMessage(), e);
         }
+    }
+
+    @GetMapping("/company-details-count")
+    public ResponseEntity<List<CompanyComplianceDTO>> getCompanyComplianceDetails(@RequestParam Long userId) {
+        List<CompanyComplianceDTO> companyComplianceDetails = complianceService.getCompanyComplianceDetails(userId);
+        return ResponseEntity.ok(companyComplianceDetails);
     }
 
     @GetMapping("/getAllComplianceByCompanyUnitTeam")

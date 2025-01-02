@@ -3,6 +3,7 @@ package com.lawzoom.complianceservice.dto.complianceDto;
 
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -10,15 +11,17 @@ public class ComplianceResponse {
 
     private Long id;
     private String name;
+    private String issueAuthority;
+    private String certificateType ;
     private String description;
     private String approvalState;
     private String applicableZone;
     private Date createdAt;
     private Date updatedAt;
     private boolean isEnable;
-    private Date startDate;
-    private Date dueDate;
-    private Date completedDate;
+    private LocalDate startDate;
+    private LocalDate dueDate;
+    private LocalDate completedDate;
     private String duration;
     private int workStatus;
     private int priority;

@@ -1,17 +1,16 @@
 package com.lawzoom.complianceservice.model.complianceModel;
 
-import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
+
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
-import com.lawzoom.complianceservice.model.companyModel.Company;
-import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
-import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Comment;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.Date;
-import java.util.List;
 
 
 @AllArgsConstructor
@@ -26,12 +25,13 @@ public class Compliance {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	private String issueAuthority;
+
+	private String certificateType ;
+
 	@Column(name = "compliance_name")
 	private String complianceName;
 
-	@Column(columnDefinition = "TEXT")
-	private String description;
-	
 	@Column(name = "approval_state")
 	private String approvalState;
 	
@@ -49,27 +49,15 @@ public class Compliance {
 	@Column(length = 1,name="is_enable",columnDefinition = "tinyint(1) default 1")
 	@Comment(value = "1 : Active, 0 : Inactive")
 	private boolean isEnable;
-	
-	@Column(name = "start_date")
-	@Temporal(TemporalType.DATE)
-	private Date startDate;
-	
-	@Column(name = "due_date")
-	@Temporal(TemporalType.DATE)
-	private Date dueDate;
-	
-	@Column(name = "completed_date")
-	@Temporal(TemporalType.DATE)
-	private Date completedDate;
 
-	private String duration;
+	private LocalDate startDate;
+
+	private LocalDate dueDate;
+
+	private LocalDate completedDate;
 
 	@Comment(value = "0 : No Action ,1 : Apply Now, 2 : Already Done, 3 : Not Applicable")
 	private int workStatus;
-
-	@Column(name="category_id")
-	private Long categoryId;
-
 
 	@ManyToOne
 	@JoinColumn(name = "business_unit_id", nullable = false)
@@ -78,18 +66,16 @@ public class Compliance {
 	@Comment(value="1 : Mandatory Compliance, 2: Optional Compliance")
 	private int priority;
 
-	@Column(name="certificate_type")
-	private String certificateType;
 
-
-	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
-	private List<ComplianceTask> complianceTasks=new ArrayList<>();
+//	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
+//	private List<ComplianceTask> complianceTasks=new ArrayList<>();
 
 //	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
 //	private List<Document> complianceDocuments=new ArrayList<>();
 
-	@OneToOne(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
-	private Reminder complianceReminder;
+//	@OneToOne(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+//	private Reminder complianceReminder;
+
 
 
 

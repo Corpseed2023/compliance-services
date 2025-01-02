@@ -1,11 +1,12 @@
 package com.lawzoom.complianceservice.dto.complianceDto;
 
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+
 import lombok.Data;
 
-import java.util.Date;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.time.LocalDate;
 
 @Data
 public class ComplianceRequest {
@@ -14,19 +15,19 @@ public class ComplianceRequest {
     @Size(max = 255, message = "Compliance name must not exceed 255 characters.")
     private String name;
 
+    private String issueAuthority;
+
     private String description;
 
     private String approvalState;
 
     private String applicableZone;
 
-    private Date startDate;
+    private LocalDate startDate;
 
-    private Date dueDate;
+    private LocalDate dueDate;
 
-    private Date completedDate;
-
-    private String duration;
+    private LocalDate completedDate;
 
     private int workStatus;
 

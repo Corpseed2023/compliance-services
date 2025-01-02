@@ -6,9 +6,6 @@ import com.lawzoom.complianceservice.dto.companyDto.CompanyRequest;
 import com.lawzoom.complianceservice.dto.companyDto.CompanyResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.exception.UnauthorizedException;
-import com.lawzoom.complianceservice.model.Roles;
-import com.lawzoom.complianceservice.model.Subscription;
-import com.lawzoom.complianceservice.model.User;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessActivityModel.IndustryCategory;
 import com.lawzoom.complianceservice.model.businessActivityModel.IndustrySubCategory;
@@ -20,7 +17,10 @@ import com.lawzoom.complianceservice.model.region.City;
 import com.lawzoom.complianceservice.model.region.Country;
 import com.lawzoom.complianceservice.model.region.LocatedAt;
 import com.lawzoom.complianceservice.model.region.States;
-import com.lawzoom.complianceservice.model.teamMemberModel.TeamMember;
+import com.lawzoom.complianceservice.model.user.Roles;
+import com.lawzoom.complianceservice.model.user.Subscriber;
+import com.lawzoom.complianceservice.model.user.Subscription;
+import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessActivityRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitRepository;
@@ -98,151 +98,108 @@ public class CompanyServiceImpl implements CompanyService {
     @Autowired
     private TeamMemberRepository teamMemberRepository;
 
-//    @Autowired
-//    private BusinessUnitRepository businessUnitRepository;
+    @Autowired
+    private SubscriberRepository subscriberRepository;
+
+
 
     @Override
     public CompanyResponse createCompany(CompanyRequest companyRequest, Long userId) {
         // Validate User
-        User userData = userRepository.findByIdAndIsEnableAndNotDeleted(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with userId: " + userId));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
-              // Check SUPER_ADMIN or MASTER role
-        Set<Roles> roles = userData.getRoles();
-        if (roles == null || roles.stream().noneMatch(role -> "SUPER_ADMIN".equals(role.getRoleName()) || "MASTER".equals(role.getRoleName()))) {
-            throw new UnauthorizedException("User with userId: " + userId + " does not have SUPER_ADMIN or MASTER role.");
-        }
+        // Validate Subscriber
+        Subscriber subscriber = subscriberRepository.findById(companyRequest.getSubscriberId())
+                .orElseThrow(() -> new NotFoundException("Subscriber not found"));
 
         // Validate Company Type
-        CompanyType companyType = companyTypeRepository.findByIdAndNotDeleted(companyRequest.getCompanyTypeId())
-                .orElseThrow(() -> new NotFoundException("Company Type not found with ID: " + companyRequest.getCompanyTypeId()));
+        CompanyType companyType = companyTypeRepository.findById(companyRequest.getCompanyTypeId())
+                .orElseThrow(() -> new NotFoundException("Company type not found"));
 
-        // Validate State
+        // Validate Country, State, and City
         Country country = countryRepository.findById(companyRequest.getCountryId())
-                .orElseThrow(() -> new NotFoundException("State not found with ID: " + companyRequest.getCountryId()));
+                .orElseThrow(() -> new NotFoundException("Country not found"));
 
+        States state = statesRepository.findById(companyRequest.getStateId())
+                .orElseThrow(() -> new NotFoundException("State not found"));
 
-        // Validate State
-        States state = statesRepository.findById(companyRequest.getCompanyStateId())
-                .orElseThrow(() -> new NotFoundException("State not found with ID: " + companyRequest.getCompanyStateId()));
+        City city = cityRepository.findById(companyRequest.getCityId())
+                .orElseThrow(() -> new NotFoundException("City not found"));
 
-        // Validate City
-        City city = cityRepository.findById(companyRequest.getCompanyCityId())
-                .orElseThrow(() -> new NotFoundException("City not found with ID: " + companyRequest.getCompanyCityId()));
-
-        // Validate LocatedAt
+        // Validate LocatedAt and BusinessActivity
         LocatedAt locatedAt = locatedAtRepository.findById(companyRequest.getLocatedAtId())
-                .orElseThrow(() -> new NotFoundException("LocatedAt not found with ID: " + companyRequest.getLocatedAtId()));
+                .orElseThrow(() -> new NotFoundException("Location not found"));
 
         BusinessActivity businessActivity = businessActivityRepository.findById(companyRequest.getBusinessActivityId())
-                .orElseThrow(() -> new NotFoundException("Business Activity not found with ID: " + companyRequest.getBusinessActivityId()));
+                .orElseThrow(() -> new NotFoundException("Business activity not found"));
 
-        // Validate Business Activity (Optional based on implementation)
+        // Validate Industry and SubCategory (Optional)
         IndustryCategory industryCategory = industryCategoryRepository.findById(companyRequest.getIndustryId())
-                .orElseThrow(() -> new NotFoundException("Industry not found with ID: " + companyRequest.getIndustryId()));
+                .orElseThrow(() -> new NotFoundException("Industry not found"));
 
-        // Validate Business Activity (Optional based on implementation)
-        IndustrySubCategory industrySubCategory = industrySubCategoryRepository.findById(companyRequest.getIndustrySubCategoryId())
-                .orElseThrow(() -> new NotFoundException("Sub Industry not found with ID: " + companyRequest.getIndustrySubCategoryId()));
-
-        Subscription subscription = subscriptionRepository.findById(companyRequest.getSubscriptionId())
-                .orElseThrow(() -> new NotFoundException("Subscription not found with ID: " + companyRequest.getSubscriptionId()));
+        IndustrySubCategory industrySubCategory = null;
+        if (companyRequest.getIndustrySubCategoryId() != null) {
+            industrySubCategory = industrySubCategoryRepository.findById(companyRequest.getIndustrySubCategoryId())
+                    .orElseThrow(() -> new NotFoundException("Sub-industry not found"));
+        }
 
         // Create and populate Company entity
         Company company = new Company();
-
-        company.setCompanyType(companyType);
-        company.setCinNumber(companyRequest.getCompanyCINNumber());
-        company.setBusinessEmailId(companyRequest.getBusinessEmailId());
         company.setCompanyName(companyRequest.getCompanyName());
-        company.setContractEmployee(companyRequest.getContractEmployee());
-        company.setCreatedAt(new Date());
-        company.setUpdatedAt(new Date());
-        company.setTurnover(companyRequest.getCompanyTurnover());
-//        company.setGstNumber(companyRequest.getGstNumber());
-        company.setEnable(true);
+        company.setBusinessEmailId(companyRequest.getBusinessEmailId());
+        company.setCompanyType(companyType);
+        company.setCountry(country);
+        company.setState(state);
+        company.setCity(city);
+        company.setRegistrationNumber(companyRequest.getRegistrationNumber());
+        company.setRegistrationDate(companyRequest.getRegistrationDate());
+        company.setCinNumber(companyRequest.getCinNumber());
+        company.setRemarks(companyRequest.getRemarks());
+        company.setPinCode(companyRequest.getPinCode());
+        company.setCompanyPanNumber(companyRequest.getPanNumber());
+        company.setTurnover(companyRequest.getTurnover());
         company.setLocatedAt(locatedAt);
         company.setBusinessActivity(businessActivity);
         company.setIndustryCategory(industryCategory);
         company.setIndustrySubCategory(industrySubCategory);
-        company.setPinCode(companyRequest.getPinCode());
-        company.setCompanyPanNumber(company.getCompanyPanNumber());
         company.setPermanentEmployee(companyRequest.getPermanentEmployee());
-        company.setRegistrationNumber(companyRequest.getCompanyRegistrationNumber());
-        company.setRegistrationDate(companyRequest.getCompanyRegistrationDate());
-        company.setRemarks(companyRequest.getCompanyRemarks());
+        company.setContractEmployee(companyRequest.getContractEmployee());
         company.setOperationUnitAddress(companyRequest.getOperationUnitAddress());
-        company.setState(state);
-        company.setCity(city);
-        company.setCreatedBy(userData);
-        company.setDate(LocalDate.now());
-        company.setCountry(country);
-        company.setSuperAdminId(userData);
-        company.setCompanyPanNumber(companyRequest.getCompanyPanNumber());
-        company.setSubscription(subscription);
+        company.setSubscriber(subscriber);
+        company.setSuperAdminId(user);
+        company.setEnable(companyRequest.isEnable());
+        company.setCreatedBy(user);
+        company.setCreatedAt(new Date());
+        company.setUpdatedAt(new Date());
 
         // Save company
         company = companyRepository.save(company);
 
-        GstDetails gstDetails = new GstDetails();
-
-        gstDetails.setCompany(company);
-        gstDetails.setGstNumber(companyRequest.getGstNumber());
-        gstDetails.setState(state);
-        gstDetails.setGstRegistrationDate(company.getRegistrationDate());
-        gstDetails.setCountry(country);
-        gstDetails.setCreatedBy(userData);
-        gstDetails.setUpdatedBy(userData);
-        gstDetails.setSubscription(subscription);
-
-        gstDetails = gstDetailsRepository.save(gstDetails);
-
-        // Save BusinessUnit (if needed)
-        BusinessUnit businessUnit = new BusinessUnit();
-        businessUnit.setState(state);
-        businessUnit.setCity(city);
-        businessUnit.setLocatedAt(locatedAt);
-        businessUnit.setAddress(companyRequest.getOperationUnitAddress());
-        businessUnit.setCreatedAt(new Date());
-        businessUnit.setUpdatedAt(new Date());
-        businessUnit.setEnable(companyRequest.isEnable());
-        businessUnit.setGstNumber(companyRequest.getGstNumber());
-        businessUnit.setDate(LocalDate.now());
-        businessUnit.setGstDetails(gstDetails);
-        businessUnit.setCreatedBy(userData);
-        businessUnit.setUpdatedBy(userData);
-        businessUnit.setSubscription(subscription);
-
-
-        businessUnitRepository.save(businessUnit);
-
         // Prepare and return response
         CompanyResponse companyResponse = new CompanyResponse();
-
-        companyResponse.setCompanyType(companyType.getCompanyTypeName());
-        companyResponse.setCompanyCINNumber(company.getCinNumber());
-        companyResponse.setCompanyRegistrationNumber(company.getRegistrationNumber());
-        companyResponse.setCompanyRegistrationDate(company.getRegistrationDate());
-        companyResponse.setCompanyRemarks(company.getRemarks());
-        companyResponse.setPinCode(company.getPinCode());
-        companyResponse.setCompanyPanNumber(company.getCompanyPanNumber());
-        companyResponse.setLocatedAt(locatedAt.getLocationName());
-          companyResponse.setEnable(company.isEnable());
-        companyResponse.setPermanentEmployee(company.getPermanentEmployee());
-        companyResponse.setContractEmployee(company.getContractEmployee());
+        companyResponse.setCompanyId(company.getId());
         companyResponse.setCompanyName(company.getCompanyName());
         companyResponse.setBusinessEmailId(company.getBusinessEmailId());
-//        companyResponse.setDesignation(designation.getDesignationName());
         companyResponse.setCompanyState(state.getStateName());
         companyResponse.setCompanyCity(city.getCityName());
-        companyResponse.setCompanyTurnover(companyRequest.getCompanyTurnover());
-        companyResponse.setUserId(userId);
-        companyResponse.setIndustryName(industryCategory.getIndustryName());
-        companyResponse.setIndustrySubCategoryName(industrySubCategory.getIndustrySubCategoryName());
-        companyResponse.setCountryName(company.getCountry().getCountryName());
+        companyResponse.setCompanyRegistrationNumber(company.getRegistrationNumber());
+        companyResponse.setCompanyRegistrationDate(company.getRegistrationDate());
+        companyResponse.setCompanyCINNumber(company.getCinNumber());
+        companyResponse.setCompanyRemarks(company.getRemarks());
+        companyResponse.setPinCode(company.getPinCode());
+        companyResponse.setOperationUnitAddress(company.getOperationUnitAddress());
+        companyResponse.setCompanyTurnover(company.getTurnover());
+        companyResponse.setLocatedAt(locatedAt.getLocationName());
+        companyResponse.setBusinessActivityName(businessActivity.getBusinessActivityName());
+        companyResponse.setEnable(company.isEnable());
+        companyResponse.setPermanentEmployee(company.getPermanentEmployee());
+        companyResponse.setContractEmployee(company.getContractEmployee());
 
         return companyResponse;
     }
+
+
 
     @Override
     public List<CompanyBusinessUnitDto> getCompanyUnitComplianceDetails(Long userId) {

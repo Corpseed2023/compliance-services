@@ -1,15 +1,16 @@
 package com.lawzoom.complianceservice.model.companyModel;
 
-import com.lawzoom.complianceservice.model.*;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessActivityModel.IndustryCategory;
 import com.lawzoom.complianceservice.model.businessActivityModel.IndustrySubCategory;
+import com.lawzoom.complianceservice.model.companyModel.CompanyType;
 import com.lawzoom.complianceservice.model.gstdetails.GstDetails;
 import com.lawzoom.complianceservice.model.region.City;
 import com.lawzoom.complianceservice.model.region.Country;
 import com.lawzoom.complianceservice.model.region.LocatedAt;
 import com.lawzoom.complianceservice.model.region.States;
-import com.lawzoom.complianceservice.model.teamMemberModel.TeamMember;
+import com.lawzoom.complianceservice.model.user.Subscriber;
+import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,10 +21,9 @@ import org.hibernate.annotations.Comment;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-
 
 @Entity
 @AllArgsConstructor
@@ -35,7 +35,6 @@ public class Company {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
 	private Long id;
 
 	@ManyToOne
@@ -46,44 +45,45 @@ public class Company {
 	private String businessEmailId;
 
 	@ManyToOne
-	@JoinColumn(name = "company_type_id")
+	@JoinColumn(name = "company_type_id", nullable = false)
 	private CompanyType companyType;
 
-	@Column(name = "companyName")
+	@Column(name = "company_name", nullable = false, unique = true)
 	private String companyName;
 
 	@ManyToOne
-	@JoinColumn(name = "country_id")
+	@JoinColumn(name = "country_id", nullable = false)
 	private Country country;
 
 	@ManyToOne
-	@JoinColumn(name = "state_id")
+	@JoinColumn(name = "state_id", nullable = false)
 	private States state;
 
 	@ManyToOne
-	@JoinColumn(name = "city_id")
+	@JoinColumn(name = "city_id", nullable = false)
 	private City city;
 
-	@Column(name = "registration_number")
+	@Column(name = "registration_number", unique = true)
 	private String registrationNumber;
 
 	private LocalDate registrationDate;
 
-	@Column(name = "cin_number")
+	@Column(name = "cin_number", unique = true)
 	private String cinNumber;
 
-	@Column(columnDefinition = "text", name = "remarks")
+	@Column(columnDefinition = "text")
 	private String remarks;
 
 	private String pinCode;
 
+	@Column(name = "pan_number", unique = true)
 	private String companyPanNumber;
 
 	@Column(name = "turnover")
 	private long turnover;
 
 	@ManyToOne
-	@JoinColumn(name = "located_at_id")
+	@JoinColumn(name = "located_at_id", nullable = false)
 	private LocatedAt locatedAt;
 
 	@ManyToOne
@@ -104,52 +104,49 @@ public class Company {
 	@Column(name = "contract_employee")
 	private int contractEmployee;
 
-
 	@Column(name = "operation_unit_address")
 	private String operationUnitAddress;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "created_at")
-	private Date createdAt;
+	@Column(name = "created_at", nullable = false, updatable = false)
+	private Date createdAt = new Date();
 
 	private LocalDate date;
 
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "updated_at")
-	private Date updatedAt;
+	@Column(name = "updated_at", nullable = false)
+	private Date updatedAt = new Date();
 
-	@Column(length = 1, name = "is_enable", columnDefinition = "tinyint(1) default 1")
+	@Column(name = "is_enable", columnDefinition = "tinyint(1) default 1")
 	@Comment(value = "1 : Active, 0 : Inactive")
 	private boolean isEnable = true;
 
 	@Column(name = "is_deleted", columnDefinition = "tinyint(1) default 0")
 	private boolean isDeleted = false;
 
-	// One company can have multiple GST details
 	@OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<GstDetails> gstDetails;
+	private List<GstDetails> gstDetails = new ArrayList<>();
 
 	@ManyToOne
 	@JoinColumn(name = "super_admin_id", nullable = false)
-	private User superAdminId; // Each company is associated with one user
+	private User superAdminId;
 
 	@ManyToOne
-	@JoinColumn(name = "subscription_id", nullable = false)
-	private Subscription subscription;
-
-	@ManyToMany
-	@JoinTable(
-			name = "company_team_members",
-			joinColumns = @JoinColumn(name = "company_id"),
-			inverseJoinColumns = @JoinColumn(name = "team_member_id")
-	)
-	private Set<TeamMember> teamMembers = new HashSet<>();
-
-
+	@JoinColumn(name = "subscriber_id", nullable = false)
+	private Subscriber subscriber;
 
 	public void disable() {
 		this.isEnable = false;
 	}
 
+	@PrePersist
+	protected void onCreate() {
+		this.createdAt = new Date();
+		this.updatedAt = new Date();
+	}
 
+	@PreUpdate
+	protected void onUpdate() {
+		this.updatedAt = new Date();
+	}
 }

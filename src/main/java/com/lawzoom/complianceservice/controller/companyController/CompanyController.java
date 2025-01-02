@@ -1,9 +1,5 @@
 package com.lawzoom.complianceservice.controller.companyController;
 
-
-
-import com.lawzoom.complianceservice.dto.businessUnitDto.BusinessUnitResponse;
-import com.lawzoom.complianceservice.dto.companyDto.CompanyBusinessUnitDto;
 import com.lawzoom.complianceservice.dto.companyDto.CompanyRequest;
 import com.lawzoom.complianceservice.dto.companyDto.CompanyResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
@@ -13,30 +9,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
+import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/auth/company")
+@RequestMapping("/api/compliance/company")
 public class CompanyController {
 
     @Autowired
     private CompanyService companyService;
 
-
     @PostMapping("/addCompany")
-    public ResponseEntity<CompanyResponse> createCompany(@RequestBody CompanyRequest companyRequest ,
-                                                         @RequestParam Long userId)  {
-
-        CompanyResponse companyResponse = companyService.createCompany(companyRequest,userId);
+    public ResponseEntity<CompanyResponse> createCompany(@RequestBody CompanyRequest companyRequest,
+                                                         @RequestParam Long userId) {
+        CompanyResponse companyResponse = companyService.createCompany(companyRequest, userId);
         return new ResponseEntity<>(companyResponse, HttpStatus.CREATED);
     }
 
     @GetMapping("/fetch-company")
-    public ResponseEntity<?> fetchCompany(@RequestParam Long userId , @RequestParam Long subscriptionId,@RequestParam Long companyId) {
+    public ResponseEntity<?> fetchCompany(@RequestParam Long companyId, @RequestParam Long userId) {
         try {
-            CompanyResponse response = companyService.fetchCompany(userId,subscriptionId,companyId);
+            CompanyResponse response = companyService.fetchCompany(companyId, userId);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -45,10 +39,10 @@ public class CompanyController {
         }
     }
 
-    @GetMapping("/fetch-all-company")
-    public ResponseEntity<?> fetchAllCompanies(@RequestParam Long userId , @RequestParam Long subscriptionId) {
+    @GetMapping("/fetch-all-companies")
+    public ResponseEntity<?> fetchAllCompanies(@RequestParam Long userId) {
         try {
-            List<CompanyResponse> response = companyService.fetchAllCompanies(userId,subscriptionId);
+            List<CompanyResponse> response = companyService.fetchAllCompanies(userId);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -57,30 +51,7 @@ public class CompanyController {
         }
     }
 
-//    @PostMapping("/assign-team-members")
-//    public ResponseEntity<String> assignTeamMembersToCompany(@RequestParam Long companyId,
-//                                                             @RequestBody List<Long> teamMemberIds) {
-//        try {
-//            companyService.assignTeamMembersToCompany(companyId, teamMemberIds);
-//            return new ResponseEntity<>("Team members assigned successfully.", HttpStatus.OK);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-////
-
-//    @GetMapping("/fetch-mapped-members")
-//    public ResponseEntity<List<TeamMember>> getTeamMembersByCompany(@RequestParam Long companyId) {
-//        try {
-//            List<TeamMember> teamMembers = companyService.getTeamMembersByCompany(companyId);
-//            return new ResponseEntity<>(teamMembers, HttpStatus.OK);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
-
-    @PutMapping("/update-company")
+    @PutMapping("/updateCompany")
     public ResponseEntity<CompanyResponse> updateCompany(@RequestBody CompanyRequest companyRequest,
                                                          @RequestParam Long companyId,
                                                          @RequestParam Long userId) {
@@ -88,40 +59,22 @@ public class CompanyController {
             CompanyResponse companyResponse = companyService.updateCompany(companyRequest, companyId, userId);
             return new ResponseEntity<>(companyResponse, HttpStatus.OK);
         } catch (UnauthorizedException e) {
-            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN); // Return Forbidden if user is unauthorized
+            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
         } catch (NotFoundException e) {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND); // Return NotFound for missing resources
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR); // Generic error
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-
-    @GetMapping("/get-all-business-unit")
-    public List<BusinessUnitResponse> getCompaniesByUserId(@RequestParam Long companyId) {
-        return companyService.getUnitsByCompanies(companyId);
-    }
-    @DeleteMapping("/removeCompany")
-    public ResponseEntity<String> disableCompany(@RequestParam Long id , @RequestParam Long userId) {
+    @DeleteMapping("/disableCompany")
+    public ResponseEntity<String> disableCompany(@RequestParam Long companyId, @RequestParam Long userId) {
         try {
-            companyService.disableCompany(id , userId);
-            return ResponseEntity.ok("Company with ID " + id + " disabled successfully");
+            companyService.disableCompany(companyId, userId);
+            return ResponseEntity.ok("Company with ID " + companyId + " disabled successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error while disabling company with ID " + id);
+                    .body("Error while disabling company with ID " + companyId);
         }
     }
-
-    @GetMapping("/getCompanyUnitComplianceDetails")
-    public List<CompanyBusinessUnitDto> getCompanyUnitComplianceDetails(@RequestParam Long userId) {
-        return companyService.getCompanyUnitComplianceDetails(userId);
-    }
-
-    @GetMapping("/getCompanyDataForTasks")
-    public CompanyResponse getCompanyData(@RequestParam Long companyId) {
-        return companyService.getCompanyData(companyId);
-    }
-
-
-
 }

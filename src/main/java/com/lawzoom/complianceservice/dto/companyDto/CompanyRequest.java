@@ -1,6 +1,8 @@
 package com.lawzoom.complianceservice.dto.companyDto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,45 +16,51 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CompanyRequest {
 
-
+    @NotEmpty(message = "Business email is required")
     @Email(message = "Please provide a valid email address")
     private String businessEmailId;
 
-    private long companyTypeId;
+    @NotNull(message = "Company type ID is required")
+    private Long companyTypeId;
 
+    @NotEmpty(message = "Company name is required")
     private String companyName;
 
+    @NotNull(message = "Country ID is required")
     private Long countryId;
 
-    private long companyStateId;
+    @NotNull(message = "State ID is required")
+    private Long stateId;
 
-    private long companyCityId;
+    @NotNull(message = "City ID is required")
+    private Long cityId;
 
-    private String companyRegistrationNumber;
+    private String registrationNumber;
 
-    private LocalDate companyRegistrationDate;
+    private LocalDate registrationDate;
 
-    private String companyCINNumber;
+    private String cinNumber;
 
-    private String companyRemarks;
+    private String remarks;
 
     private String pinCode;
 
-    private String companyPanNumber;
+    private String panNumber;
 
-    private String companyAddress;
+    private Long turnover;
 
-    private Long companyTurnover;
-
+    @NotNull(message = "Location ID is required")
     private Long locatedAtId;
 
+    @NotNull(message = "Business activity ID is required")
     private Long businessActivityId;
 
+    @NotNull(message = "Industry ID is required")
     private Long industryId;
 
     private Long industrySubCategoryId;
 
-    private boolean isEnable;
+    private boolean enable;
 
     private int permanentEmployee;
 
@@ -62,7 +70,6 @@ public class CompanyRequest {
 
     private String operationUnitAddress;
 
-    private Long subscriptionId;
-
-
+    @NotNull(message = "Subscriber ID is required")
+    private Long subscriberId;
 }
