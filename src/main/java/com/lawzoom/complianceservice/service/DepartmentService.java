@@ -1,7 +1,15 @@
 package com.lawzoom.complianceservice.service;
 
-import com.lawzoom.complianceservice.model.user.Department;
+import com.lawzoom.complianceservice.dto.DepartmentDTO.DepartmentRequest;
+import com.lawzoom.complianceservice.dto.DepartmentDTO.DepartmentResponse;
+
+import java.util.List;
 
 public interface DepartmentService {
-    Department createDepartment(Department department);
+    DepartmentResponse createDepartment(String departmentName, Long userId);
+    DepartmentResponse getDepartmentById(Long id);
+    List<DepartmentResponse> getAllDepartments();
+    void updateDepartment(DepartmentRequest departmentRequest);
+    void softDeleteDepartment(Long departmentId);
+    DepartmentResponse createMasterDepartment(String departmentName);
 }
