@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/auth/gst-details")
+@RequestMapping("/api/compliance/gst-details")
 @CrossOrigin(origins = "*", maxAge = 3600)
 
 public class GstDetailsController {
@@ -31,9 +31,18 @@ public class GstDetailsController {
 
     @PostMapping("/fetch-gstDetail")
     public ResponseEntity<GstDetailsResponse> getGstDetailsById(@RequestBody GstDetailsFetchRequest gstDetailsFetchRequest) {
-        GstDetailsResponse response = gstDetailsService.getGstDetailsById(gstDetailsFetchRequest);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        try {
+            GstDetailsResponse response = gstDetailsService.getGstDetailsById(gstDetailsFetchRequest);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
 
     @GetMapping("/fetch-company-gstDetails")
     public ResponseEntity<?> fetchAllGstDetails(@RequestParam Long companyId,
@@ -50,28 +59,33 @@ public class GstDetailsController {
     }
 
 
-    @PutMapping("/update-gst-details")
+    @PutMapping("/update")
     public ResponseEntity<?> updateGstDetails(@RequestParam Long id, @RequestBody GstDetailsRequest gstDetailsRequest) {
         try {
             GstDetailsResponse response = gstDetailsService.updateGstDetails(id, gstDetailsRequest);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>("An unexpected error occurred.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping("/delete-gst-details")
-    public ResponseEntity<?> softDeleteGstDetails(@RequestParam Long id) {
+    public ResponseEntity<?> softDeleteGstDetails(@RequestParam Long id, @RequestParam Long userId) {
         try {
-            String response = gstDetailsService.softDeleteGstDetails(id);
+            String response = gstDetailsService.softDeleteGstDetails(id, userId);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
             return new ResponseEntity<>("An unexpected error occurred.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
 }

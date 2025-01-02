@@ -1,4 +1,4 @@
-package com.lawzoom.complianceservice.controller;
+package com.lawzoom.complianceservice.controller.userController;
 
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.service.UserService;

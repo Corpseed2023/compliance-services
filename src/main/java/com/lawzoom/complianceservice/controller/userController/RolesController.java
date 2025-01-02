@@ -18,8 +18,8 @@ public class RolesController {
     private RolesService rolesService;
 
     @PostMapping
-    public ResponseEntity<Roles> createRole(@RequestBody Roles role) {
-        Roles createdRole = rolesService.createRole(role);
+    public ResponseEntity<Roles> createRole(@RequestParam String roleName) {
+        Roles createdRole = rolesService.createRole(roleName);
         return ResponseEntity.status(201).body(createdRole);
     }
 

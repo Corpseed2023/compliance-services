@@ -1,11 +1,9 @@
 package com.lawzoom.complianceservice.dto.complianceDto;
 
-
-
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
 @Data
@@ -16,8 +14,6 @@ public class ComplianceRequest {
     private String name;
 
     private String issueAuthority;
-
-    private String description;
 
     private String approvalState;
 
@@ -31,20 +27,11 @@ public class ComplianceRequest {
 
     private int workStatus;
 
-    private Long categoryId;
-
-    @NotNull(message = "Company ID is required.")
-    private Long companyId;
-
-    @NotNull(message = "Business Unit ID is required.")
-    private Long businessUnitId;
-
     private int priority;
 
     private String certificateType;
 
-    private Long businessActivityId;
-
     private boolean isEnable;
-}
 
+    private Long subscriberId;
+}

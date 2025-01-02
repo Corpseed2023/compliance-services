@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/auth/states")
+@RequestMapping("/api/compliance/states")
 @CrossOrigin(origins = "*", maxAge = 3600)
 
 public class StatesController {

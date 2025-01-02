@@ -1,22 +1,17 @@
 package com.lawzoom.complianceservice.serviceImpl.industry;
 
-import com.lawzoom.complianceservice.dto.industryDTO.request.IndustryCategoryRequestDTO;
 import com.lawzoom.complianceservice.dto.industryDTO.request.IndustrySubCategoryRequestDTO;
-import com.lawzoom.complianceservice.dto.industryDTO.response.IndustryCategoryResponseDTO;
 import com.lawzoom.complianceservice.dto.industryDTO.response.IndustrySubCategoryResponseDTO;
-import com.lawzoom.complianceservice.model.User;
+import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.businessActivityModel.IndustryCategory;
 import com.lawzoom.complianceservice.model.businessActivityModel.IndustrySubCategory;
+import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.UserRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.IndustryCategoryRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.IndustrySubCategoryRepository;
-import com.lawzoom.complianceservice.service.industry.IndustryCategoryService;
 import com.lawzoom.complianceservice.service.industry.IndustrySubCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -39,11 +34,10 @@ public class IndustrySubCategoryServiceImpl implements IndustrySubCategoryServic
     @Override
     public IndustrySubCategory createSubIndustryCategory(String industrySubCategoryName, Long categoryId,Long userId) {
 
-        Optional<User> user =userRepository.findByIdAndIsEnableAndNotDeleted(userId);
-
-        if (user==null && user.isEmpty())
-        {
-            throw new IllegalArgumentException("Error: User not found!");
+        // Step 1: Validate User
+        User userData = userRepository.findActiveUserById(userId);
+        if (userData == null) {
+            throw new NotFoundException("User not found with userId: " + userId);
         }
 
         Optional<IndustryCategory> industryCategoryOptional = industryCategoryRepository.findById(categoryId);
@@ -70,13 +64,11 @@ public class IndustrySubCategoryServiceImpl implements IndustrySubCategoryServic
     @Override
     public IndustrySubCategory updateSubIndustryCategory(IndustrySubCategoryRequestDTO industrySubCategoryRequestDTO) {
 
-        Optional<User> user =userRepository.findByIdAndIsEnableAndNotDeleted(industrySubCategoryRequestDTO.getUserId());
-
-        if (user==null && user.isEmpty())
-        {
+        // Validate User
+        User user = userRepository.findActiveUserById(industrySubCategoryRequestDTO.getUserId());
+        if (user == null) {
             throw new IllegalArgumentException("Error: User not found!");
         }
-
 
         Optional<IndustrySubCategory> existingSubCategoryOptional = industrySubCategoryRepository.findById(industrySubCategoryRequestDTO.getId());
         if (existingSubCategoryOptional.isPresent()) {

@@ -30,7 +30,7 @@ public class GstCompanyResponse {
 
     private String gstRegistrationDate;
 
-    private Long subscriptionId;
+    private Long subscriberId;
     private String subscriptionName;
 
     private List<BusinessUnitResponse> businessUnitResponseList;

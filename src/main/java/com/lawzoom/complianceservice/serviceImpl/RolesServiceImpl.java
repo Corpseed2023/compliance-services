@@ -15,12 +15,19 @@ public class RolesServiceImpl implements RolesService {
     @Autowired
     private RolesRepository rolesRepository;
 
+
     @Override
-    public Roles createRole(Roles role) {
-        if (rolesRepository.existsByRoleName(role.getRoleName())) {
-            throw new RuntimeException("Role name already exists: " + role.getRoleName());
+    public Roles createRole(String roleName) {
+
+        if (rolesRepository.existsByRoleName(roleName)) {
+            throw new RuntimeException("Role name already exists: " + roleName );
         }
-        return rolesRepository.save(role);
+
+        Roles roles = new Roles();
+
+        roles.setRoleName(roleName);
+
+        return rolesRepository.save(roles);
     }
 
     @Override

@@ -1,24 +1,27 @@
 package com.lawzoom.complianceservice.controller.complianceController;
 
 
-import com.authentication.dto.complianceDto.CompanyComplianceDTO;
-import com.authentication.dto.complianceDto.ComplianceRequest;
-import com.authentication.dto.complianceDto.ComplianceResponse;
-import com.authentication.repository.ComplianceRepo;
-import com.authentication.service.complianceService.ComplianceService;
+
+import com.lawzoom.complianceservice.dto.complianceDto.CompanyComplianceDTO;
+import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
+import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
+import com.lawzoom.complianceservice.exception.NotFoundException;
+import com.lawzoom.complianceservice.repository.ComplianceRepo;
+import com.lawzoom.complianceservice.service.complianceService.ComplianceService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/compliance")
+@RequestMapping("/api/compliance/compliance")
 public class ComplianceController {
 
     @Autowired
@@ -26,30 +29,6 @@ public class ComplianceController {
 
     @Autowired
     private ComplianceRepo complianceRepository;
-
-
-    @GetMapping("/showAllCompliance")
-    public List<ComplianceResponse> fetchAllCompliance(@RequestParam("companyId") Long companyId,
-                                                       @RequestParam("businessId") Long businessUnitId) {
-        if (companyId == null || businessUnitId == null) {
-            throw new IllegalArgumentException("Please provide  companyId and businessUnitId");
-        }
-        return complianceService.fetchAllCompliances(companyId, businessUnitId);
-    }
-
-    @GetMapping("/getComplianceCount")
-    public Map<Long,Integer> getComplianceCount(){
-
-        System.out.println("API Hiting by auth");
-
-        return complianceService.getComplianceCount();
-
-    }
-
-    @GetMapping("/company/getComplianceCounts")
-    public Map<Long, Map<Long, Integer>> getComplianceCountsByCompanyAndBusinessUnit() {
-        return complianceService.getComplianceCountsByCompanyAndBusinessUnit();
-    }
 
     @PostMapping("/saveCompliance")
     public ResponseEntity<ComplianceResponse> saveCompliance(
@@ -91,60 +70,43 @@ public class ComplianceController {
 
 
     @GetMapping("/fetchByBusinessUnit")
-    public ResponseEntity<List<ComplianceResponse>> fetchCompliancesByBusinessUnit(
-            @RequestParam("businessUnitId") Long businessUnitId) {
+    public ResponseEntity<List<ComplianceResponse>> fetchComplianceByBusinessUnit(
+            @RequestParam("businessUnitId") Long businessUnitId,
+            @RequestParam("userId") Long userId,
+            @RequestParam("subscriberId") Long subscriberId) {
 
-        if (businessUnitId == null) {
-            throw new IllegalArgumentException("Please provide a valid businessUnitId");
+        if (businessUnitId == null || userId == null || subscriberId == null) {
+            throw new IllegalArgumentException("Please provide valid businessUnitId, userId, and subscriberId");
         }
 
         try {
-            List<ComplianceResponse> responseList = complianceService.fetchCompliancesByBusinessUnit(businessUnitId);
+            List<ComplianceResponse> responseList = complianceService.fetchCompliancesByBusinessUnit(businessUnitId, userId, subscriberId);
             return ResponseEntity.ok(responseList);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to fetch compliances: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to fetch compliance: " + e.getMessage(), e);
         }
     }
 
     @GetMapping("/company-details-count")
-    public ResponseEntity<List<CompanyComplianceDTO>> getCompanyComplianceDetails(@RequestParam Long userId) {
-        List<CompanyComplianceDTO> companyComplianceDetails = complianceService.getCompanyComplianceDetails(userId);
-        return ResponseEntity.ok(companyComplianceDetails);
-    }
+    public ResponseEntity<List<CompanyComplianceDTO>> getCompanyComplianceDetails(
+            @RequestParam Long userId,
+            @RequestParam Long subscriberId) {
 
-    @GetMapping("/getAllComplianceByCompanyUnitTeam")
-    public ComplianceResponse getAllComplianceByCompanyUnitTeam(@RequestParam("companyId") Long companyId,
-                                                                @RequestParam("businessUnitId") Long businessUnitId,
-                                                                @RequestParam("teamId") Long teamId) {
-        if (companyId == null || businessUnitId == null || teamId == null) {
-            throw new IllegalArgumentException("Please provide  companyId and businessUnitId");
+        if (userId == null || subscriberId == null) {
+            throw new IllegalArgumentException("User ID and Subscriber ID must be provided.");
         }
-        return this.complianceService.getAllComplianceByCompanyUnitTeam(teamId, companyId, businessUnitId);
 
+        try {
+            List<CompanyComplianceDTO> companyComplianceDetails = complianceService.getCompanyComplianceDetails(userId, subscriberId);
+            return ResponseEntity.ok(companyComplianceDetails);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch compliance details: " + e.getMessage(), e);
+        }
     }
 
-//    @GetMapping("/getAllComplianceByUserId")
-//    public ResponseEntity<Map<Long, List<ComplianceResponse>>> getAllComplianceByUserId() {
-//        Map<Long, List<ComplianceResponse>> result = complianceService.getAllComplianceByCompanyId();
-//        return new ResponseEntity<>(result, HttpStatus.OK);
-//    }
 
-//    @GetMapping("/compliance-count")
-//    public List<Map<String, Object>> getComplianceCountPerCompanyAndBusinessUnit() {
-//
-//        System.out.println("Got hit by authentication");
-//        List<Object[]> result = complianceRepository.countCompliancePerCompanyAndBusinessUnit();
-//
-//        return result.stream()
-//                .map(objects -> {
-//                    Map<String, Object> map = new HashMap<>();
-//                    map.put("companyId", objects[0]);
-//                    map.put("businessUnitId", objects[1]);
-//                    map.put("complianceCount", objects[2]);
-//                    return map;
-//                })
-//                .collect(Collectors.toList());
-//    }
 
 
 

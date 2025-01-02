@@ -12,7 +12,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/auth/countries")
+@RequestMapping("/api/compliance/countries")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class CountryController {
 

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/auth/sub-industry-category")
+@RequestMapping("/api/compliance/sub-industry-category")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class IndustrySubCategoryController {
 

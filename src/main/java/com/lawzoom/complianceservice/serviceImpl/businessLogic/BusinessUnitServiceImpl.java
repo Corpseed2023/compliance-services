@@ -5,7 +5,6 @@ import com.lawzoom.complianceservice.dto.businessUnitDto.BusinessUnitResponse;
 import com.lawzoom.complianceservice.dto.businessUnitDto.businessUnitRequest.BusinessUnitRequest;
 import com.lawzoom.complianceservice.dto.businessUnitDto.businessUnitRequest.UnitRequest;
 import com.lawzoom.complianceservice.exception.NotFoundException;
-import com.lawzoom.complianceservice.model.*;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.companyModel.Company;
@@ -13,6 +12,8 @@ import com.lawzoom.complianceservice.model.gstdetails.GstDetails;
 import com.lawzoom.complianceservice.model.region.City;
 import com.lawzoom.complianceservice.model.region.LocatedAt;
 import com.lawzoom.complianceservice.model.region.States;
+import com.lawzoom.complianceservice.model.user.Subscriber;
+import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.DesignationRepository;
 import com.lawzoom.complianceservice.repository.GstDetailsRepository;
 import com.lawzoom.complianceservice.repository.SubscriptionRepository;
@@ -37,19 +38,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 @Service
 public class BusinessUnitServiceImpl implements BusinessUnitService {
-
 
     @Autowired
     private BusinessUnitRepository businessUnitRepository;
 
     @Autowired
     private CompanyRepository companyRepository;
-
-//    @Autowired
-//    private ComplianceMap complianceMap;
 
     @Autowired
     private CompanyTypeRepository companyTypeRepository;
@@ -86,36 +82,44 @@ public class BusinessUnitServiceImpl implements BusinessUnitService {
 
     @Override
     public BusinessUnitResponse createBusinessUnit(BusinessUnitRequest businessUnitRequest, Long gstDetailsId) {
+        // Validate User
+        User user = userRepository.findActiveUserById(businessUnitRequest.getUserId());
+        if (user == null) {
+            throw new IllegalArgumentException("Error: User not found!");
+        }
 
-        User userData = userRepository.findByIdAndIsEnableAndNotDeleted(businessUnitRequest.getUserId())
-                .orElseThrow(() -> new NotFoundException("User not found with userId: " + businessUnitRequest.getUserId()));
 
-        // Validate Subscription
-        Subscription subscription = subscriptionRepository.findById(businessUnitRequest.getSubscriptionId())
-                .orElseThrow(() -> new IllegalArgumentException("Subscription not found with ID: " + businessUnitRequest.getSubscriptionId()));
+        // Validate Subscriber
+        Subscriber subscriber = user.getSubscriber();
+        if (subscriber == null || !subscriber.getId().equals(businessUnitRequest.getSubscriberID())) {
+            throw new NotFoundException("User is not associated with the provided subscriber ID.");
+        }
 
         // Validate GST Details
         GstDetails gstDetails = gstDetailsRepository.findByIdAndEnabledAndNotDeleted(gstDetailsId)
-                .orElseThrow(() -> new NotFoundException("GST Details not found or is inactive/deleted with ID: " + gstDetailsId));
+                .orElseThrow(() -> new NotFoundException("GST Details not found or inactive/deleted with ID: " + gstDetailsId));
 
-        if (!gstDetails.isEnable()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "GST Details are not active. Cannot create Business Unit.");
+        // Validate that GST Details belong to a Company associated with the Subscriber
+        Company company = gstDetails.getCompany();
+        if (company == null || !company.getSubscriber().getId().equals(subscriber.getId())) {
+            throw new NotFoundException("GST Details do not belong to a company associated with the subscriber.");
         }
 
-        // Fetch State
+        // Validate State
         States state = statesRepository.findById(businessUnitRequest.getStateId())
                 .orElseThrow(() -> new NotFoundException("State not found with ID: " + businessUnitRequest.getStateId()));
 
-        // Fetch City
+        // Validate City
         City city = cityRepository.findById(businessUnitRequest.getCityId())
                 .orElseThrow(() -> new NotFoundException("City not found with ID: " + businessUnitRequest.getCityId()));
 
-        // Fetch LocatedAt
+        // Validate LocatedAt
         LocatedAt locatedAt = locatedAtRepository.findById(businessUnitRequest.getLocatedAtId())
                 .orElseThrow(() -> new NotFoundException("LocatedAt not found with ID: " + businessUnitRequest.getLocatedAtId()));
 
+        // Validate Business Activity
         BusinessActivity businessActivity = businessActivityRepository.findById(businessUnitRequest.getBusinessActivityId())
-                .orElseThrow(() -> new NotFoundException("Business not found with ID: " + businessUnitRequest.getBusinessActivityId()));
+                .orElseThrow(() -> new NotFoundException("Business Activity not found with ID: " + businessUnitRequest.getBusinessActivityId()));
 
         // Create and populate Business Unit entity
         BusinessUnit newBusinessUnit = new BusinessUnit();
@@ -128,37 +132,48 @@ public class BusinessUnitServiceImpl implements BusinessUnitService {
         newBusinessUnit.setState(state);
         newBusinessUnit.setGstNumber(businessUnitRequest.getGstNumber());
         newBusinessUnit.setGstDetails(gstDetails);
-        newBusinessUnit.setSubscription(subscription);
-        newBusinessUnit.setUpdatedBy(userData);
-        newBusinessUnit.setCreatedBy(userData);
+        newBusinessUnit.setCreatedBy(user);
+        newBusinessUnit.setUpdatedBy(user);
         newBusinessUnit.setBusinessActivity(businessActivity);
 
         // Save Business Unit
         BusinessUnit savedBusinessUnit = businessUnitRepository.save(newBusinessUnit);
 
         // Prepare response
-        BusinessUnitResponse response = new BusinessUnitResponse();
-        response.setId(savedBusinessUnit.getId());
-        response.setCity(savedBusinessUnit.getCity().getCityName());
-        response.setLocatedAt(savedBusinessUnit.getLocatedAt().getLocationName());
-        response.setAddress(savedBusinessUnit.getAddress());
-        response.setCreatedAt(savedBusinessUnit.getCreatedAt());
-        response.setUpdatedAt(savedBusinessUnit.getUpdatedAt());
-        response.setEnable(savedBusinessUnit.isEnable());
-        response.setState(savedBusinessUnit.getState().getStateName());
-        response.setGstNumber(savedBusinessUnit.getGstNumber());
+        return mapBusinessUnitToResponse(savedBusinessUnit, company);
+    }
 
+    private BusinessUnitResponse mapBusinessUnitToResponse(BusinessUnit businessUnit, Company company) {
+        BusinessUnitResponse response = new BusinessUnitResponse();
+        response.setId(businessUnit.getId());
+        response.setCompanyId(company.getId());
+        response.setCompanyName(company.getCompanyName());
+        response.setCityId(businessUnit.getCity().getId());
+        response.setCity(businessUnit.getCity().getCityName());
+        response.setLocatedAtId(businessUnit.getLocatedAt().getId());
+        response.setLocatedAt(businessUnit.getLocatedAt().getLocationName());
+        response.setAddress(businessUnit.getAddress());
+        response.setCreatedAt(businessUnit.getCreatedAt());
+        response.setUpdatedAt(businessUnit.getUpdatedAt());
+        response.setEnable(businessUnit.isEnable());
+        response.setStateId(businessUnit.getState().getId());
+        response.setState(businessUnit.getState().getStateName());
+        response.setGstNumber(businessUnit.getGstNumber());
+        response.setBusinessActivityId(businessUnit.getBusinessActivity().getId());
+        response.setBusinessActivity(businessUnit.getBusinessActivity().getBusinessActivityName());
         return response;
     }
+
+
+
+
     @Override
     public List<BusinessUnitResponse> getCompanyUnits(UnitRequest unitRequest) {
-        // Fetch the user details and validate
-        User userData = userRepository.findByIdAndIsEnableAndNotDeleted(unitRequest.getUserId())
-                .orElseThrow(() -> new NotFoundException("User not found with userId: " + unitRequest.getUserId()));
 
-        // Fetch the subscription details and validate
-        Subscription subscription = subscriptionRepository.findById(unitRequest.getSubscriptionId())
-                .orElseThrow(() -> new IllegalArgumentException("Subscription not found with ID: " + unitRequest.getSubscriptionId()));
+        User user = userRepository.findActiveUserById(unitRequest.getUserId());
+        if (user == null) {
+            throw new IllegalArgumentException("Error: User not found!");
+        }
 
         // Fetch the company details and validate
         Company company = companyRepository.findById(unitRequest.getCompanyId())
@@ -191,7 +206,6 @@ public class BusinessUnitServiceImpl implements BusinessUnitService {
             response.setGstNumber(businessUnit.getGstNumber());
             response.setStateId(businessUnit.getState().getId());
             response.setState(businessUnit.getState().getStateName());
-            response.setSubscriptionId(subscription.getId());
             responses.add(response);
         }
 
@@ -202,12 +216,12 @@ public class BusinessUnitServiceImpl implements BusinessUnitService {
     @Override
     public BusinessUnitResponse updateBusinessUnit(Long businessUnitId, BusinessUnitRequest businessUnitRequest) {
 
-        User userData = userRepository.findByIdAndIsEnableAndNotDeleted(businessUnitRequest.getUserId())
-                .orElseThrow(() -> new NotFoundException("User not found with userId: " + businessUnitRequest.getUserId()));
+        User user = userRepository.findActiveUserById(businessUnitRequest.getUserId());
+        if (user == null) {
+            throw new IllegalArgumentException("Error: User not found!");
+        }
 
 
-        Subscription subscription = subscriptionRepository.findById(businessUnitRequest.getSubscriptionId())
-                .orElseThrow(() -> new IllegalArgumentException("Subscription not found with ID: " + businessUnitRequest.getSubscriptionId()));
 
 
         // Validate and fetch state
@@ -226,14 +240,6 @@ public class BusinessUnitServiceImpl implements BusinessUnitService {
         BusinessUnit existingBusinessUnit = businessUnitRepository.findById(businessUnitId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Business Unit not found with ID: " + businessUnitId));
 
-        // Update other optional fields if they are part of the request
-        if (businessUnitRequest.getUserId() != null) {
-            User updatedBy = userRepository.findByIdAndIsEnableAndNotDeleted(businessUnitRequest.getUserId())
-                    .orElseThrow(() -> new NotFoundException("User not found with userId: " + businessUnitRequest.getUserId()));
-            existingBusinessUnit.setUpdatedBy(updatedBy);
-        }
-
-
         // Update the business unit fields
         existingBusinessUnit.setCity(city);
         existingBusinessUnit.setLocatedAt(locatedAt);
@@ -241,9 +247,7 @@ public class BusinessUnitServiceImpl implements BusinessUnitService {
         existingBusinessUnit.setGstNumber(businessUnitRequest.getGstNumber());
         existingBusinessUnit.setState(state);
         existingBusinessUnit.setUpdatedAt(new Date()); // Ensure updated timestamp is set
-        existingBusinessUnit.setSubscription(subscription);
-        existingBusinessUnit.setCreatedBy(userData);
-
+        existingBusinessUnit.setCreatedBy(user);
 
 
         // Save the updated business unit
@@ -267,52 +271,54 @@ public class BusinessUnitServiceImpl implements BusinessUnitService {
         return response;
     }
 
-
     @Override
-    public List<BusinessUnitResponse> getAllBusinessUnits(Long gstDetailsId,Long userId) {
-
-        User userData = userRepository.findByIdAndIsEnableAndNotDeleted(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with userId: " + userId));
-        // Fetch the GST details by ID
-
-        Optional<GstDetails> gstDetailsOptional = gstDetailsRepository.findById(gstDetailsId);
-
-        if (gstDetailsOptional.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No GST details found for ID: " + gstDetailsId);
+    public List<BusinessUnitResponse> getAllBusinessUnits(Long gstDetailsId, Long userId) {
+        // Validate User
+        User user = userRepository.findActiveUserById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("Error: User not found!");
         }
 
-        GstDetails gstDetails = gstDetailsOptional.get();
 
-        // Fetch the list of business units using the custom query
+        // Validate Subscriber
+        Subscriber subscriber = user.getSubscriber();
+        if (subscriber == null) {
+            throw new NotFoundException("User is not associated with any subscriber.");
+        }
+
+        // Fetch GST Details
+        GstDetails gstDetails = gstDetailsRepository.findByIdAndEnabledAndNotDeleted(gstDetailsId)
+                .orElseThrow(() -> new NotFoundException("GST Details not found or inactive/deleted with ID: " + gstDetailsId));
+
+        // Validate that GST Details belong to a Company associated with the Subscriber
+        Company company = gstDetails.getCompany();
+        if (company == null || !company.getSubscriber().getId().equals(subscriber.getId())) {
+            throw new NotFoundException("GST Details do not belong to a company associated with the subscriber.");
+        }
+
+        // Fetch the list of Business Units
         List<BusinessUnit> businessUnits = businessUnitRepository.findAllByGstDetails(gstDetails);
-
         if (businessUnits.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No business units found for GST details ID: " + gstDetailsId);
+            throw new NotFoundException("No business units found for GST details ID: " + gstDetailsId);
         }
 
-        // Map each BusinessUnit entity to a BusinessUnitResponse DTO
-        return businessUnits.stream().map(this::mapToBusinessUnitResponse).collect(Collectors.toList());
-    }
-
-    // Helper method to map BusinessUnit to BusinessUnitResponse
-    private BusinessUnitResponse mapToBusinessUnitResponse(BusinessUnit businessUnit) {
-        BusinessUnitResponse response = new BusinessUnitResponse();
-
-        response.setId(businessUnit.getId());
-        response.setCity(businessUnit.getCity() != null ? businessUnit.getCity().getCityName() : null);
-        response.setLocatedAt(businessUnit.getLocatedAt() != null ? businessUnit.getLocatedAt().getLocationName() : null);
-        response.setAddress(businessUnit.getAddress());
-        response.setCreatedAt(businessUnit.getCreatedAt());
-        response.setUpdatedAt(businessUnit.getUpdatedAt());
-        response.setEnable(businessUnit.isEnable());
-        response.setGstNumber(businessUnit.getGstNumber());
-        response.setState(businessUnit.getState() != null ? businessUnit.getState().getStateName() : null);
-        response.setSubscriptionId(businessUnit.getSubscription() != null ? businessUnit.getSubscription().getId() : null);
-        response.setCityId(businessUnit.getCity().getId());
-        response.setStateId(businessUnit.getState().getId());
-        response.setLocatedAtId(businessUnit.getLocatedAt().getId());
-
-        return response;
+        // Map each BusinessUnit entity to a BusinessUnitResponse DTO directly
+        return businessUnits.stream().map(businessUnit -> {
+            BusinessUnitResponse response = new BusinessUnitResponse();
+            response.setId(businessUnit.getId());
+            response.setCity(businessUnit.getCity() != null ? businessUnit.getCity().getCityName() : null);
+            response.setLocatedAt(businessUnit.getLocatedAt() != null ? businessUnit.getLocatedAt().getLocationName() : null);
+            response.setAddress(businessUnit.getAddress());
+            response.setCreatedAt(businessUnit.getCreatedAt());
+            response.setUpdatedAt(businessUnit.getUpdatedAt());
+            response.setEnable(businessUnit.isEnable());
+            response.setGstNumber(businessUnit.getGstNumber());
+            response.setState(businessUnit.getState() != null ? businessUnit.getState().getStateName() : null);
+            response.setCityId(businessUnit.getCity() != null ? businessUnit.getCity().getId() : null);
+            response.setStateId(businessUnit.getState() != null ? businessUnit.getState().getId() : null);
+            response.setLocatedAtId(businessUnit.getLocatedAt() != null ? businessUnit.getLocatedAt().getId() : null);
+            return response;
+        }).collect(Collectors.toList());
     }
 
 
@@ -340,7 +346,6 @@ public class BusinessUnitServiceImpl implements BusinessUnitService {
             response.setCityId(businessUnit.getCity().getId());
             response.setStateId(businessUnit.getState().getId());
             response.setLocatedAtId(businessUnit.getLocatedAt().getId());
-            response.setSubscriptionId(businessUnit.getSubscription() != null ? businessUnit.getSubscription().getId() : null);
         }
         return response;
     }

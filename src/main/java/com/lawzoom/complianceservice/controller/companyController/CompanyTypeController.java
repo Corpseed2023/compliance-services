@@ -11,7 +11,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/auth/company")
+@RequestMapping("/api/compliance/companyType")
 public class CompanyTypeController {
 
     @Autowired

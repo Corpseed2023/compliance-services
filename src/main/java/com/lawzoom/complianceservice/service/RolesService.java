@@ -6,8 +6,8 @@ import com.lawzoom.complianceservice.model.user.Roles;
 import java.util.List;
 
 public interface RolesService {
-    Roles createRole(Roles role);
 
     List<Roles> getAllRoles();
 
+    Roles createRole(String roleName);
 }

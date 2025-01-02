@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
-@RequestMapping("/api/auth/located-at")
+@RequestMapping("/api/compliance/located-at")
 public class  LocatedAtController {
 
     @Autowired

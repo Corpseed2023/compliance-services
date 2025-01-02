@@ -17,7 +17,5 @@ public interface BusinessUnitService {
     BusinessUnitResponse getBusinessUnitData(Long businessUnitId);
 
     List<BusinessUnitResponse> getCompanyUnits(UnitRequest unitRequest);
-//    List<BusinessUnitResponse> getAllBusinessUnitsWithAllCompany();
 
-//    List<BusinessUnitResponse> getAllBusinessUnitsWithCompany(Long businessUnitId);
 }

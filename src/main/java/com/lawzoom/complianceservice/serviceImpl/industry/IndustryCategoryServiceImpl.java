@@ -2,8 +2,9 @@ package com.lawzoom.complianceservice.serviceImpl.industry;
 
 import com.lawzoom.complianceservice.dto.industryDTO.request.IndustryCategoryRequestDTO;
 import com.lawzoom.complianceservice.dto.industryDTO.response.IndustryCategoryResponseDTO;
-import com.lawzoom.complianceservice.model.User;
+import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.businessActivityModel.IndustryCategory;
+import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.UserRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.IndustryCategoryRepository;
 import com.lawzoom.complianceservice.service.industry.IndustryCategoryService;
@@ -28,12 +29,13 @@ public class IndustryCategoryServiceImpl implements IndustryCategoryService {
     @Override
     public IndustryCategory createIndustryCategory(String industryName, Long userId) {
 
-        // Check if the user exists
-        Optional<User> userOptional = userRepository.findByIdAndIsEnableAndNotDeleted(userId);
-        if (userOptional.isEmpty()) {
-            throw new IllegalArgumentException("Error: User not found!");
+        // Step 1: Validate User
+        User userData = userRepository.findActiveUserById(userId);
+
+        if (userData == null) {
+            throw new NotFoundException("User not found with userId: " + userId);
         }
-        User user = userOptional.get();
+
 
         if (industryName == null || industryName.trim().isEmpty()) {
             throw new IllegalArgumentException("Error: Industry name is required!");
@@ -54,10 +56,12 @@ public class IndustryCategoryServiceImpl implements IndustryCategoryService {
     @Override
     public IndustryCategory updateIndustryCategory(IndustryCategoryRequestDTO industryCategoryRequestDTO) {
 
-        Optional<User> userOptional = userRepository.findByIdAndIsEnableAndNotDeleted(industryCategoryRequestDTO.getUserId());
-        if (userOptional.isEmpty()) {
-            throw new IllegalArgumentException("Error: User not found!");
+        User userData = userRepository.findActiveUserById(industryCategoryRequestDTO.getUserId());
+
+        if (userData == null) {
+            throw new NotFoundException("User not found with userId: " + industryCategoryRequestDTO.getUserId());
         }
+
 
         IndustryCategory existingCategory = industryCategoryRepository.findById(industryCategoryRequestDTO.getId())
                 .orElseThrow(() -> new RuntimeException("Industry Category not found with ID: " + industryCategoryRequestDTO.getId()));

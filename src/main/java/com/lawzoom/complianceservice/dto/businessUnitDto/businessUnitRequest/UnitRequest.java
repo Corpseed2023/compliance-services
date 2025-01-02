@@ -12,6 +12,6 @@ import lombok.Setter;
 public class UnitRequest {
 
     private Long userId;
-    private Long subscriptionId;
+    private Long subcriberId;
     private Long companyId;
 }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/auth/city")
+@RequestMapping("/api/compliance/city")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class CityController {
 

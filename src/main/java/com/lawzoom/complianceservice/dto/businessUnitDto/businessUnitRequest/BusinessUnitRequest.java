@@ -32,7 +32,7 @@ public class BusinessUnitRequest {
 
 	private long stateId;
 
-	private Long subscriptionId;
+	private Long subscriberID ;
 
 	private Long userId;
 

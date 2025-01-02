@@ -2,6 +2,8 @@ package com.lawzoom.complianceservice.model.complianceModel;
 
 
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
+import com.lawzoom.complianceservice.model.complianceTaskModel.MileStone;
+import com.lawzoom.complianceservice.model.user.Subscriber;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,14 +12,14 @@ import lombok.Setter;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
-
-
+import java.util.List;
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity
 @Table(name = "compliance")
 public class Compliance {
 
@@ -27,28 +29,28 @@ public class Compliance {
 
 	private String issueAuthority;
 
-	private String certificateType ;
+	private String certificateType;
 
 	@Column(name = "compliance_name")
 	private String complianceName;
 
 	@Column(name = "approval_state")
 	private String approvalState;
-	
+
 	@Column(name = "applicable_zone")
 	private String applicableZone;
 
 	@Column(name = "created_at")
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date createdAt;
+	private Date createdAt = new Date();
 
 	@Column(name = "updated_at")
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date updatedAt;
+	private Date updatedAt = new Date();
 
-	@Column(length = 1,name="is_enable",columnDefinition = "tinyint(1) default 1")
+	@Column(length = 1, name = "is_enable", columnDefinition = "tinyint(1) default 1")
 	@Comment(value = "1 : Active, 0 : Inactive")
-	private boolean isEnable;
+	private boolean isEnable = true;
 
 	private LocalDate startDate;
 
@@ -63,20 +65,24 @@ public class Compliance {
 	@JoinColumn(name = "business_unit_id", nullable = false)
 	private BusinessUnit businessUnit;
 
-	@Comment(value="1 : Mandatory Compliance, 2: Optional Compliance")
+	@Comment(value = "1 : Mandatory Compliance, 2: Optional Compliance")
 	private int priority;
 
+	@ManyToOne
+	@JoinColumn(name = "subscriber_id", nullable = false)
+	private Subscriber subscriber;
 
-//	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
-//	private List<ComplianceTask> complianceTasks=new ArrayList<>();
+	@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<MileStone> milestones = new ArrayList<>();
 
-//	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
-//	private List<Document> complianceDocuments=new ArrayList<>();
+	@PrePersist
+	protected void onCreate() {
+		this.createdAt = new Date();
+		this.updatedAt = new Date();
+	}
 
-//	@OneToOne(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
-//	private Reminder complianceReminder;
-
-
-
-
+	@PreUpdate
+	protected void onUpdate() {
+		this.updatedAt = new Date();
+	}
 }

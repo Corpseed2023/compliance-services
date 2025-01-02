@@ -11,10 +11,10 @@ import java.util.List;
 public interface GstDetailsService {
     GstDetailsResponse createGstDetails(GstDetailsRequest gstDetailsRequest);
     GstDetailsResponse updateGstDetails(Long id, GstDetailsRequest gstDetailsRequest);
-
-    String softDeleteGstDetails(Long id);
-
+    
     GstDetailsResponse getGstDetailsById(GstDetailsFetchRequest gstDetailsFetchRequest);
 
     List<GstCompanyResponse> fetchAllGstDetails(Long companyId, Long userId, Long subscriptionId);
+
+    String softDeleteGstDetails(Long id, Long userId);
 }

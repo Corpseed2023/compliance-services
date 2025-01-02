@@ -1,15 +1,13 @@
 package com.lawzoom.complianceservice.model.businessUnitModel;
 
-import com.lawzoom.complianceservice.model.*;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.gstdetails.GstDetails;
 import com.lawzoom.complianceservice.model.region.City;
 import com.lawzoom.complianceservice.model.region.LocatedAt;
 import com.lawzoom.complianceservice.model.region.States;
+import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,34 +18,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.Comment;
-
-
-import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.Comment;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;import java.util.Date;import java.time.LocalDate;
-import java.util.Date;
-
 
 @Entity
 @AllArgsConstructor
@@ -105,10 +75,6 @@ public class BusinessUnit {
 
 	@Column(name = "gst_number")
 	private String gstNumber;
-
-	@ManyToOne
-	@JoinColumn(name = "subscription_id", nullable = false)
-	private Subscription subscription;
 
 	@ManyToOne
 	@JoinColumn(name = "created_by", nullable = false)

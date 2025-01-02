@@ -6,7 +6,6 @@ import com.lawzoom.complianceservice.dto.businessUnitDto.BusinessUnitResponse;
 import com.lawzoom.complianceservice.dto.companyDto.CompanyBusinessUnitDto;
 import com.lawzoom.complianceservice.dto.companyDto.CompanyRequest;
 import com.lawzoom.complianceservice.dto.companyDto.CompanyResponse;
-import com.lawzoom.complianceservice.model.teamMemberModel.TeamMember;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,15 +22,10 @@ public interface CompanyService {
     List<CompanyBusinessUnitDto> getCompanyUnitComplianceDetails(Long userId);
 //
     CompanyResponse getCompanyData(Long companyId);
+    
+    List<BusinessUnitResponse> getUnitsByCompanies(Long companyId);
+
+    CompanyResponse fetchCompany(Long companyId, Long userId, Long subscriberId);
 
     List<CompanyResponse> fetchAllCompanies(Long userId, Long subscriptionId);
-
-//
-//    void assignTeamMembersToCompany(Long companyId, List<Long> teamMemberIds);
-//
-//    List<TeamMember> getTeamMembersByCompany(Long companyId);
-
-    CompanyResponse fetchCompany(Long userId, Long subscriptionId, Long companyId);
-
-    List<BusinessUnitResponse> getUnitsByCompanies(Long companyId);
 }

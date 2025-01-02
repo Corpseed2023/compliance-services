@@ -1,6 +1,5 @@
 package com.lawzoom.complianceservice.dto.complianceDto;
 
-
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -9,23 +8,26 @@ import java.util.Date;
 @Data
 public class ComplianceResponse {
 
-    private Long id;
-    private String name;
-    private String issueAuthority;
-    private String certificateType ;
-    private String description;
-    private String approvalState;
-    private String applicableZone;
-    private Date createdAt;
-    private Date updatedAt;
-    private boolean isEnable;
-    private LocalDate startDate;
-    private LocalDate dueDate;
-    private LocalDate completedDate;
-    private String duration;
-    private int workStatus;
-    private int priority;
-    private Long companyId;
-    private Long businessUnitId;
-    private Long createdBy;
+    private Long id; // Unique ID of the compliance
+    private String name; // Name of the compliance
+    private String issueAuthority; // Authority issuing the compliance
+    private String certificateType; // Type of certificate, if applicable
+    private String description; // Description of the compliance
+    private String approvalState; // Current approval state (e.g., Approved, Pending)
+    private String applicableZone; // Zone or region where the compliance is applicable
+    private Date createdAt; // Timestamp for when the compliance was created
+    private Date updatedAt; // Timestamp for when the compliance was last updated
+    private boolean isEnable; // Status indicating if the compliance is active
+    private LocalDate startDate; // Start date of the compliance
+    private LocalDate dueDate; // Due date for compliance
+    private LocalDate completedDate; // Date when the compliance was completed
+    private String duration; // Duration or time span for compliance, calculated or direct
+    private int workStatus; // Work status (e.g., Pending, Completed, Not Applicable)
+    private int priority; // Priority level of the compliance (Mandatory/Optional)
+    private Long companyId; // Associated company ID
+    private Long businessUnitId; // Associated business unit ID
+    private Long createdBy; // User ID of the compliance creator
+    private Long subscriberId; // Subscriber ID to whom the compliance is linked
+    private String complianceCategory; // Category or type of compliance (e.g., Financial, Legal)
+    private String businessActivity; // Business activity related to the compliance
 }

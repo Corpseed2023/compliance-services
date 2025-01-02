@@ -1,11 +1,12 @@
 package com.lawzoom.complianceservice.model.gstdetails;
 
-import com.lawzoom.complianceservice.model.Subscription;
-import com.lawzoom.complianceservice.model.User;
+
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.companyModel.Company;
 import com.lawzoom.complianceservice.model.region.Country;
 import com.lawzoom.complianceservice.model.region.States;
+import com.lawzoom.complianceservice.model.user.User;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,11 +16,6 @@ import org.hibernate.annotations.Comment;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.Comment;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -73,10 +69,6 @@ public class GstDetails {
     // One GST detail can have multiple business units
     @OneToMany(mappedBy = "gstDetails", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<BusinessUnit> businessUnits;
-
-    @ManyToOne
-    @JoinColumn(name = "subscription_id", nullable = false)
-    private Subscription subscription;
 
     @ManyToOne
     @JoinColumn(name = "created_by", nullable = false)

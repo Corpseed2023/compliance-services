@@ -1,7 +1,8 @@
 package com.lawzoom.complianceservice.service;
 
 
-import com.lawzoom.complianceservice.model.ResourceType;
+
+import com.lawzoom.complianceservice.model.user.ResourceType;
 
 import java.util.List;
 

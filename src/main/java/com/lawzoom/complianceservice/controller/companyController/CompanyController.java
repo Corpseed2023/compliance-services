@@ -28,9 +28,9 @@ public class CompanyController {
     }
 
     @GetMapping("/fetch-company")
-    public ResponseEntity<?> fetchCompany(@RequestParam Long companyId, @RequestParam Long userId) {
+    public ResponseEntity<?> fetchCompany(@RequestParam Long companyId, @RequestParam Long userId, @RequestParam Long subscriberId) {
         try {
-            CompanyResponse response = companyService.fetchCompany(companyId, userId);
+            CompanyResponse response = companyService.fetchCompany(companyId, userId, subscriberId);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -39,10 +39,11 @@ public class CompanyController {
         }
     }
 
+
     @GetMapping("/fetch-all-companies")
-    public ResponseEntity<?> fetchAllCompanies(@RequestParam Long userId) {
+    public ResponseEntity<?> fetchAllCompanies(@RequestParam Long userId, @RequestParam Long subscriptionId) {
         try {
-            List<CompanyResponse> response = companyService.fetchAllCompanies(userId);
+            List<CompanyResponse> response = companyService.fetchAllCompanies(userId, subscriptionId);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -50,6 +51,7 @@ public class CompanyController {
             return new ResponseEntity<>("An unexpected error occurred.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @PutMapping("/updateCompany")
     public ResponseEntity<CompanyResponse> updateCompany(@RequestBody CompanyRequest companyRequest,
@@ -71,10 +73,19 @@ public class CompanyController {
     public ResponseEntity<String> disableCompany(@RequestParam Long companyId, @RequestParam Long userId) {
         try {
             companyService.disableCompany(companyId, userId);
-            return ResponseEntity.ok("Company with ID " + companyId + " disabled successfully");
+            return ResponseEntity.ok("Company with ID " + companyId + " disabled successfully.");
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error while disabling company with ID " + companyId);
+                    .body("An unexpected error occurred while disabling the company with ID " + companyId);
         }
     }
+
+
+
 }

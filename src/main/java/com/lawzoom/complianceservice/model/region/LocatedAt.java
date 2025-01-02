@@ -9,7 +9,6 @@ import org.hibernate.annotations.Comment;
 
 import java.time.LocalDate;
 import java.util.Date;
-
 @Entity
 @Getter
 @Setter
@@ -21,22 +20,34 @@ public class LocatedAt {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String locationName;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "created_at")
-    private Date createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Date createdAt = new Date();
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "updated_at")
-    private Date updatedAt;
+    @Column(name = "updated_at", nullable = false)
+    private Date updatedAt = new Date();
 
     @Column(length = 1, name = "is_enable", columnDefinition = "tinyint(1) default 1")
     @Comment(value = "1: Active, 0: Inactive")
-    private boolean isEnable;
+    private boolean isEnable = true;
 
     @Column(name = "is_deleted", columnDefinition = "tinyint(1) default 0")
     private boolean isDeleted = false;
 
-    private LocalDate date;
+    private LocalDate date = LocalDate.now();
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = new Date();
+        updatedAt = new Date();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = new Date();
+    }
 }

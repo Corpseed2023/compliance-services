@@ -1,20 +1,25 @@
 package com.lawzoom.complianceservice.serviceImpl.complianceServiceImpl;
 
-import com.authentication.dto.complianceDto.CompanyComplianceDTO;
-import com.authentication.dto.complianceDto.ComplianceRequest;
-import com.authentication.dto.complianceDto.ComplianceResponse;
-import com.authentication.exception.NotFoundException;
-import com.authentication.model.businessUnitModel.BusinessUnit;
-import com.authentication.model.companyModel.Company;
-import com.authentication.model.complianceModel.Compliance;
-import com.authentication.model.gstdetails.GstDetails;
-import com.authentication.model.user.User;
-import com.authentication.repository.ComplianceRepo;
-import com.authentication.repository.GstDetailsRepository;
-import com.authentication.repository.UserRepository;
-import com.authentication.repository.businessRepo.BusinessUnitRepository;
-import com.authentication.repository.companyRepo.CompanyRepository;
-import com.authentication.service.complianceService.ComplianceService;
+
+
+
+import com.lawzoom.complianceservice.dto.complianceDto.CompanyComplianceDTO;
+import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
+import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
+import com.lawzoom.complianceservice.exception.NotFoundException;
+import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
+import com.lawzoom.complianceservice.model.companyModel.Company;
+import com.lawzoom.complianceservice.model.complianceModel.Compliance;
+import com.lawzoom.complianceservice.model.gstdetails.GstDetails;
+import com.lawzoom.complianceservice.model.user.Subscriber;
+import com.lawzoom.complianceservice.model.user.User;
+import com.lawzoom.complianceservice.repository.ComplianceRepo;
+import com.lawzoom.complianceservice.repository.GstDetailsRepository;
+import com.lawzoom.complianceservice.repository.SubscriberRepository;
+import com.lawzoom.complianceservice.repository.UserRepository;
+import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitRepository;
+import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
+import com.lawzoom.complianceservice.service.complianceService.ComplianceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,54 +47,32 @@ public class ComplianceServiceImpl implements ComplianceService {
     @Autowired
     private GstDetailsRepository gstDetailsRepository;
 
+    @Autowired
+    private SubscriberRepository subscriberRepository;
 
-    @Override
-    public ResponseEntity<String> deleteBusinessCompliance(Long complianceId, Long companyId) {
-        // Check if the compliance exists
-        if (!complianceRepository.existsById(complianceId)) {
-            // Return a response indicating that the compliance doesn't exist
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Compliance with ID " + complianceId + " not found.");
-        }
-
-        // Fetch the compliance object
-        Compliance compliance = complianceRepository.findById(complianceId).orElse(null);
-
-        if (compliance != null) {
-            // Disable the compliance
-            compliance.setEnable(false);
-            // Save the updated compliance back to the repository
-            complianceRepository.save(compliance);
-
-            // Return a successful response
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body("Compliance with ID " + complianceId + " has been successfully deleted.");
-        } else {
-            // Return a response indicating that the compliance was not found
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Compliance with ID " + complianceId + " not found.");
-        }
-    }
-
-
-    @Override
-    public void saveAllCompliances(List<Compliance> complianceList) {
-
-    }
-
-
-    @Override
-    public ComplianceResponse fetchCompliance(Long complianceId, Long companyId) {
-        return null;
-    }
 
     @Override
     public ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long businessUnitId, Long userId) {
-        // Fetch BusinessUnit by ID
+        // Step 1: Validate User
+        User user = userRepository.findActiveUserById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("Error: User not found!");
+        }
+
+        // Step 2: Validate BusinessUnit
         BusinessUnit businessUnit = businessUnitRepository.findById(businessUnitId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid businessUnitId: " + businessUnitId));
 
-        // Map ComplianceRequest to Compliance entity
+        // Step 3: Validate Subscriber
+        Long subscriberId = complianceRequest.getSubscriberId();
+        Subscriber subscriber = subscriberRepository.findById(subscriberId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + subscriberId));
+
+        if (!businessUnit.getGstDetails().getCompany().getSubscriber().getId().equals(subscriberId)) {
+            throw new IllegalArgumentException("Business Unit does not belong to the provided Subscriber.");
+        }
+
+        // Step 4: Create and Save Compliance Entity
         Compliance compliance = new Compliance();
         compliance.setComplianceName(complianceRequest.getName());
         compliance.setApprovalState(complianceRequest.getApprovalState());
@@ -99,39 +82,38 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setEnable(complianceRequest.isEnable());
         compliance.setStartDate(complianceRequest.getStartDate());
         compliance.setDueDate(complianceRequest.getDueDate());
-        compliance.setCompletedDate(complianceRequest.getCompletedDate());
         compliance.setWorkStatus(complianceRequest.getWorkStatus());
         compliance.setPriority(complianceRequest.getPriority());
         compliance.setCertificateType(complianceRequest.getCertificateType());
         compliance.setBusinessUnit(businessUnit);
         compliance.setIssueAuthority(complianceRequest.getIssueAuthority());
+        compliance.setSubscriber(subscriber); // Associate validated subscriber
+        compliance.setCompletedDate(complianceRequest.getCompletedDate());
 
-        // Save Compliance
         Compliance savedCompliance = complianceRepository.save(compliance);
 
-        // Map saved Compliance entity to ComplianceResponse
-        return createComplianceResponse(savedCompliance, userId);
-    }
-
-    private ComplianceResponse createComplianceResponse(Compliance compliance, Long userId) {
+        // Step 5: Map Saved Entity to Response
         ComplianceResponse response = new ComplianceResponse();
-        response.setId(compliance.getId());
-        response.setName(compliance.getComplianceName());
-        response.setApprovalState(compliance.getApprovalState());
-        response.setApplicableZone(compliance.getApplicableZone());
-        response.setCreatedAt(compliance.getCreatedAt());
-        response.setUpdatedAt(compliance.getUpdatedAt());
-        response.setEnable(compliance.isEnable());
-        response.setStartDate(compliance.getStartDate());
-        response.setDueDate(compliance.getDueDate());
-        response.setCompletedDate(compliance.getCompletedDate());
-        response.setWorkStatus(compliance.getWorkStatus());
-        response.setPriority(compliance.getPriority());
-        response.setBusinessUnitId(compliance.getBusinessUnit().getId());
-        response.setCreatedBy(userId);
-        response.setIssueAuthority(compliance.getIssueAuthority());
+        response.setId(savedCompliance.getId());
+        response.setName(savedCompliance.getComplianceName());
+        response.setApprovalState(savedCompliance.getApprovalState());
+        response.setApplicableZone(savedCompliance.getApplicableZone());
+        response.setCreatedAt(savedCompliance.getCreatedAt());
+        response.setUpdatedAt(savedCompliance.getUpdatedAt());
+        response.setEnable(savedCompliance.isEnable());
+        response.setStartDate(savedCompliance.getStartDate());
+        response.setDueDate(savedCompliance.getDueDate());
+        response.setCompletedDate(savedCompliance.getCompletedDate());
+        response.setWorkStatus(savedCompliance.getWorkStatus());
+        response.setPriority(savedCompliance.getPriority());
+        response.setBusinessUnitId(savedCompliance.getBusinessUnit().getId());
+        response.setCreatedBy(user.getId());
+        response.setIssueAuthority(savedCompliance.getIssueAuthority());
+        response.setSubscriberId(savedCompliance.getSubscriber().getId());
+
         return response;
     }
+
 
     @Override
     public ComplianceResponse updateCompliance(ComplianceRequest complianceRequest, Long businessUnitId, Long complianceId) {
@@ -187,20 +169,41 @@ public class ComplianceServiceImpl implements ComplianceService {
 
 
     @Override
-    public List<ComplianceResponse> fetchCompliancesByBusinessUnit(Long businessUnitId) {
-        // Fetch all compliances for the given businessUnitId
+    public List<ComplianceResponse> fetchCompliancesByBusinessUnit(Long businessUnitId, Long userId, Long subscriberId) {
+
+        // Step 1: Validate User
+        User user = userRepository.findActiveUserById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("Error: User not found!");
+        }
+
+        // Step 2: Validate Subscriber
+        Subscriber subscriber = subscriberRepository.findById(subscriberId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + subscriberId));
+
+        // Step 3: Validate BusinessUnit
+        BusinessUnit businessUnit = businessUnitRepository.findById(businessUnitId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid businessUnitId: " + businessUnitId));
+
+        if (!businessUnit.getGstDetails().getCompany().getSubscriber().getId().equals(subscriberId)) {
+            throw new IllegalArgumentException("Business Unit does not belong to the provided Subscriber.");
+        }
+
+        // Step 4: Fetch Compliances
         List<Compliance> compliances = complianceRepository.findByBusinessUnitId(businessUnitId);
 
         if (compliances.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No compliances found for the given Business Unit ID");
         }
 
-        // Manually create ComplianceResponse objects
+        // Step 5: Map Compliances to Responses
         List<ComplianceResponse> responses = new ArrayList<>();
         for (Compliance compliance : compliances) {
             ComplianceResponse response = new ComplianceResponse();
             response.setId(compliance.getId());
             response.setName(compliance.getComplianceName());
+            response.setIssueAuthority(compliance.getIssueAuthority());
+            response.setCertificateType(compliance.getCertificateType());
             response.setApprovalState(compliance.getApprovalState());
             response.setApplicableZone(compliance.getApplicableZone());
             response.setCreatedAt(compliance.getCreatedAt());
@@ -212,137 +215,65 @@ public class ComplianceServiceImpl implements ComplianceService {
             response.setWorkStatus(compliance.getWorkStatus());
             response.setPriority(compliance.getPriority());
             response.setBusinessUnitId(compliance.getBusinessUnit().getId());
-            response.setCertificateType(compliance.getCertificateType());
-            response.setIssueAuthority(compliance.getIssueAuthority());
+            response.setSubscriberId(compliance.getSubscriber().getId());
+            response.setComplianceCategory("Category Placeholder"); // Modify as necessary
+            response.setBusinessActivity("Activity Placeholder"); // Modify as necessary
             responses.add(response);
         }
 
         return responses;
     }
 
-    @Override
-    public List<Compliance> getCompliancesByBusinessUnitId(Long id) {
 
-        List<Compliance> complianceList = complianceRepository.findByBusinessUnitId(id);
-
-        return complianceList;
-
-
-    }
-
-    @Override
-    public ResponseEntity fetchAllComplianceByBusinessUnitId(Long businessUnitId) {
-        return null;
-    }
-
-    @Override
-    public ComplianceResponse saveBusinessCompliance(ComplianceRequest complianceRequest, Long businessUnitId) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity updateBusinessCompliance(ComplianceRequest complianceRequest, Long businessUnitId) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity fetchBusinessCompliance(Long complianceId, Long businessUnitId) {
-        return null;
-    }
-
-    @Override
-    public List<ComplianceResponse> fetchAllCompliances(Long companyId, Long businessUnitId) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity deleteCompliance(Long complianceId, Long companyId) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity updateComplianceStatus(Long complianceId, int status) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity fetchManageCompliancesByUserId(Long userId) {
-        return null;
-    }
-
-    @Override
-    public ComplianceResponse getAllComplianceByCompanyUnitTeam(Long teamId, Long companyId, Long businessUnitId) {
-        return null;
-    }
-
-    @Override
-    public Map<Long, List<ComplianceResponse>> getAllComplianceByCompanyId() {
-        return null;
-    }
-
-    @Override
-    public Map<Long, Integer> getComplianceCount() {
-        return null;
-    }
-
-    @Override
-    public Map<Long, Map<Long, Integer>> getComplianceCountsByCompanyAndBusinessUnit() {
-        return null;
-    }
 
 
     @Override
-    public List<CompanyComplianceDTO> getCompanyComplianceDetails(Long userId) {
-        // Fetch the user data
-        User userData = userRepository.findByIdAndIsEnableAndNotDeleted(userId)
-                .orElseThrow(() -> new NotFoundException("User not found or inactive"));
+    public List<CompanyComplianceDTO> getCompanyComplianceDetails(Long userId, Long subscriberId) {
 
-        // Fetch all companies by superAdminId
-        List<Company> companies = companyRepository.findAllBySuperAdminIdAndIsDeletedFalse(userData);
+        // Step 1: Validate User
+        User userData = userRepository.findActiveUserById(userId);
 
-        // Create a list to hold compliance DTOs
+        if (userData == null) {
+            throw new NotFoundException("User not found with userId: " + userId);
+        }
+
+        // Validate Subscriber
+        Subscriber subscriber = subscriberRepository.findById(subscriberId)
+                .orElseThrow(() -> new NotFoundException("Subscriber not found with ID: " + subscriberId));
+
+        if (!userData.getSubscriber().equals(subscriber)) {
+            throw new IllegalArgumentException("User does not belong to the provided Subscriber.");
+        }
+
+        // Fetch all companies
+        List<Company> companies = companyRepository.findCompaniesBySuperAdminAndSubscriber(userData.getId(), subscriberId);
+
         List<CompanyComplianceDTO> companyComplianceDTOs = new ArrayList<>();
-
-        // Iterate over each company
         for (Company company : companies) {
-            // Fetch GST details for the company
-            List<GstDetails> gstDetailsList = gstDetailsRepository.findAllByCompanyAndIsEnableAndIsDeletedFalse(company, true);
-
-            // Iterate over each GST detail
+            List<GstDetails> gstDetailsList = gstDetailsRepository.findAllByCompanyAndIsEnableAndIsDeletedFalse(company.getId(), true);
             for (GstDetails gstDetails : gstDetailsList) {
-                // Fetch business units under each GST detail
-                List<BusinessUnit> businessUnits = businessUnitRepository.findAllByGstDetailsAndIsEnableAndIsDeletedFalse(gstDetails, true);
-
-                // Iterate over each business unit
+                List<BusinessUnit> businessUnits = businessUnitRepository.findBusinessUnitsByGstDetails(gstDetails.getId(), true);
                 for (BusinessUnit businessUnit : businessUnits) {
-                    // Fetch compliances for the business unit
-                    List<Compliance> compliances = complianceRepository.findAllByBusinessUnit(businessUnit);
+                    List<Compliance> compliances = complianceRepository.findCompliancesByBusinessUnitAndStatus(businessUnit.getId(), true);
 
-                    // Calculate the compliance count
-                    long complianceCount = compliances.size(); // Get the count of compliances
-
-                    // If there are compliances, map Compliance entity to DTO
+                    long complianceCount = compliances.size();
                     if (complianceCount > 0) {
                         CompanyComplianceDTO complianceDTO = new CompanyComplianceDTO();
-                        complianceDTO.setCompanyId(company.getId()); // Set Company ID
-                        complianceDTO.setCompanyName(company.getCompanyName()); // Set Company Name
-                        complianceDTO.setBusinessActivityId(company.getBusinessActivity().getId()); // Set Business Activity ID
-                        complianceDTO.setBusinessActivity(company.getBusinessActivity().getBusinessActivityName()); // Set Business Activity Name
-                        complianceDTO.setDate(company.getDate()); // Set Date
-                        complianceDTO.setGstDetailsId(gstDetails.getId()); // Set GST Details ID
-                        complianceDTO.setGstNumber(gstDetails.getGstNumber()); // Set GST Number
-                        complianceDTO.setBusinessUnitId(businessUnit.getId()); // Set Business Unit ID
-                        complianceDTO.setBusinessAddress(businessUnit.getAddress()); // Set Business Address
-                        complianceDTO.setComplianceCount(complianceCount); // Set Compliance Count
-
-                        // Add the DTO to the list
+                        complianceDTO.setCompanyId(company.getId());
+                        complianceDTO.setCompanyName(company.getCompanyName());
+                        complianceDTO.setBusinessActivityId(company.getBusinessActivity().getId());
+                        complianceDTO.setBusinessActivity(company.getBusinessActivity().getBusinessActivityName());
+                        complianceDTO.setDate(company.getDate());
+                        complianceDTO.setGstDetailsId(gstDetails.getId());
+                        complianceDTO.setGstNumber(gstDetails.getGstNumber());
+                        complianceDTO.setBusinessUnitId(businessUnit.getId());
+                        complianceDTO.setBusinessAddress(businessUnit.getAddress());
+                        complianceDTO.setComplianceCount(complianceCount);
                         companyComplianceDTOs.add(complianceDTO);
                     }
                 }
             }
         }
-
-        // Return the list of DTOs
         return companyComplianceDTOs;
     }
 

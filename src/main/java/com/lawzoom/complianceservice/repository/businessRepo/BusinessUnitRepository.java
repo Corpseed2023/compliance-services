@@ -28,4 +28,14 @@ public interface BusinessUnitRepository extends JpaRepository<BusinessUnit,Long>
     @Query("SELECT bu FROM BusinessUnit bu WHERE bu.gstDetails = :gstDetails AND bu.isDeleted = false")
     List<BusinessUnit> findAllByGstDetails(@Param("gstDetails") GstDetails gstDetails);
 
-}
+    @Query(value = """
+        SELECT * 
+        FROM business_unit 
+        WHERE gst_details_id = :gstDetailsId 
+          AND is_enable = :isEnable 
+          AND is_deleted = false
+    """, nativeQuery = true)
+    List<BusinessUnit> findBusinessUnitsByGstDetails(
+            @Param("gstDetailsId") Long gstDetailsId,
+            @Param("isEnable") boolean isEnable
+    );}

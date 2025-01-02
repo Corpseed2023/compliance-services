@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
-@RequestMapping("/api/auth/business-unit")
+@RequestMapping("/api/compliance/business-unit")
 public class BusinessUnitController {
 
     @Autowired
@@ -32,14 +32,13 @@ public class BusinessUnitController {
         try {
             BusinessUnitResponse savedBusinessData = businessUnitService.createBusinessUnit(businessUnitRequest, gstDetailsId);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedBusinessData);
-        } catch (IllegalArgumentException e) {
+        } catch (NotFoundException | IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
+
 
     @PutMapping("/updateBusinessUnit")
     public ResponseEntity<BusinessUnitResponse> updateBusinessUnit(
@@ -57,24 +56,31 @@ public class BusinessUnitController {
 
 
     @GetMapping("/getAllBusinessUnits")
-    public ResponseEntity<List<BusinessUnitResponse>> getAllBusinessUnits(@RequestParam Long gstDetails, @RequestParam Long userId) {
+    public ResponseEntity<?> getAllBusinessUnits(@RequestParam Long gstDetailsId, @RequestParam Long userId) {
         try {
-            List<BusinessUnitResponse> businessUnits = businessUnitService.getAllBusinessUnits(gstDetails,userId);
+            List<BusinessUnitResponse> businessUnits = businessUnitService.getAllBusinessUnits(gstDetailsId, userId);
             return ResponseEntity.ok(businessUnits);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
 
     @PostMapping("/get-company-units")
-    public ResponseEntity<List<BusinessUnitResponse>> getCompanyUnits(@RequestBody UnitRequest unitRequest) {
+    public ResponseEntity<?> getCompanyUnits(@RequestBody UnitRequest unitRequest) {
         try {
             List<BusinessUnitResponse> businessUnits = businessUnitService.getCompanyUnits(unitRequest);
             return ResponseEntity.ok(businessUnits);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
         }
     }
+
 
     @GetMapping("/fetchBusinessData")
     public BusinessUnitResponse getBusinessUnitData(@RequestParam Long businessUnitId) {

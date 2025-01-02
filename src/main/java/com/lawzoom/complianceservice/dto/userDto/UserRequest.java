@@ -1,21 +1,13 @@
 package com.lawzoom.complianceservice.dto.userDto;
 
 
-import com.lawzoom.complianceservice.model.Roles;
+import com.lawzoom.complianceservice.model.user.Roles;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Comment;
-
-import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.Set;
 
@@ -63,23 +55,5 @@ public class UserRequest {
     private boolean isSubscribed;
 
 
-    @Override
-    public String toString() {
-        return "UserRequest{" +
-                "firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                ", mobile='" + mobile + '\'' +
-                ", otp='" + otp + '\'' +
-                ", password='" + password + '\'' +
-                ", designation='" + designation + '\'' +
-                ", resourceType='" + resourceType + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", isEnable=" + isEnable +
-                ", roles=" + roles +
-                ", isAssociated=" + isAssociated +
-                ", companyId=" + companyId +
-                '}';
-    }
+
 }

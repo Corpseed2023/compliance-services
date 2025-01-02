@@ -14,40 +14,32 @@ import java.util.Optional;
 @Repository
 public interface GstDetailsRepository extends JpaRepository<GstDetails, Long> {
 
-    @Query("SELECT g FROM GstDetails g WHERE g.company = :company")
-    List<GstDetails> findByCompany(@Param("company") Company company);
-
-//    @Query("SELECT g FROM GstDetails g WHERE g.company = :company AND g.isEnable = true AND g.isDeleted = false")
-//    List<GstDetails> findByEnabledGstDetails(@Param("company") Company company);
-
-    @Query("SELECT g FROM GstDetails g JOIN FETCH g.businessUnits WHERE g.company = :company")
-    List<GstDetails> findByEnabledGstDetails(@Param("company") Company company);
-
-    @Query("SELECT g FROM GstDetails g WHERE g.id = :id AND g.isEnable = true AND g.isDeleted = false")
+    @Query(value = "SELECT * FROM gst_details WHERE id = :id AND is_enable = 1 AND is_deleted = 0", nativeQuery = true)
     Optional<GstDetails> findByIdAndEnabledAndNotDeleted(@Param("id") Long id);
 
 
-    @Query("SELECT COUNT(gd) FROM GstDetails gd WHERE gd.company.id = :companyId")
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM gst_details WHERE gst_number = :gstNumber AND company_id = :companyId AND state_id = :stateId AND is_deleted = 0)", nativeQuery = true)
+    boolean existsByGstNumberAndCompanyIdAndStateId(@Param("gstNumber") String gstNumber,
+                                                    @Param("companyId") Long companyId,
+                                                    @Param("stateId") Long stateId);
+
+    @Query(value = "SELECT * FROM gst_details WHERE company_id = :companyId AND is_deleted = 0", nativeQuery = true)
+    List<GstDetails> findAllByCompanyIdAndIsDeletedFalse(@Param("companyId") Long companyId);
+
+    @Query(value = """
+        SELECT * 
+        FROM gst_details 
+        WHERE company_id = :companyId 
+          AND is_enable = :isEnable 
+          AND is_deleted = false
+    """, nativeQuery = true)
+    List<GstDetails> findAllByCompanyAndIsEnableAndIsDeletedFalse(
+            @Param("companyId") Long companyId,
+            @Param("isEnable") boolean isEnable
+    );
+
+    @Query(value = "SELECT COUNT(*) FROM gst_details WHERE company_id = :companyId AND is_deleted = 0", nativeQuery = true)
     Long countByCompanyId(@Param("companyId") Long companyId);
 
-    @Query(value = "SELECT g FROM GstDetails g WHERE g.company.id = :companyId " +
-            "AND g.subscription.id = :subscriptionId " +
-            "AND g.isEnable = true AND g.isDeleted = false")
-    List<GstDetails> findActiveByCompanyAndSubscription(@Param("companyId") Long companyId,
-                                                        @Param("subscriptionId") Long subscriptionId);
-
-    @Query(value = "SELECT COUNT(1) > 0 " +
-            "FROM gst_details g " +
-            "WHERE g.gst_number = :gstNumber " +
-            "AND g.subscription_id = :subscriptionId " +
-            "AND g.state_id = :stateId",
-            nativeQuery = true)
-    boolean existsByGstNumberAndSubscriptionIdAndStateId(@Param("gstNumber") String gstNumber,
-                                                         @Param("subscriptionId") Long subscriptionId,
-                                                         @Param("stateId") Long stateId);
-
-
-
 }
-
 

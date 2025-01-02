@@ -19,7 +19,6 @@ import com.lawzoom.complianceservice.model.region.LocatedAt;
 import com.lawzoom.complianceservice.model.region.States;
 import com.lawzoom.complianceservice.model.user.Roles;
 import com.lawzoom.complianceservice.model.user.Subscriber;
-import com.lawzoom.complianceservice.model.user.Subscription;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessActivityRepository;
@@ -32,14 +31,12 @@ import com.lawzoom.complianceservice.repository.companyRepo.LocatedAtRepository;
 import com.lawzoom.complianceservice.repository.regionRepo.CityRepository;
 import com.lawzoom.complianceservice.repository.regionRepo.CountryRepository;
 import com.lawzoom.complianceservice.repository.regionRepo.StatesRepository;
-import com.lawzoom.complianceservice.repository.team.TeamMemberRepository;
 import com.lawzoom.complianceservice.service.companyService.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -48,9 +45,6 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Autowired
     private CompanyRepository companyRepository;
-
-//    @Autowired
-//    private ComplianceMap complianceMap;
 
     @Autowired
     private CompanyTypeRepository companyTypeRepository;
@@ -86,17 +80,12 @@ public class CompanyServiceImpl implements CompanyService {
     @Autowired
     private BusinessUnitRepository businessUnitRepository;
 
-    @Autowired
-    private PrivilegeRepository privilegeRepository;
 
     @Autowired
     private GstDetailsRepository gstDetailsRepository;
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
-
-    @Autowired
-    private TeamMemberRepository teamMemberRepository;
 
     @Autowired
     private SubscriberRepository subscriberRepository;
@@ -134,7 +123,7 @@ public class CompanyServiceImpl implements CompanyService {
         BusinessActivity businessActivity = businessActivityRepository.findById(companyRequest.getBusinessActivityId())
                 .orElseThrow(() -> new NotFoundException("Business activity not found"));
 
-        // Validate Industry and SubCategory (Optional)
+        // Validate Industry and SubCategory
         IndustryCategory industryCategory = industryCategoryRepository.findById(companyRequest.getIndustryId())
                 .orElseThrow(() -> new NotFoundException("Industry not found"));
 
@@ -144,7 +133,7 @@ public class CompanyServiceImpl implements CompanyService {
                     .orElseThrow(() -> new NotFoundException("Sub-industry not found"));
         }
 
-        // Create and populate Company entity
+        // Create and save Company
         Company company = new Company();
         company.setCompanyName(companyRequest.getCompanyName());
         company.setBusinessEmailId(companyRequest.getBusinessEmailId());
@@ -173,8 +162,32 @@ public class CompanyServiceImpl implements CompanyService {
         company.setCreatedAt(new Date());
         company.setUpdatedAt(new Date());
 
-        // Save company
+        // Save Company
         company = companyRepository.save(company);
+
+        // Save GST Details
+        GstDetails gstDetails = new GstDetails();
+        gstDetails.setCompany(company);
+        gstDetails.setGstNumber(companyRequest.getPanNumber()); // Example mapping
+        gstDetails.setCountry(country);
+        gstDetails.setState(state);
+        gstDetails.setGstRegistrationDate(companyRequest.getRegistrationDate());
+        gstDetails.setCreatedBy(user);
+        gstDetails.setCreatedAt(new Date());
+        gstDetails.setUpdatedAt(new Date());
+        gstDetailsRepository.save(gstDetails);
+
+        // Save Business Unit
+        BusinessUnit businessUnit = new BusinessUnit();
+        businessUnit.setGstDetails(gstDetails);
+        businessUnit.setAddress(companyRequest.getOperationUnitAddress());
+        businessUnit.setState(state);
+        businessUnit.setCity(city);
+        businessUnit.setBusinessActivity(businessActivity);
+        businessUnit.setCreatedBy(user);
+        businessUnit.setCreatedAt(new Date());
+        businessUnit.setUpdatedAt(new Date());
+        businessUnitRepository.save(businessUnit);
 
         // Prepare and return response
         CompanyResponse companyResponse = new CompanyResponse();
@@ -201,6 +214,7 @@ public class CompanyServiceImpl implements CompanyService {
 
 
 
+
     @Override
     public List<CompanyBusinessUnitDto> getCompanyUnitComplianceDetails(Long userId) {
         return List.of();
@@ -218,34 +232,36 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public CompanyResponse updateCompany(CompanyRequest companyRequest, Long companyId, Long userId) {
         // Validate User
-        User userData = userRepository.findByIdAndIsEnableAndNotDeleted(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with userId: " + userId));
+        User user = userRepository.findActiveUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found with userId: " + userId);
+        }
+
 
         // Check if the user has SUPER_ADMIN or MASTER role
-        Set<Roles> roles = userData.getRoles();
+        Set<Roles> roles = user.getRoles();
         if (roles == null || roles.stream().noneMatch(role -> "SUPER_ADMIN".equals(role.getRoleName())
                 || "MASTER".equals(role.getRoleName()))) {
             throw new UnauthorizedException("User with userId: " + userId + " does not have SUPER_ADMIN or MASTER role.");
         }
 
-
         // Validate Company
         Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new NotFoundException("Company not found with companyId: " + companyId));
-
-
 
         // Validate Company Type
         CompanyType companyType = companyTypeRepository.findById(companyRequest.getCompanyTypeId())
                 .orElseThrow(() -> new NotFoundException("Company Type not found with ID: " + companyRequest.getCompanyTypeId()));
 
-        // Validate State
-        States state = statesRepository.findById(companyRequest.getCompanyStateId())
-                .orElseThrow(() -> new NotFoundException("State not found with ID: " + companyRequest.getCompanyStateId()));
+        // Validate Country, State, and City
+        Country country = countryRepository.findById(companyRequest.getCountryId())
+                .orElseThrow(() -> new NotFoundException("Country not found with ID: " + companyRequest.getCountryId()));
 
-        // Validate City
-        City city = cityRepository.findById(companyRequest.getCompanyCityId())
-                .orElseThrow(() -> new NotFoundException("City not found with ID: " + companyRequest.getCompanyCityId()));
+        States state = statesRepository.findById(companyRequest.getStateId())
+                .orElseThrow(() -> new NotFoundException("State not found with ID: " + companyRequest.getStateId()));
+
+        City city = cityRepository.findById(companyRequest.getCityId())
+                .orElseThrow(() -> new NotFoundException("City not found with ID: " + companyRequest.getCityId()));
 
         // Validate LocatedAt
         LocatedAt locatedAt = locatedAtRepository.findById(companyRequest.getLocatedAtId())
@@ -258,18 +274,18 @@ public class CompanyServiceImpl implements CompanyService {
         // Update Company Details
         company.setCompanyName(companyRequest.getCompanyName());
         company.setBusinessEmailId(companyRequest.getBusinessEmailId());
-        company.setRegistrationNumber(companyRequest.getCompanyRegistrationNumber());
-        company.setRegistrationDate(companyRequest.getCompanyRegistrationDate());
-        company.setCinNumber(companyRequest.getCompanyCINNumber());
-        company.setRemarks(companyRequest.getCompanyRemarks());
+        company.setRegistrationNumber(companyRequest.getRegistrationNumber());
+        company.setRegistrationDate(companyRequest.getRegistrationDate());
+        company.setCinNumber(companyRequest.getCinNumber());
+        company.setRemarks(companyRequest.getRemarks());
         company.setPinCode(companyRequest.getPinCode());
-        company.setCompanyPanNumber(companyRequest.getCompanyPanNumber());
-        company.setTurnover(companyRequest.getCompanyTurnover());
+        company.setCompanyPanNumber(companyRequest.getPanNumber());
+        company.setTurnover(companyRequest.getTurnover());
         company.setLocatedAt(locatedAt);
         company.setCompanyType(companyType);
+        company.setCountry(country);
         company.setState(state);
         company.setCity(city);
-//    company.setDesignation(designation);
         company.setBusinessActivity(businessActivity);
         company.setPermanentEmployee(companyRequest.getPermanentEmployee());
         company.setContractEmployee(companyRequest.getContractEmployee());
@@ -307,36 +323,26 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
-    public void disableCompany(Long id , Long userId) throws NotFoundException {
-        Optional<User> userData = userRepository.findByIdAndIsEnableAndNotDeleted(userId);
-
-        if (userData == null) {
-            throw new NotFoundException("User not found with userId: " + userId);
+    public void disableCompany(Long companyId, Long userId) throws NotFoundException {
+        // Validate User
+        User user = userRepository.findActiveUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found or not active with userId: " + userId);
         }
 
-
         // Validate if the user has SUPER_ADMIN role
-        Set<Roles> roles = userData.get().getRoles();
+        Set<Roles> roles = user.getRoles();
         if (roles == null || roles.stream().noneMatch(role -> "SUPER_ADMIN".equals(role.getRoleName()))) {
             throw new UnauthorizedException("User with userId: " + userId + " does not have SUPER_ADMIN role.");
         }
 
-        Optional<Company> companyData = companyRepository.findById(id);
-        if (companyData.isPresent()) {
-            Company company = companyData.get();
-            company.disable(); // Set isEnable to false
-            companyRepository.save(company); // Save the updated company
-        } else {
-            throw new NotFoundException("Company with ID " + id + " not found");
-        }
+        // Validate and Disable Company
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new NotFoundException("Company with ID " + companyId + " not found"));
+
+        company.disable(); // Set isEnable to false
+        companyRepository.save(company); // Save the updated company
     }
-
-
-
-//    @Override
-//    public List<CompanyBusinessUnitDto> getCompanyUnitComplianceDetails(Long userId) {
-//        return null;
-//    }
 
 
     @Override
@@ -380,6 +386,8 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
 
+
+
     private boolean companyOptional(Long companyId) {
         Optional<Company> companyData = companyRepository.findById(companyId);
         return companyData.map(Company::isEnable).orElse(false);
@@ -388,95 +396,104 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public List<CompanyResponse> fetchAllCompanies(Long userId, Long subscriptionId) {
-
-        User user = null;
-
-        // Step 1: Validate and fetch the user if userId is provided
-        if (userId != null) {
-            user = userRepository.findByIdAndIsEnableAndNotDeleted(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+        // Step 1: Validate User
+        User user = userRepository.findActiveUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found or not active with userId: " + userId);
         }
 
-        // Step 2: Validate and fetch the subscription
-        Subscription subscription = subscriptionRepository.findById(subscriptionId)
-                .orElseThrow(() -> new NotFoundException("Subscription not found with ID: " + subscriptionId));
-
-        // Step 3: Check if the subscription is associated with the provided user
-        if (user != null && !subscription.getUsers().contains(user)) {
-            throw new NotFoundException("The subscription is not associated with the provided user.");
+        // Step 2: Validate Subscriber
+        Subscriber subscriber = user.getSubscriber();
+        if (subscriber == null) {
+            throw new UnauthorizedException("User is not associated with any subscriber.");
         }
 
-        // Step 4: Fetch companies associated with the subscription and user
-        List<Company> companies = user == null
-                ? companyRepository.findBySubscription(subscription)
-                : companyRepository.findBySuperAdminIdAndSubscription(user.getId(), subscription.getId());
+        // Step 3: Validate Subscription
+        if (subscriber.getSubscription() == null || !subscriber.getSubscription().getId().equals(subscriptionId)) {
+            throw new UnauthorizedException("The provided subscription is not associated with the subscriber.");
+        }
+
+        List<Company> companies = companyRepository.findBySubscriberAndIsEnableAndIsDeletedFalse(subscriber.getId());
 
         if (companies.isEmpty()) {
             throw new NotFoundException("No companies found for the given criteria.");
         }
 
         // Step 5: Map Company entities to CompanyResponse DTOs
-        return companies.stream().map(company -> {
-            CompanyResponse response = new CompanyResponse();
-            response.setCompanyId(company.getId());
-            response.setUserId(company.getCreatedBy().getId());
-            response.setCompanyTypeId(company.getCompanyType().getId());
-            response.setCompanyType(company.getCompanyType() != null ? company.getCompanyType().getCompanyTypeName() : null);
-            response.setCompanyName(company.getCompanyName());
-            response.setBusinessEmailId(company.getBusinessEmailId());
-            response.setCountryId(company.getCountry().getId());
-            response.setCountryName(company.getCountry() != null ? company.getCountry().getCountryName() : null);
-            response.setStateId(company.getState().getId());
-            response.setCompanyState(company.getState() != null ? company.getState().getStateName() : null);
-            response.setCompanyCityId(company.getCity().getId());
-            response.setCompanyCity(company.getCity() != null ? company.getCity().getCityName() : null);
-            response.setCompanyRegistrationNumber(company.getRegistrationNumber());
-            response.setCompanyRegistrationDate(company.getRegistrationDate());
-            response.setCompanyCINNumber(company.getCinNumber());
-            response.setCompanyRemarks(company.getRemarks());
-            response.setPinCode(company.getPinCode());
-            response.setCompanyPanNumber(company.getCompanyPanNumber());
-            response.setCompanyTurnover(company.getTurnover());
-            response.setLocatedAtId(company.getLocatedAt().getId());
-            response.setLocatedAt(company.getLocatedAt() != null ? company.getLocatedAt().getLocationName() : null);
-            response.setBusinessActivityNameId(company.getBusinessActivity().getId());
-            response.setBusinessActivityName(company.getBusinessActivity() != null ? company.getBusinessActivity().getBusinessActivityName() : null);
-            response.setIndustryName(company.getIndustryCategory() != null ? company.getIndustryCategory().getIndustryName() : null);
-            response.setIndustrySubCategoryName(company.getIndustrySubCategory() != null ? company.getIndustrySubCategory().getIndustrySubCategoryName() : null);
-            response.setEnable(company.isEnable());
-            response.setPermanentEmployee(company.getPermanentEmployee());
-            response.setContractEmployee(company.getContractEmployee());
-            response.setOperationUnitAddress(company.getOperationUnitAddress());
-            response.setIndustryNameId(company.getIndustryCategory().getId());
-            response.setIndustrySubCategoryNameId(company.getIndustrySubCategory().getId());
-
-            // Fetch and set additional counts
-            Long stateCount = businessUnitRepository.countDistinctStatesByCompanyId(company.getId());
-            Long gstDetailsCount = gstDetailsRepository.countByCompanyId(company.getId());
-            Long businessUnitCount = businessUnitRepository.countByCompanyId(company.getId());
-
-            response.setStateCount(stateCount);
-            response.setGstDetailsCount(gstDetailsCount);
-            response.setBusinessUnitCount(businessUnitCount);
-
-            return response;
-        }).collect(Collectors.toList());
+        return companies.stream().map(this::mapCompanyToResponse).collect(Collectors.toList());
     }
 
+    private CompanyResponse mapCompanyToResponse(Company company) {
+        CompanyResponse response = new CompanyResponse();
+        response.setCompanyId(company.getId());
+        response.setUserId(company.getCreatedBy().getId());
+        response.setCompanyTypeId(company.getCompanyType().getId());
+        response.setCompanyType(company.getCompanyType() != null ? company.getCompanyType().getCompanyTypeName() : null);
+        response.setCompanyName(company.getCompanyName());
+        response.setBusinessEmailId(company.getBusinessEmailId());
+        response.setCountryId(company.getCountry().getId());
+        response.setCountryName(company.getCountry() != null ? company.getCountry().getCountryName() : null);
+        response.setStateId(company.getState().getId());
+        response.setCompanyState(company.getState() != null ? company.getState().getStateName() : null);
+        response.setCompanyCityId(company.getCity().getId());
+        response.setCompanyCity(company.getCity() != null ? company.getCity().getCityName() : null);
+        response.setCompanyRegistrationNumber(company.getRegistrationNumber());
+        response.setCompanyRegistrationDate(company.getRegistrationDate());
+        response.setCompanyCINNumber(company.getCinNumber());
+        response.setCompanyRemarks(company.getRemarks());
+        response.setPinCode(company.getPinCode());
+        response.setCompanyPanNumber(company.getCompanyPanNumber());
+        response.setCompanyTurnover(company.getTurnover());
+        response.setLocatedAtId(company.getLocatedAt().getId());
+        response.setLocatedAt(company.getLocatedAt() != null ? company.getLocatedAt().getLocationName() : null);
+        response.setBusinessActivityNameId(company.getBusinessActivity().getId());
+        response.setBusinessActivityName(company.getBusinessActivity() != null ? company.getBusinessActivity().getBusinessActivityName() : null);
+        response.setIndustryName(company.getIndustryCategory() != null ? company.getIndustryCategory().getIndustryName() : null);
+        response.setIndustrySubCategoryName(company.getIndustrySubCategory() != null ? company.getIndustrySubCategory().getIndustrySubCategoryName() : null);
+        response.setEnable(company.isEnable());
+        response.setPermanentEmployee(company.getPermanentEmployee());
+        response.setContractEmployee(company.getContractEmployee());
+        response.setOperationUnitAddress(company.getOperationUnitAddress());
+        response.setIndustryNameId(company.getIndustryCategory().getId());
+        response.setIndustrySubCategoryNameId(company.getIndustrySubCategory().getId());
+
+        // Fetch and set additional counts
+        Long stateCount = businessUnitRepository.countDistinctStatesByCompanyId(company.getId());
+        Long gstDetailsCount = gstDetailsRepository.countByCompanyId(company.getId());
+        Long businessUnitCount = businessUnitRepository.countByCompanyId(company.getId());
+
+        response.setStateCount(stateCount);
+        response.setGstDetailsCount(gstDetailsCount);
+        response.setBusinessUnitCount(businessUnitCount);
+
+        return response;
+    }
+
+
     @Override
-    public CompanyResponse fetchCompany(Long userId, Long subscriptionId, Long companyId) {
-        // Fetch user and subscription to ensure they exist
-        User user = userRepository.findByIdAndIsEnableAndNotDeleted(userId)
-                .orElseThrow(() -> new NotFoundException("Super Admin not found with ID: " + userId));
+    public CompanyResponse fetchCompany(Long companyId, Long userId, Long subscriberId) {
 
-        Subscription subscription = subscriptionRepository.findById(subscriptionId)
-                .orElseThrow(() -> new NotFoundException("Subscription not found with ID: " + subscriptionId));
-
-        Company company = companyRepository.findByEnabledAndNotDeleted(companyId)
-                .orElseThrow(() -> new NotFoundException("No company found for the given"));
+        // Validate User
+        User user = userRepository.findActiveUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found or not active with ID: " + userId);
+        }
 
 
-        // Map the Company entity to a CompanyResponse DTO
+        // Validate Subscriber
+        Subscriber subscriber = subscriberRepository.findById(subscriberId)
+                .orElseThrow(() -> new NotFoundException("Subscriber not found with ID: " + subscriberId));
+
+        // Check if the user belongs to the subscriber
+        if (!user.getSubscriber().getId().equals(subscriber.getId())) {
+            throw new UnauthorizedException("User is not authorized to access companies for this subscriber.");
+        }
+
+        // Validate Company
+        Company company = companyRepository.findByIdAndSubscriberIdAndIsEnableAndIsDeletedFalse(companyId, subscriberId)
+                .orElseThrow(() -> new NotFoundException("Company not found with ID: " + companyId + " for the given subscriber."));
+
+        // Map Company to CompanyResponse DTO
         CompanyResponse response = new CompanyResponse();
         response.setCompanyId(company.getId());
         response.setUserId(company.getCreatedBy().getId());
@@ -506,11 +523,11 @@ public class CompanyServiceImpl implements CompanyService {
         response.setCompanyTypeId(company.getCompanyType().getId());
         response.setCountryId(company.getCountry().getId());
         response.setStateId(company.getState().getId());
-        response.setCountryId(company.getCountry().getId());
         response.setLocatedAtId(company.getLocatedAt().getId());
         response.setBusinessActivityNameId(company.getBusinessActivity().getId());
+        response.setCompanyCityId(company.getCity().getId());
 
-        // Fetch and set additional counts
+        // Additional counts
         Long stateCount = businessUnitRepository.countDistinctStatesByCompanyId(company.getId());
         Long gstDetailsCount = gstDetailsRepository.countByCompanyId(company.getId());
         Long businessUnitCount = businessUnitRepository.countByCompanyId(company.getId());
@@ -519,13 +536,9 @@ public class CompanyServiceImpl implements CompanyService {
         response.setGstDetailsCount(gstDetailsCount);
         response.setBusinessUnitCount(businessUnitCount);
 
-
-
-
-        response.setCompanyCityId(company.getCity().getId());
-
         return response;
     }
+
 
 //    @Override
 //    public void assignTeamMembersToCompany(Long companyId, List<Long> teamMemberIds) {

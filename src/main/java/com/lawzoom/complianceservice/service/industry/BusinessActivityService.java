@@ -12,8 +12,6 @@ public interface BusinessActivityService {
 
     BusinessActivity createBusinessActivity(String businessActivityName, Long userId, Long industrySubCategoryId);
 
-
-
     BusinessActivity updateBusinessActivity(BusinessActivityRequestDTO businessActivityRequestDTO);
 
     List<BusinessActivityResponseDTO> getAllEnabledAndNonDeletedActivities(Long industrySubCategoryId);

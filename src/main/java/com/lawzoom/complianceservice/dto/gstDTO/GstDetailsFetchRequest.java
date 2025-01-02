@@ -14,6 +14,6 @@ public class GstDetailsFetchRequest {
 
     private Long gstDetailsId;
     private Long userId;
-    private Long subscriptionId;
+    private Long subscriberId;
     private Long companyId;
 }

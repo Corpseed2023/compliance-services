@@ -18,7 +18,7 @@ public class GstDetailsRequest {
     private Long countryId;
     private Long stateId;
     private LocalDate gstRegistrationDate;
-    private Long subscriptionId;
+    private Long subscriberId;
     private Long userId;
 }
 

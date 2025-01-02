@@ -1,8 +1,8 @@
 package com.lawzoom.complianceservice.controller.userController;
 
 
-import com.authentication.model.user.ResourceType;
-import com.authentication.service.ResourceTypeService;
+import com.lawzoom.complianceservice.model.user.ResourceType;
+import com.lawzoom.complianceservice.service.ResourceTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/auth/resource-type")
+@RequestMapping("/api/compliance/resource-type")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class ResourceTypeController {
 

@@ -1,7 +1,7 @@
 package com.lawzoom.complianceservice.serviceImpl;
 
 
-import com.lawzoom.complianceservice.model.ResourceType;
+import com.lawzoom.complianceservice.model.user.ResourceType;
 import com.lawzoom.complianceservice.repository.ResourceTypeRepository;
 import com.lawzoom.complianceservice.service.ResourceTypeService;
 import org.springframework.beans.factory.annotation.Autowired;

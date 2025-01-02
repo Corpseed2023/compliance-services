@@ -6,29 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Comment;
-
-import com.lawzoom.complianceservice.model.*;
-import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
-import com.lawzoom.complianceservice.model.businessActivityModel.IndustryCategory;
-import com.lawzoom.complianceservice.model.businessActivityModel.IndustrySubCategory;
-import com.lawzoom.complianceservice.model.region.City;
-import com.lawzoom.complianceservice.model.region.Country;
-import com.lawzoom.complianceservice.model.region.LocatedAt;
-import com.lawzoom.complianceservice.model.region.States;
-import com.lawzoom.complianceservice.model.teamMemberModel.TeamMember;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.Comment;
-
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-import java.util.HashSet;
-import java.util.Set;
+
 @Entity
 @Getter
 @Setter
