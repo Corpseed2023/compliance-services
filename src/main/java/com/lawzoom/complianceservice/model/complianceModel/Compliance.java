@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -52,6 +51,10 @@ public class Compliance {
 	@Column(length = 1, name = "is_enable", columnDefinition = "tinyint(1) default 1")
 	@Comment(value = "1 : Active, 0 : Inactive")
 	private boolean isEnable = true;
+
+	@Column(name = "is_deleted", columnDefinition = "tinyint(1) default 0")
+	@Comment(value = "0 : Not Deleted, 1 : Deleted")
+	private boolean isDeleted = false;
 
 	private LocalDate startDate;
 

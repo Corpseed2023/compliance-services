@@ -8,7 +8,6 @@ import com.lawzoom.complianceservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -20,9 +19,6 @@ public class UserServiceImpl implements UserService {
     private RolesRepository roleRepository;
 
     @Autowired
-    private SubscriberRepository subscriberRepository;
-
-    @Autowired
     private DepartmentRepository departmentRepository;
 
     @Autowired
@@ -31,8 +27,11 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ResourceTypeRepository resourceTypeRepository;
 
+    @Autowired
+    private SubscriberRepository subscriberRepository;
+
     @Override
-    public UserResponse createUser(UserRequest userRequest, Long subscriptionId) {
+    public UserResponse createUser(UserRequest userRequest) {
         // Check if the email already exists
         if (userRepository.existsByEmail(userRequest.getEmail())) {
             throw new RuntimeException("Email already exists: " + userRequest.getEmail());
@@ -54,10 +53,18 @@ public class UserServiceImpl implements UserService {
         ResourceType resourceType = resourceTypeRepository.findById(userRequest.getTypeOfResource())
                 .orElseThrow(() -> new RuntimeException("ResourceType not found with ID: " + userRequest.getTypeOfResource()));
 
-        // Validate Subscription
-        Optional<Subscriber> subscriberOpt = subscriberRepository.findById(userRequest.getSubscribedId());
-        Subscriber subscriber = subscriberOpt.orElseThrow(() ->
-                new RuntimeException("Subscriber not found with ID: " + userRequest.getSubscribedId()));
+        // Validate and fetch Subscriber
+        Subscriber subscriber = null;
+        if (userRequest.getSubscribedId() != null) {
+            subscriber = subscriberRepository.findById(userRequest.getSubscribedId())
+                    .orElseThrow(() -> new RuntimeException("Subscriber not found with ID: " + userRequest.getSubscribedId()));
+        } else {
+            // Create a new Subscriber if one doesn't exist
+            subscriber = new Subscriber();
+            subscriber.setSubscription(null); // Replace with a valid Subscription if needed
+            subscriber.setActive(true);
+            subscriber = subscriberRepository.save(subscriber);
+        }
 
         // Build the User object
         User user = new User();
@@ -68,13 +75,16 @@ public class UserServiceImpl implements UserService {
         user.setDesignation(designation);
         user.setResourceType(resourceType);
         user.setSubscriber(subscriber);
-
-        // Add Role to User
         user.getRoles().add(role);
+
         // Save User
         User savedUser = userRepository.save(user);
 
-        // Prepare the Response
+        // Update the Subscriber with the created User if needed
+        subscriber.getUsers().add(savedUser);
+        subscriberRepository.save(subscriber);
+
+        // Prepare Response
         UserResponse response = new UserResponse();
         response.setId(savedUser.getId());
         response.setEmail(savedUser.getEmail());

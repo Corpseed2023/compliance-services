@@ -9,5 +9,5 @@ import org.springframework.http.ResponseEntity;
 public interface UserService {
 
 
-    UserResponse createUser(UserRequest userRequest, Long subscriptionId);
+    UserResponse createUser(UserRequest userRequest);
 }

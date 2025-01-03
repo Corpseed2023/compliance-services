@@ -27,6 +27,10 @@ public interface ComplianceRepo extends JpaRepository<Compliance, Long> {
             @Param("isEnable") boolean isEnable
     );
 
+    @Query("SELECT c FROM Compliance c WHERE c.businessUnit.id = :businessUnitId AND c.isEnable = true AND c.isDeleted = false")
+    List<Compliance> findActiveCompliances(@Param("businessUnitId") Long businessUnitId);
+
+
 
 
 }

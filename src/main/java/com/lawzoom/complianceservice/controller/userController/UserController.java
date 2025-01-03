@@ -17,20 +17,13 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createUser(
-            @RequestBody UserRequest userRequest,
-            @RequestParam Long subscriptionId) {
+    public ResponseEntity<?> createUser(@RequestBody UserRequest userRequest) {
         try {
-            // Call the service to create a user
-            UserResponse createdUser = userService.createUser(userRequest, subscriptionId);
-
-            // Return success response
+            UserResponse createdUser = userService.createUser(userRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
         } catch (RuntimeException ex) {
-            // Return a 400 response with the error message
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
         } catch (Exception ex) {
-            // Return a 500 response for unexpected errors
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An unexpected error occurred: " + ex.getMessage());
         }

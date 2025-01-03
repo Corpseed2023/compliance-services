@@ -257,25 +257,25 @@ public class ComplianceServiceImpl implements ComplianceService {
                     List<Compliance> compliances = complianceRepository.findCompliancesByBusinessUnitAndStatus(businessUnit.getId(), true);
 
                     long complianceCount = compliances.size();
-                    if (complianceCount > 0) {
-                        CompanyComplianceDTO complianceDTO = new CompanyComplianceDTO();
-                        complianceDTO.setCompanyId(company.getId());
-                        complianceDTO.setCompanyName(company.getCompanyName());
-                        complianceDTO.setBusinessActivityId(company.getBusinessActivity().getId());
-                        complianceDTO.setBusinessActivity(company.getBusinessActivity().getBusinessActivityName());
-                        complianceDTO.setDate(company.getDate());
-                        complianceDTO.setGstDetailsId(gstDetails.getId());
-                        complianceDTO.setGstNumber(gstDetails.getGstNumber());
-                        complianceDTO.setBusinessUnitId(businessUnit.getId());
-                        complianceDTO.setBusinessAddress(businessUnit.getAddress());
-                        complianceDTO.setComplianceCount(complianceCount);
-                        companyComplianceDTOs.add(complianceDTO);
-                    }
+                    // Add data even if complianceCount is 0
+                    CompanyComplianceDTO complianceDTO = new CompanyComplianceDTO();
+                    complianceDTO.setCompanyId(company.getId());
+                    complianceDTO.setCompanyName(company.getCompanyName());
+                    complianceDTO.setBusinessActivityId(company.getBusinessActivity().getId());
+                    complianceDTO.setBusinessActivity(company.getBusinessActivity().getBusinessActivityName());
+                    complianceDTO.setDate(company.getDate());
+                    complianceDTO.setGstDetailsId(gstDetails.getId());
+                    complianceDTO.setGstNumber(gstDetails.getGstNumber());
+                    complianceDTO.setBusinessUnitId(businessUnit.getId());
+                    complianceDTO.setBusinessAddress(businessUnit.getAddress());
+                    complianceDTO.setComplianceCount(complianceCount);
+                    companyComplianceDTOs.add(complianceDTO);
                 }
             }
         }
         return companyComplianceDTOs;
     }
+
 
 
 
