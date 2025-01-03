@@ -40,8 +40,8 @@ public class DesignationController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<DesignationResponse> getDesignationById(@PathVariable Long id) {
+    @GetMapping("get-designation")
+    public ResponseEntity<DesignationResponse> getDesignationById(@RequestParam Long id) {
         try {
             DesignationResponse designation = designationService.getDesignationById(id);
             return ResponseEntity.ok(designation);

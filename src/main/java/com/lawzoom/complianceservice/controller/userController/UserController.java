@@ -14,10 +14,10 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/{subscriptionId}")
+    @PostMapping("/create")
     public ResponseEntity<User> createUser(
             @RequestBody User user,
-            @PathVariable Long subscriptionId) {
+            @RequestParam Long subscriptionId) {
         User createdUser = userService.createUser(user, subscriptionId);
         return ResponseEntity.status(201).body(createdUser);
     }
