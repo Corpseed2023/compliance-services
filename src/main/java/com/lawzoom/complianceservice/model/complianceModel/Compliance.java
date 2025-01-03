@@ -1,8 +1,8 @@
 package com.lawzoom.complianceservice.model.complianceModel;
 
-
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.complianceTaskModel.MileStone;
+import com.lawzoom.complianceservice.model.reminderModel.ComplianceReminder;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -74,6 +75,9 @@ public class Compliance {
 
 	@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<MileStone> milestones = new ArrayList<>();
+
+	@OneToOne(mappedBy = "compliance", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+	private ComplianceReminder complianceReminder;
 
 	@PrePersist
 	protected void onCreate() {
