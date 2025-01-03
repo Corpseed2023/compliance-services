@@ -1,59 +1,39 @@
 package com.lawzoom.complianceservice.dto.userDto;
 
 
-import com.lawzoom.complianceservice.model.user.Roles;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Comment;
-import java.util.Date;
-import java.util.Set;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserRequest {
+public class  UserRequest {
 
-    private Long id;
+    @NotBlank
+    private String name;
 
-    private String firstName;
+    private Long roleId;
 
-    private String lastName;
-
+    @NotBlank
     private String email;
-
-    @Size(min = 10,max = 13,message = "Mobile length should be 10 to 13 digits..")
 
     private String mobile;
 
-    private String otp;
+    private Long typeOfResource;  //act as external or interenal resource
 
-    @Size(min = 6,message = "Password length should be minimum 6.")
-
-    private String password;
-
-    private String designation;
-
-    private String resourceType;
-
-    private Date createdAt;
-
-    private Date updatedAt;
-
-    @Comment(value = "1 : Active, 0 : Inactive")
     private boolean isEnable;
 
-    private Set<Roles> roles;
+    private Long reportingManagerId;
 
-    private boolean isAssociated;
+    private Long departmentId ;
 
-    private Long companyId;
+    private Long designationId; // New field to map 'designation'
 
-    private boolean isSubscribed;
-
-
+    private Long subscribedId;
 
 }

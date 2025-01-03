@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-
 @Entity
 @Table(name = "user")
 @Getter
@@ -19,7 +19,6 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,6 +32,7 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_roles",
@@ -41,30 +41,50 @@ public class User {
     )
     private Set<Roles> roles = new HashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "subscriber_id", nullable = false)
-    private Subscriber subscriber;
-
     @Column(name = "is_enable", columnDefinition = "tinyint(1) default 1")
     private boolean isEnable = true;
 
     @Column(name = "is_deleted", columnDefinition = "tinyint(1) default 0")
     private boolean isDeleted = false;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false, updatable = false)
+    private Date createdAt = new Date();
 
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = false)
+    private Date updatedAt = new Date();
+
+    private boolean isAssociated;
+
+    @ManyToOne
+    @JoinColumn(name = "subscriber_id", nullable = true) // Allow null values for the subscriber_id column
+    private Subscriber subscriber;
+    @ManyToOne
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
+
+    @ManyToOne
+    @JoinColumn(name = "designation_id", nullable = false)
+    private Designation designation;
+
+
+    @ManyToOne
+    @JoinColumn(name = "resource_id", nullable = false)
+    private ResourceType resourceType;
+
+    @ManyToOne
+    @JoinColumn(name = "reporting_manager_id")
+    private User reportingManager;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        createdAt = new Date();
+        updatedAt = new Date();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = new Date();
     }
 }

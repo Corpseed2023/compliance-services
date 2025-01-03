@@ -5,6 +5,7 @@ import com.lawzoom.complianceservice.model.user.Subscription;
 import java.util.List;
 
 public interface SubscriptionService {
-    Subscription createSubscription(Subscription subscription);
     List<Subscription> getAllSubscriptions();
+
+    Subscription createSubscription(String subscription);
 }

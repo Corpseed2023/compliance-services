@@ -3,7 +3,6 @@ package com.lawzoom.complianceservice.dto.userDto;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.Comment;
-
 import java.util.Date;
 
 @Data
@@ -11,14 +10,9 @@ import java.util.Date;
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
 public class UserResponse {
 
 	private Long id;
-
-	private String firstName;
-
-	private String lastName;
 
 	private String email;
 

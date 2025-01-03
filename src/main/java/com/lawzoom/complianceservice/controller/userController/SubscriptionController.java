@@ -18,7 +18,7 @@ public class SubscriptionController {
 
     // Create a new subscription
     @PostMapping
-    public ResponseEntity<Subscription> createSubscription(@RequestBody Subscription subscription) {
+    public ResponseEntity<Subscription> createSubscription(@RequestParam String subscription) {
         Subscription createdSubscription = subscriptionService.createSubscription(subscription);
         return ResponseEntity.status(201).body(createdSubscription);
     }
