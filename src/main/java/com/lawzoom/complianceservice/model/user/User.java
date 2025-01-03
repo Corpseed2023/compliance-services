@@ -24,7 +24,7 @@ public class User {
     private Long id;
 
     @NotEmpty(message = "Username must not be empty")
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String userName;
 
     @NotEmpty(message = "Email must not be empty")

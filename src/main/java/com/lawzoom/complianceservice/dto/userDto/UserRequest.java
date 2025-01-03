@@ -24,8 +24,6 @@ public class  UserRequest {
     @NotBlank
     private String email;
 
-    private String mobile;
-
     private Long typeOfResource;  //act as external or interenal resource
 
     private boolean isEnable;
