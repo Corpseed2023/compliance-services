@@ -58,8 +58,9 @@ public class User {
     private boolean isAssociated;
 
     @ManyToOne
-    @JoinColumn(name = "subscriber_id", nullable = true) // Allow null values for the subscriber_id column
+    @JoinColumn(name = "subscriber_id", nullable = true) // Allow null values initially
     private Subscriber subscriber;
+
     @ManyToOne
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;

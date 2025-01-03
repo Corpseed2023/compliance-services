@@ -17,6 +17,8 @@ public class  UserRequest {
     @NotBlank
     private String name;
 
+    private Long superAdminId;
+
     private Long roleId;
 
     @NotBlank
@@ -34,6 +36,6 @@ public class  UserRequest {
 
     private Long designationId; // New field to map 'designation'
 
-    private Long subscribedId;
+    private Long subscriptionId;
 
 }

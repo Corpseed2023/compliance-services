@@ -30,43 +30,37 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private SubscriberRepository subscriberRepository;
 
+    @Autowired
+    private SubscriptionRepository subscriptionRepository;
+
     @Override
     public UserResponse createUser(UserRequest userRequest) {
-        // Check if the email already exists
+        // Step 1: Check if the email already exists
         if (userRepository.existsByEmail(userRequest.getEmail())) {
             throw new RuntimeException("Email already exists: " + userRequest.getEmail());
         }
 
-        // Validate and fetch Role
+        // Step 2: Validate and fetch Role
         Roles role = roleRepository.findById(userRequest.getRoleId())
                 .orElseThrow(() -> new RuntimeException("Role not found with ID: " + userRequest.getRoleId()));
 
-        // Validate and fetch Department
+        // Step 3: Validate and fetch Department
         Department department = departmentRepository.findById(userRequest.getDepartmentId())
                 .orElseThrow(() -> new RuntimeException("Department not found with ID: " + userRequest.getDepartmentId()));
 
-        // Validate and fetch Designation
+        // Step 4: Validate and fetch Designation
         Designation designation = designationRepository.findById(userRequest.getDesignationId())
                 .orElseThrow(() -> new RuntimeException("Designation not found with ID: " + userRequest.getDesignationId()));
 
-        // Validate and fetch ResourceType
+        // Step 5: Validate and fetch ResourceType
         ResourceType resourceType = resourceTypeRepository.findById(userRequest.getTypeOfResource())
                 .orElseThrow(() -> new RuntimeException("ResourceType not found with ID: " + userRequest.getTypeOfResource()));
 
-        // Validate and fetch Subscriber
-        Subscriber subscriber = null;
-        if (userRequest.getSubscribedId() != null) {
-            subscriber = subscriberRepository.findById(userRequest.getSubscribedId())
-                    .orElseThrow(() -> new RuntimeException("Subscriber not found with ID: " + userRequest.getSubscribedId()));
-        } else {
-            // Create a new Subscriber if one doesn't exist
-            subscriber = new Subscriber();
-            subscriber.setSubscription(null); // Replace with a valid Subscription if needed
-            subscriber.setActive(true);
-            subscriber = subscriberRepository.save(subscriber);
-        }
+        // Step 6: Validate Subscription
+        Subscription subscription = subscriptionRepository.findById(userRequest.getSubscriptionId())
+                .orElseThrow(() -> new RuntimeException("Subscription not found with ID: " + userRequest.getSubscriptionId()));
 
-        // Build the User object
+        // Step 7: Create a temporary User (without Subscriber)
         User user = new User();
         user.setUserName(userRequest.getName());
         user.setEmail(userRequest.getEmail());
@@ -74,17 +68,24 @@ public class UserServiceImpl implements UserService {
         user.setDepartment(department);
         user.setDesignation(designation);
         user.setResourceType(resourceType);
-        user.setSubscriber(subscriber);
         user.getRoles().add(role);
 
-        // Save User
-        User savedUser = userRepository.save(user);
+        // Save the User temporarily
+        User tempUser = userRepository.save(user);
 
-        // Update the Subscriber with the created User if needed
-        subscriber.getUsers().add(savedUser);
-        subscriberRepository.save(subscriber);
+        // Step 8: Create and save Subscriber with User as Super Admin
+        Subscriber subscriber = new Subscriber();
+        subscriber.setSuperAdmin(tempUser); // Link User as Super Admin
+        subscriber.setSubscription(subscription);
+        subscriber.setActive(true);
 
-        // Prepare Response
+        Subscriber savedSubscriber = subscriberRepository.save(subscriber);
+
+        // Step 9: Update User with Subscriber reference
+        tempUser.setSubscriber(savedSubscriber);
+        User savedUser = userRepository.save(tempUser);
+
+        // Step 10: Prepare and return the Response
         UserResponse response = new UserResponse();
         response.setId(savedUser.getId());
         response.setEmail(savedUser.getEmail());
@@ -96,4 +97,9 @@ public class UserServiceImpl implements UserService {
 
         return response;
     }
+
+
+
 }
+
+
