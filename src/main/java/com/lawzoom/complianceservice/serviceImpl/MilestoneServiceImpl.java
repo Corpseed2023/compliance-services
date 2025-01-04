@@ -182,8 +182,11 @@ public class MilestoneServiceImpl implements MilestoneService {
             response.setEnable(milestone.isEnable());
             response.setComplianceId(milestone.getCompliance().getId());
             response.setReporterId(milestone.getTaskReporter() != null ? milestone.getTaskReporter().getId() : null);
+            response.setReporterName(milestone.getTaskReporter().getUserName());
             response.setAssignedTo(milestone.getAssignedTo() != null ? milestone.getAssignedTo().getId() : null);
+            response.setAssignedName(milestone.getAssignedTo().getUserName());
             response.setAssignedBy(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getId() : null);
+            response.setAssignedByName(milestone.getAssignedBy().getUserName());
             response.setAssigneeMail(milestone.getAssigneeMail());
             response.setIssuedDate(milestone.getIssuedDate());
             response.setCriticality(milestone.getCriticality());

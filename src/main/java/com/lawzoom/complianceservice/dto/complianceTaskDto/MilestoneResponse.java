@@ -17,8 +17,11 @@ public class MilestoneResponse {
     private boolean isEnable;
     private Long complianceId;
     private Long reporterId;
+    private String reporterName;
     private Long assignedTo;
+    private String assignedName;
     private Long assignedBy;
+    private String assignedByName;
     private String assigneeMail;
     private LocalDate issuedDate;
     private String criticality;
