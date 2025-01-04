@@ -70,6 +70,9 @@ public class MilestoneServiceImpl implements MilestoneService {
                     .orElseThrow(() -> new NotFoundException("Assigned By user not found with ID: " + milestoneRequest.getAssignedBy()));
         }
 
+        Subscriber subscriber = subscriberRepository.findById(milestoneRequest.getSubscriberId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + milestoneRequest.getSubscriberId()));
+
         // Create Milestone Entity
         MileStone milestone = new MileStone();
         milestone.setMileStoneName(milestoneRequest.getMileStoneName());
@@ -85,6 +88,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         milestone.setStatus(milestoneRequest.getStatus() != null ? milestoneRequest.getStatus() : "Pending");
         milestone.setCreatedAt(new Date());
         milestone.setUpdatedAt(new Date());
+        milestone.setSubscriber(subscriber);
 
         MileStone savedMilestone = milestoneRepository.save(milestone);
 
@@ -109,6 +113,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         milestoneResponse.setIssuedDate(savedMilestone.getIssuedDate());
         milestoneResponse.setCriticality(savedMilestone.getCriticality());
         milestoneResponse.setBusinessUnitId(businessUnit.getId());
+        milestoneResponse.setSubscriberId(savedMilestone.getSubscriber().getId());
 
         return milestoneResponse;
     }

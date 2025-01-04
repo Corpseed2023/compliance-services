@@ -33,4 +33,6 @@ public class MilestoneRequest {
 	private String criticality;
 
 	private String status; // Status of the milestone
+
+	private Long subscriberId;
 }

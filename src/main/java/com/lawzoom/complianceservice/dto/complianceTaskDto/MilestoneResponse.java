@@ -23,5 +23,6 @@ public class MilestoneResponse {
     private LocalDate issuedDate;
     private String criticality;
     private Long businessUnitId;
+    private Long subscriberId;
 }
 
