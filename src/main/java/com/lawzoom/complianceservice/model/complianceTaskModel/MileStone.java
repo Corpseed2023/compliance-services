@@ -66,6 +66,8 @@ public class MileStone {
 
 	private String criticality;
 
+	private String remark;
+
 
 	@ManyToOne
 	@JoinColumn(name = "business_unit_id", nullable = false)

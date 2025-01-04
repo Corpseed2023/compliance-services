@@ -35,4 +35,6 @@ public class MilestoneRequest {
 	private String status; // Status of the milestone
 
 	private Long subscriberId;
+
+	private String remark;
 }

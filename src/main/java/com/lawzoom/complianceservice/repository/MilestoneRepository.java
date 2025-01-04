@@ -17,13 +17,11 @@ public interface MilestoneRepository extends JpaRepository<MileStone, Long> {
         WHERE compliance_id = :complianceId 
           AND business_unit_id = :businessUnitId 
           AND subscriber_id = :subscriberId 
-          AND company_id = :companyId 
           AND is_enable = 1
     """, nativeQuery = true)
     List<MileStone> findMilestonesByParameters(
             @Param("complianceId") Long complianceId,
             @Param("businessUnitId") Long businessUnitId,
-            @Param("subscriberId") Long subscriberId,
-            @Param("companyId") Long companyId
+            @Param("subscriberId") Long subscriberId
     );
 }

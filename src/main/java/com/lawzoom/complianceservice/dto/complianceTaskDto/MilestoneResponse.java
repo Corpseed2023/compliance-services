@@ -24,5 +24,7 @@ public class MilestoneResponse {
     private String criticality;
     private Long businessUnitId;
     private Long subscriberId;
+    private String remark;
+
 }
 

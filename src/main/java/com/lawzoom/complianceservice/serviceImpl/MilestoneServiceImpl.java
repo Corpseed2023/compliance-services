@@ -89,6 +89,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         milestone.setCreatedAt(new Date());
         milestone.setUpdatedAt(new Date());
         milestone.setSubscriber(subscriber);
+        milestone.setRemark(milestoneRequest.getRemark());
 
         MileStone savedMilestone = milestoneRepository.save(milestone);
 
@@ -103,6 +104,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         milestoneResponse.setEnable(savedMilestone.isEnable());
         milestoneResponse.setComplianceId(savedMilestone.getCompliance().getId());
         milestoneResponse.setReporterId(reporter.getId());
+        milestoneResponse.setRemark(savedMilestone.getRemark());
         if (assignedToUser != null) {
             milestoneResponse.setAssignedTo(assignedToUser.getId());
         }
@@ -145,6 +147,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         return response;
     }
 
+
     @Override
     public List<MilestoneResponse> fetchAllMilestones(MilestoneRequestForFetch request) {
         // Step 1: Validate Subscriber
@@ -159,24 +162,14 @@ public class MilestoneServiceImpl implements MilestoneService {
         Compliance compliance = complianceRepository.findById(request.getComplianceId())
                 .orElseThrow(() -> new NotFoundException("Compliance not found with ID: " + request.getComplianceId()));
 
-        // Step 4: Validate Company
-        Company company = companyRepository.findById(request.getCompanyId())
-                .orElseThrow(() -> new NotFoundException("Company not found with ID: " + request.getCompanyId()));
-
-        // Step 5: Check Subscriber Association
-        if (!company.getSubscriber().getId().equals(subscriber.getId())) {
-            throw new IllegalArgumentException("Company does not belong to the provided Subscriber.");
-        }
-
-        // Step 6: Fetch Milestones using Native Query
+        // Step 4: Fetch Milestones using Native Query
         List<MileStone> milestones = milestoneRepository.findMilestonesByParameters(
                 compliance.getId(),
                 businessUnit.getId(),
-                subscriber.getId(),
-                company.getId()
+                subscriber.getId()
         );
 
-        // Step 7: Map Milestones to Response DTOs Manually
+        // Step 5: Map Milestones to Response DTOs
         List<MilestoneResponse> responses = new ArrayList<>();
         for (MileStone milestone : milestones) {
             MilestoneResponse response = new MilestoneResponse();
@@ -200,6 +193,5 @@ public class MilestoneServiceImpl implements MilestoneService {
 
         return responses;
     }
-
 }
 
