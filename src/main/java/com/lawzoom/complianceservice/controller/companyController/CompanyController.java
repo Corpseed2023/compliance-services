@@ -5,6 +5,7 @@ import com.lawzoom.complianceservice.dto.companyDto.CompanyResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.exception.UnauthorizedException;
 import com.lawzoom.complianceservice.service.companyService.CompanyService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ public class CompanyController {
     private CompanyService companyService;
 
     @PostMapping("/addCompany")
+    @Transactional
     public ResponseEntity<CompanyResponse> createCompany(@RequestBody CompanyRequest companyRequest,
                                                          @RequestParam Long userId) {
         CompanyResponse companyResponse = companyService.createCompany(companyRequest, userId);
