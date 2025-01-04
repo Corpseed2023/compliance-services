@@ -27,5 +27,5 @@ public interface CompanyService {
 
     CompanyResponse fetchCompany(Long companyId, Long userId, Long subscriberId);
 
-    List<CompanyResponse> fetchAllCompanies(Long userId, Long subscriptionId);
+    List<CompanyResponse> fetchAllCompanies(Long userId, Long subscriberId);
 }

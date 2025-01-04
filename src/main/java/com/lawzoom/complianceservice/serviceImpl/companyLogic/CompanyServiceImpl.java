@@ -416,8 +416,9 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
 
+
     @Override
-    public List<CompanyResponse> fetchAllCompanies(Long userId, Long subscriptionId) {
+    public List<CompanyResponse> fetchAllCompanies(Long userId, Long subscriberId) {
         // Step 1: Validate User
         User user = userRepository.findActiveUserById(userId);
         if (user == null) {
@@ -425,20 +426,18 @@ public class CompanyServiceImpl implements CompanyService {
         }
 
         // Step 2: Validate Subscriber
-        Subscriber subscriber = user.getSubscriber();
-        if (subscriber == null) {
-            throw new UnauthorizedException("User is not associated with any subscriber.");
+        Subscriber subscriber = subscriberRepository.findById(subscriberId)
+                .orElseThrow(() -> new NotFoundException("Subscriber not found with ID: " + subscriberId));
+
+        // Step 3: Check if the user is associated with the subscriber
+        if (!subscriber.getUsers().contains(user)) {
+            throw new UnauthorizedException("User is not associated with the provided subscriber ID: " + subscriberId);
         }
 
-        // Step 3: Validate Subscription
-        if (subscriber.getSubscription() == null || !subscriber.getSubscription().getId().equals(subscriptionId)) {
-            throw new UnauthorizedException("The provided subscription is not associated with the subscriber.");
-        }
-
+        // Step 4: Fetch Companies under Subscriber
         List<Company> companies = companyRepository.findBySubscriberAndIsEnableAndIsDeletedFalse(subscriber.getId());
-
         if (companies.isEmpty()) {
-            throw new NotFoundException("No companies found for the given criteria.");
+            throw new NotFoundException("No companies found for the provided subscriber ID: " + subscriberId);
         }
 
         // Step 5: Map Company entities to CompanyResponse DTOs
@@ -477,7 +476,7 @@ public class CompanyServiceImpl implements CompanyService {
         response.setContractEmployee(company.getContractEmployee());
         response.setOperationUnitAddress(company.getOperationUnitAddress());
         response.setIndustryNameId(company.getIndustryCategory().getId());
-        response.setIndustrySubCategoryNameId(company.getIndustrySubCategory().getId());
+        response.setIndustrySubCategoryNameId(company.getIndustrySubCategory() != null ? company.getIndustrySubCategory().getId() : null);
 
         // Fetch and set additional counts
         Long stateCount = businessUnitRepository.countDistinctStatesByCompanyId(company.getId());

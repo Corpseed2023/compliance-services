@@ -43,9 +43,9 @@ public class CompanyController {
 
 
     @GetMapping("/fetch-all-companies")
-    public ResponseEntity<?> fetchAllCompanies(@RequestParam Long userId, @RequestParam Long subscriptionId) {
+    public ResponseEntity<?> fetchAllCompanies(@RequestParam Long userId, @RequestParam Long subscriberId) {
         try {
-            List<CompanyResponse> response = companyService.fetchAllCompanies(userId, subscriptionId);
+            List<CompanyResponse> response = companyService.fetchAllCompanies(userId, subscriberId);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
