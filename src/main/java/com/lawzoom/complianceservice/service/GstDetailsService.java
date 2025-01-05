@@ -14,7 +14,7 @@ public interface GstDetailsService {
     
     GstDetailsResponse getGstDetailsById(GstDetailsFetchRequest gstDetailsFetchRequest);
 
-    List<GstCompanyResponse> fetchAllGstDetails(Long companyId, Long userId, Long subscriptionId);
+    List<GstCompanyResponse> fetchAllGstDetails(Long companyId, Long userId, Long subscriberId);
 
     String softDeleteGstDetails(Long id, Long userId);
 }

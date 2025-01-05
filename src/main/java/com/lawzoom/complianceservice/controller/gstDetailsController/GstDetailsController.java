@@ -47,9 +47,9 @@ public class GstDetailsController {
     @GetMapping("/fetch-company-gstDetails")
     public ResponseEntity<?> fetchAllGstDetails(@RequestParam Long companyId,
                                                 @RequestParam Long userId,
-                                                @RequestParam Long subscriptionId) {
+                                                @RequestParam Long subscriberId) {
         try {
-            List<GstCompanyResponse> response = gstDetailsService.fetchAllGstDetails(companyId, userId, subscriptionId);
+            List<GstCompanyResponse> response = gstDetailsService.fetchAllGstDetails(companyId, userId, subscriberId);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (NotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

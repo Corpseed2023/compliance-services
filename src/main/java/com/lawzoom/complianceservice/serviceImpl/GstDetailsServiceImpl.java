@@ -24,6 +24,7 @@ import com.lawzoom.complianceservice.service.GstDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -82,13 +83,13 @@ public class GstDetailsServiceImpl implements GstDetailsService {
                 .orElseThrow(() -> new NotFoundException("State not found with ID: " + gstDetailsRequest.getStateId()));
 
         // Step 6: Check for Duplicate GST Number for the Company
-        boolean gstExists = gstDetailsRepository.existsByGstNumberAndCompanyIdAndStateId(
+        List<GstDetails> existingGstDetails = gstDetailsRepository.findByGstNumberAndCompanyIdAndStateId(
                 gstDetailsRequest.getGstNumber(),
                 gstDetailsRequest.getCompanyId(),
                 gstDetailsRequest.getStateId()
         );
 
-        if (gstExists) {
+        if (!existingGstDetails.isEmpty()) {
             throw new IllegalArgumentException("GST number already exists for the specified company and state.");
         }
 
@@ -106,16 +107,21 @@ public class GstDetailsServiceImpl implements GstDetailsService {
         // Save GST Details
         gstDetails = gstDetailsRepository.save(gstDetails);
 
-        // Step 8: Prepare Response
+        // Step 8: Count Associated Business Units
+        Long businessUnitCount = (long) (gstDetails.getBusinessUnits() != null ? gstDetails.getBusinessUnits().size() : 0);
+
+        // Step 9: Prepare Response
         GstDetailsResponse response = new GstDetailsResponse();
         response.setId(gstDetails.getId());
         response.setGstNumber(gstDetails.getGstNumber());
         response.setCompanyId(gstDetails.getCompany().getId());
+        response.setCompanyName(gstDetails.getCompany().getCompanyName()); // Include company name
         response.setCountryId(gstDetails.getCountry().getId());
         response.setCountryName(gstDetails.getCountry().getCountryName());
         response.setStateId(gstDetails.getState().getId());
         response.setStateName(gstDetails.getState().getStateName());
         response.setGstRegistrationDate(gstDetails.getGstRegistrationDate());
+        response.setBusinessUnitCount(businessUnitCount); // Include business unit count
 
         return response;
     }
@@ -137,13 +143,15 @@ public class GstDetailsServiceImpl implements GstDetailsService {
         States state = statesRepository.findById(gstDetailsRequest.getStateId())
                 .orElseThrow(() -> new NotFoundException("State not found with ID: " + gstDetailsRequest.getStateId()));
 
-        boolean gstExists = gstDetailsRepository.existsByGstNumberAndCompanyIdAndStateId(
+        // Step 6: Check for Duplicate GST Number for the Company
+        List<GstDetails> existingGstDetails = gstDetailsRepository.findByGstNumberAndCompanyIdAndStateId(
                 gstDetailsRequest.getGstNumber(),
                 gstDetailsRequest.getCompanyId(),
                 gstDetailsRequest.getStateId()
         );
 
-        if (gstExists && !gstDetails.getGstNumber().equals(gstDetailsRequest.getGstNumber())) {
+        // Ensure the existing GST number belongs to a different record
+        if (!existingGstDetails.isEmpty() && !existingGstDetails.get(0).getId().equals(id)) {
             throw new IllegalArgumentException("GST number already exists for the specified company and state.");
         }
 
@@ -152,6 +160,7 @@ public class GstDetailsServiceImpl implements GstDetailsService {
         gstDetails.setState(state);
         gstDetails.setGstRegistrationDate(gstDetailsRequest.getGstRegistrationDate());
         gstDetails.setUpdatedAt(new Date());
+        gstDetails.setDate(LocalDate.now());
 
         // Assume the current user making the request is retrieved from the security context or session
         User currentUser = userRepository.findById(gstDetailsRequest.getUserId())
@@ -250,20 +259,20 @@ public class GstDetailsServiceImpl implements GstDetailsService {
             for (BusinessUnit businessUnit : gstDetails.getBusinessUnits()) {
                 BusinessUnitResponse businessUnitResponse = new BusinessUnitResponse();
                 businessUnitResponse.setId(businessUnit.getId());
-                businessUnitResponse.setCityId(businessUnit.getCity().getId());
-                businessUnitResponse.setCity(businessUnit.getCity().getCityName());
-                businessUnitResponse.setLocatedAtId(businessUnit.getLocatedAt().getId());
-                businessUnitResponse.setLocatedAt(businessUnit.getLocatedAt().getLocationName());
+                businessUnitResponse.setCityId(businessUnit.getCity() != null ? businessUnit.getCity().getId() : null);
+                businessUnitResponse.setCity(businessUnit.getCity() != null ? businessUnit.getCity().getCityName() : null);
+                businessUnitResponse.setLocatedAtId(businessUnit.getLocatedAt() != null ? businessUnit.getLocatedAt().getId() : null);
+                businessUnitResponse.setLocatedAt(businessUnit.getLocatedAt() != null ? businessUnit.getLocatedAt().getLocationName() : null);
                 businessUnitResponse.setAddress(businessUnit.getAddress());
                 businessUnitResponse.setCreatedAt(businessUnit.getCreatedAt());
                 businessUnitResponse.setUpdatedAt(businessUnit.getUpdatedAt());
                 businessUnitResponse.setEnable(businessUnit.isEnable());
-                businessUnitResponse.setGstNumber(gstDetails.getGstNumber());
-                businessUnitResponse.setStateId(businessUnit.getState().getId());
-                businessUnitResponse.setState(businessUnit.getState().getStateName());
+                businessUnitResponse.setGstNumber(businessUnit.getGstNumber());
+                businessUnitResponse.setStateId(businessUnit.getState() != null ? businessUnit.getState().getId() : null);
+                businessUnitResponse.setState(businessUnit.getState() != null ? businessUnit.getState().getStateName() : null);
                 businessUnitResponse.setCompanyName(gstDetails.getCompany().getCompanyName());
-                businessUnitResponse.setBusinessActivity(businessUnit.getBusinessActivity().getBusinessActivityName());
-                businessUnitResponse.setBusinessActivityId(businessUnit.getBusinessActivity().getId());
+                businessUnitResponse.setBusinessActivityId(businessUnit.getBusinessActivity() != null ? businessUnit.getBusinessActivity().getId() : null);
+                businessUnitResponse.setBusinessActivity(businessUnit.getBusinessActivity() != null ? businessUnit.getBusinessActivity().getBusinessActivityName() : null);
 
                 businessUnitResponses.add(businessUnitResponse);
             }

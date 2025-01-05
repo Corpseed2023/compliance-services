@@ -7,8 +7,6 @@ import com.lawzoom.complianceservice.repository.*;
 import com.lawzoom.complianceservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -35,11 +33,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse createUser(UserRequest userRequest) {
-        // Step 1: Validate the email
+        // Validate email
         if (userRepository.existsByEmail(userRequest.getEmail())) {
             throw new RuntimeException("Email already exists: " + userRequest.getEmail());
         }
 
+        // Fetch and validate required entities
         Roles role = roleRepository.findById(userRequest.getRoleId())
                 .orElseThrow(() -> new RuntimeException("Role not found with ID: " + userRequest.getRoleId()));
         Department department = departmentRepository.findById(userRequest.getDepartmentId())
@@ -48,10 +47,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("Designation not found with ID: " + userRequest.getDesignationId()));
         ResourceType resourceType = resourceTypeRepository.findById(userRequest.getTypeOfResource())
                 .orElseThrow(() -> new RuntimeException("ResourceType not found with ID: " + userRequest.getTypeOfResource()));
-        Subscription subscription = subscriptionRepository.findById(userRequest.getSubscriptionId())
-                .orElseThrow(() -> new RuntimeException("Subscription not found with ID: " + userRequest.getSubscriptionId()));
 
-        // Step 2: Create User
         User user = new User();
         user.setUserName(userRequest.getName());
         user.setEmail(userRequest.getEmail());
@@ -61,35 +57,46 @@ public class UserServiceImpl implements UserService {
         user.setResourceType(resourceType);
         user.getRoles().add(role);
 
-        User tempUser = userRepository.save(user);
+        // Conditional logic based on role
+        if ("Master".equalsIgnoreCase(role.getRoleName())) {
+            // For Master: No subscription or subscriber required
+            return saveUserAndPrepareResponse(user);
+        } else {
+            // For other roles: Subscription and Subscriber required
+            Subscription subscription = subscriptionRepository.findById(userRequest.getSubscriptionId())
+                    .orElseThrow(() -> new RuntimeException("Subscription not found with ID: " + userRequest.getSubscriptionId()));
 
-        // Step 3: Create Subscriber
-        Subscriber subscriber = new Subscriber();
-        subscriber.setSuperAdmin(tempUser);
-        subscriber.setSubscription(subscription);
-        subscriber.setActive(true);
+            User tempUser = userRepository.save(user);
 
-        Subscriber savedSubscriber = subscriberRepository.save(subscriber);
+            Subscriber subscriber = new Subscriber();
+            subscriber.setSuperAdmin(tempUser);
+            subscriber.setSubscription(subscription);
+            subscriber.setActive(true);
 
-        // Link User with Subscriber
-        tempUser.setSubscriber(savedSubscriber);
-        User savedUser = userRepository.save(tempUser);
+            Subscriber savedSubscriber = subscriberRepository.save(subscriber);
 
-        // Step 4: Prepare Response
-        UserResponse response = new UserResponse();
-        response.setId(savedUser.getId());
-        response.setEmail(savedUser.getEmail());
-        response.setDesignation(savedUser.getDesignation().getName());
-        response.setResourceType(savedUser.getResourceType().getTypeOfResourceName());
-        response.setEnable(savedUser.isEnable());
-        response.setCreatedAt(savedUser.getCreatedAt());
-        response.setUpdatedAt(savedUser.getUpdatedAt());
+            // Link User with Subscriber
+            tempUser.setSubscriber(savedSubscriber);
+            User savedUser = userRepository.save(tempUser);
 
-        return response;
+            return prepareUserResponse(savedUser);
+        }
     }
 
+    private UserResponse saveUserAndPrepareResponse(User user) {
+        User savedUser = userRepository.save(user);
+        return prepareUserResponse(savedUser);
+    }
 
-
+    private UserResponse prepareUserResponse(User user) {
+        UserResponse response = new UserResponse();
+        response.setId(user.getId());
+        response.setEmail(user.getEmail());
+        response.setDesignation(user.getDesignation().getName());
+        response.setResourceType(user.getResourceType().getTypeOfResourceName());
+        response.setEnable(user.isEnable());
+        response.setCreatedAt(user.getCreatedAt());
+        response.setUpdatedAt(user.getUpdatedAt());
+        return response;
+    }
 }
-
-

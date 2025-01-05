@@ -37,6 +37,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -169,6 +170,7 @@ public class CompanyServiceImpl implements CompanyService {
         company.setCreatedBy(user);
         company.setCreatedAt(new Date());
         company.setUpdatedAt(new Date());
+        company.setDate(LocalDate.now());
 
         // Save Company
         company = companyRepository.save(company);
@@ -183,6 +185,7 @@ public class CompanyServiceImpl implements CompanyService {
         gstDetails.setCreatedBy(user);
         gstDetails.setCreatedAt(new Date());
         gstDetails.setUpdatedAt(new Date());
+        gstDetails.setDate(LocalDate.now());
         gstDetailsRepository.save(gstDetails);
 
         // Step 10: Save Business Unit
@@ -195,6 +198,8 @@ public class CompanyServiceImpl implements CompanyService {
         businessUnit.setCreatedBy(user);
         businessUnit.setCreatedAt(new Date());
         businessUnit.setUpdatedAt(new Date());
+        businessUnit.setLocatedAt(company.getLocatedAt());
+        businessUnit.setDate(LocalDate.now());
         businessUnitRepository.save(businessUnit);
 
         // Step 11: Prepare and Return Response

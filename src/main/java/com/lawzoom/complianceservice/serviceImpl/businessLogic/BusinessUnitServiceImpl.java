@@ -33,6 +33,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -128,6 +129,7 @@ public class BusinessUnitServiceImpl implements BusinessUnitService {
         newBusinessUnit.setLocatedAt(locatedAt);
         newBusinessUnit.setCreatedAt(new Date());
         newBusinessUnit.setUpdatedAt(new Date());
+        newBusinessUnit.setDate(LocalDate.now());
         newBusinessUnit.setEnable(true);
         newBusinessUnit.setState(state);
         newBusinessUnit.setGstNumber(businessUnitRequest.getGstNumber());
@@ -273,80 +275,88 @@ public class BusinessUnitServiceImpl implements BusinessUnitService {
 
     @Override
     public List<BusinessUnitResponse> getAllBusinessUnits(Long gstDetailsId, Long userId) {
-        // Validate User
+        // Step 1: Validate User
         User user = userRepository.findActiveUserById(userId);
         if (user == null) {
             throw new IllegalArgumentException("Error: User not found!");
         }
 
-
-        // Validate Subscriber
+        // Step 2: Validate Subscriber
         Subscriber subscriber = user.getSubscriber();
         if (subscriber == null) {
             throw new NotFoundException("User is not associated with any subscriber.");
         }
 
-        // Fetch GST Details
+        // Step 3: Fetch GST Details
         GstDetails gstDetails = gstDetailsRepository.findByIdAndEnabledAndNotDeleted(gstDetailsId)
                 .orElseThrow(() -> new NotFoundException("GST Details not found or inactive/deleted with ID: " + gstDetailsId));
 
-        // Validate that GST Details belong to a Company associated with the Subscriber
+        // Step 4: Validate that GST Details belong to a Company associated with the Subscriber
         Company company = gstDetails.getCompany();
         if (company == null || !company.getSubscriber().getId().equals(subscriber.getId())) {
             throw new NotFoundException("GST Details do not belong to a company associated with the subscriber.");
         }
 
-        // Fetch the list of Business Units
+        // Step 5: Fetch the list of Business Units
         List<BusinessUnit> businessUnits = businessUnitRepository.findAllByGstDetails(gstDetails);
         if (businessUnits.isEmpty()) {
             throw new NotFoundException("No business units found for GST details ID: " + gstDetailsId);
         }
 
-        // Map each BusinessUnit entity to a BusinessUnitResponse DTO directly
-        return businessUnits.stream().map(businessUnit -> {
+        // Step 6: Map Business Units to Responses
+        List<BusinessUnitResponse> responseList = businessUnits.stream().map(businessUnit -> {
             BusinessUnitResponse response = new BusinessUnitResponse();
+
+            // Map each field, checking for nulls
             response.setId(businessUnit.getId());
+            response.setCompanyId(company.getId());
+            response.setCompanyName(company.getCompanyName());
             response.setCity(businessUnit.getCity() != null ? businessUnit.getCity().getCityName() : null);
+            response.setCityId(businessUnit.getCity() != null ? businessUnit.getCity().getId() : null);
             response.setLocatedAt(businessUnit.getLocatedAt() != null ? businessUnit.getLocatedAt().getLocationName() : null);
+            response.setLocatedAtId(businessUnit.getLocatedAt() != null ? businessUnit.getLocatedAt().getId() : null);
             response.setAddress(businessUnit.getAddress());
             response.setCreatedAt(businessUnit.getCreatedAt());
             response.setUpdatedAt(businessUnit.getUpdatedAt());
             response.setEnable(businessUnit.isEnable());
-            response.setGstNumber(businessUnit.getGstNumber());
+            response.setGstNumber(businessUnit.getGstDetails().getGstNumber());
             response.setState(businessUnit.getState() != null ? businessUnit.getState().getStateName() : null);
-            response.setCityId(businessUnit.getCity() != null ? businessUnit.getCity().getId() : null);
             response.setStateId(businessUnit.getState() != null ? businessUnit.getState().getId() : null);
-            response.setLocatedAtId(businessUnit.getLocatedAt() != null ? businessUnit.getLocatedAt().getId() : null);
+            response.setBusinessActivity(businessUnit.getBusinessActivity() != null ? businessUnit.getBusinessActivity().getBusinessActivityName() : null);
+            response.setBusinessActivityId(businessUnit.getBusinessActivity() != null ? businessUnit.getBusinessActivity().getId() : null);
+
             return response;
         }).collect(Collectors.toList());
+
+        return responseList;
     }
 
 
     @Override
     public BusinessUnitResponse getBusinessUnitData(Long businessUnitId) {
+        // Fetch the BusinessUnit
         Optional<BusinessUnit> businessUnitOptional = businessUnitRepository.findById(businessUnitId);
 
         BusinessUnit businessUnit = businessUnitOptional.orElseThrow(() ->
                 new NotFoundException("Business Unit not found for ID: " + businessUnitId));
-        return mapBusinessUnitToResponse(businessUnit);
-    }
 
-    private BusinessUnitResponse mapBusinessUnitToResponse(BusinessUnit businessUnit) {
+        // Map BusinessUnit to BusinessUnitResponse inline
         BusinessUnitResponse response = new BusinessUnitResponse();
-        if (businessUnit != null) {
-            response.setId(businessUnit.getId());
-            response.setCity(businessUnit.getCity().getCityName());
-            response.setLocatedAt(businessUnit.getLocatedAt().getLocationName());
-            response.setAddress(businessUnit.getAddress());
-            response.setCreatedAt(businessUnit.getCreatedAt());
-            response.setUpdatedAt(businessUnit.getUpdatedAt());
-            response.setEnable(businessUnit.isEnable());
-            response.setGstNumber(businessUnit.getGstNumber());
-            response.setState(businessUnit.getState().getStateName());
-            response.setCityId(businessUnit.getCity().getId());
-            response.setStateId(businessUnit.getState().getId());
-            response.setLocatedAtId(businessUnit.getLocatedAt().getId());
-        }
+        response.setId(businessUnit.getId());
+        response.setCity(businessUnit.getCity() != null ? businessUnit.getCity().getCityName() : null);
+        response.setLocatedAt(businessUnit.getLocatedAt() != null ? businessUnit.getLocatedAt().getLocationName() : null);
+        response.setAddress(businessUnit.getAddress());
+        response.setCreatedAt(businessUnit.getCreatedAt());
+        response.setUpdatedAt(businessUnit.getUpdatedAt());
+        response.setEnable(businessUnit.isEnable());
+        response.setGstNumber(businessUnit.getGstDetails() != null ? businessUnit.getGstDetails().getGstNumber() : null);
+        response.setState(businessUnit.getState() != null ? businessUnit.getState().getStateName() : null);
+        response.setCityId(businessUnit.getCity() != null ? businessUnit.getCity().getId() : null);
+        response.setStateId(businessUnit.getState() != null ? businessUnit.getState().getId() : null);
+        response.setLocatedAtId(businessUnit.getLocatedAt() != null ? businessUnit.getLocatedAt().getId() : null);
+        response.setBusinessActivity(businessUnit.getBusinessActivity() != null ? businessUnit.getBusinessActivity().getBusinessActivityName() : null);
+        response.setBusinessActivityId(businessUnit.getBusinessActivity() != null ? businessUnit.getBusinessActivity().getId() : null);
+
         return response;
     }
 
