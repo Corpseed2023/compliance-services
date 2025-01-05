@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class ComplianceReminderResponse {
+public class ReminderResponse {
 
     private Long id;
     private Long complianceId;

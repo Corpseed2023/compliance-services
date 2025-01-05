@@ -1,20 +1,19 @@
-package com.lawzoom.complianceservice.model.complianceTaskModel;
-
+package com.lawzoom.complianceservice.model.complianceMileStoneModel;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
 import java.util.Date;
 
-@Entity
 @Data
-public class TaskStatus {
-
+@Entity
+public class TaskCriticality {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String statusName;
+    private String criticalityName;
 
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
@@ -29,7 +28,6 @@ public class TaskStatus {
 
     @Column(name = "updated_by")
     private Long updatedBy;
-
 
 
 }

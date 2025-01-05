@@ -1,9 +1,9 @@
 package com.lawzoom.complianceservice.controller.reminderController;
 
 
-import com.lawzoom.complianceservice.dto.complianceReminder.ComplianceReminderRequest;
-import com.lawzoom.complianceservice.dto.complianceReminder.ComplianceReminderResponse;
-import com.lawzoom.complianceservice.service.ComplianceReminderService;
+import com.lawzoom.complianceservice.dto.complianceReminder.ReminderRequest;
+import com.lawzoom.complianceservice.dto.complianceReminder.ReminderResponse;
+import com.lawzoom.complianceservice.service.ReminderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,18 +15,18 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/compliance/reminder")
 @CrossOrigin(origins = "*", maxAge = 3600)
-public class ComplianceReminderController {
+public class ReminderController {
 
     @Autowired
-    private ComplianceReminderService complianceReminderService;
+    private ReminderService reminderService;
 
     @PostMapping("/create")
-    public ResponseEntity<ComplianceReminderResponse> createComplianceReminder(
+    public ResponseEntity<ReminderResponse> createReminder(
             @RequestParam("complianceId") Long complianceId,
             @RequestParam("subscriberId") Long subscriberId,
-            @Valid @RequestBody ComplianceReminderRequest reminderRequest) {
+            @Valid @RequestBody ReminderRequest reminderRequest) {
 
-        ComplianceReminderResponse response = complianceReminderService.createComplianceReminder(
+        ReminderResponse response = reminderService.createReminder(
                 complianceId, subscriberId, reminderRequest);
 
         return ResponseEntity.status(201).body(response);
@@ -34,11 +34,12 @@ public class ComplianceReminderController {
 
 
     @GetMapping("/fetch")
-    public ResponseEntity<List<ComplianceReminderResponse>> fetchComplianceReminders(
+    public ResponseEntity<List<ReminderResponse>> fetchReminders(
             @RequestParam("complianceId") Long complianceId,
             @RequestParam("subscriberId") Long subscriberId) {
 
-        List<ComplianceReminderResponse> responseList = complianceReminderService.fetchComplianceReminders(complianceId, subscriberId);
+        // Correctly use the instance of reminderService
+        List<ReminderResponse> responseList = reminderService.fetchReminders(complianceId, subscriberId);
         return ResponseEntity.ok(responseList);
     }
 }

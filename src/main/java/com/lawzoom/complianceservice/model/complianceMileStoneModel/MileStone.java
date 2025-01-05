@@ -1,9 +1,10 @@
-package com.lawzoom.complianceservice.model.complianceTaskModel;
+package com.lawzoom.complianceservice.model.complianceMileStoneModel;
 
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
-import com.lawzoom.complianceservice.model.companyModel.Company;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
+import com.lawzoom.complianceservice.model.reminderModel.Reminder;
+import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
@@ -11,7 +12,10 @@ import lombok.*;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -68,7 +72,6 @@ public class MileStone {
 
 	private String remark;
 
-
 	@ManyToOne
 	@JoinColumn(name = "business_unit_id", nullable = false)
 	private BusinessUnit businessUnit;
@@ -84,6 +87,14 @@ public class MileStone {
 	@ManyToOne
 	@JoinColumn(name = "subscriber_id", nullable = false)
 	private Subscriber subscriber;
+
+	// Multiple Reminders
+	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Reminder> reminders = new ArrayList<>();
+
+	// Multiple Renewals
+	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Renewal> renewals = new ArrayList<>();
 
 	@PrePersist
 	protected void onCreate() {

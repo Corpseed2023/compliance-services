@@ -1,17 +1,18 @@
 package com.lawzoom.complianceservice.serviceImpl;
 
-import com.lawzoom.complianceservice.dto.complianceReminder.ComplianceReminderRequest;
-import com.lawzoom.complianceservice.dto.complianceReminder.ComplianceReminderResponse;
+
+import com.lawzoom.complianceservice.dto.complianceReminder.ReminderRequest;
+import com.lawzoom.complianceservice.dto.complianceReminder.ReminderResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
-import com.lawzoom.complianceservice.model.reminderModel.ComplianceReminder;
+import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
-import com.lawzoom.complianceservice.repository.ComplianceReminderRepository;
 import com.lawzoom.complianceservice.repository.ComplianceRepo;
+import com.lawzoom.complianceservice.repository.ReminderRepository;
 import com.lawzoom.complianceservice.repository.SubscriberRepository;
 import com.lawzoom.complianceservice.repository.UserRepository;
-import com.lawzoom.complianceservice.service.ComplianceReminderService;
+import com.lawzoom.complianceservice.service.ReminderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,10 +21,10 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class ComplianceReminderServiceImpl implements ComplianceReminderService {
+public class ReminderServiceImpl implements ReminderService {
 
     @Autowired
-    private ComplianceReminderRepository complianceReminderRepository;
+    private ReminderRepository reminderRepository;
 
     @Autowired
     private ComplianceRepo complianceRepository;
@@ -35,8 +36,8 @@ public class ComplianceReminderServiceImpl implements ComplianceReminderService 
     private UserRepository userRepository;
 
     @Override
-    public ComplianceReminderResponse createComplianceReminder(Long complianceId, Long subscriberId,
-                                                               ComplianceReminderRequest request) {
+    public ReminderResponse createReminder(Long complianceId, Long subscriberId,
+                                           ReminderRequest request) {
         // Validate Compliance
         Compliance compliance = complianceRepository.findById(complianceId)
                 .orElseThrow(() -> new NotFoundException("Compliance not found with ID: " + complianceId));
@@ -58,8 +59,8 @@ public class ComplianceReminderServiceImpl implements ComplianceReminderService 
             throw new NotFoundException("Recipient user not found with ID :" + request.getWhomToSend());
         }
 
-        // Create ComplianceReminder
-        ComplianceReminder reminder = new ComplianceReminder();
+        // Create Reminder
+        Reminder reminder = new Reminder();
         reminder.setCompliance(compliance);
         reminder.setSubscriber(subscriber);
         reminder.setSuperAdmin(superAdmin);
@@ -72,12 +73,11 @@ public class ComplianceReminderServiceImpl implements ComplianceReminderService 
         reminder.setRepeatTimelineType(request.getRepeatTimelineType());
         reminder.setCreatedAt(new Date());
         reminder.setUpdatedAt(new Date());
-        reminder.setEnable(request.isEnable());
 
-        ComplianceReminder savedReminder = complianceReminderRepository.save(reminder);
+        Reminder savedReminder = reminderRepository.save(reminder);
 
         // Map to Response DTO
-        ComplianceReminderResponse response = new ComplianceReminderResponse();
+        ReminderResponse response = new ReminderResponse();
         response.setId(savedReminder.getId());
         response.setComplianceId(savedReminder.getCompliance().getId());
         response.setSubscriberId(savedReminder.getSubscriber().getId());
@@ -86,7 +86,6 @@ public class ComplianceReminderServiceImpl implements ComplianceReminderService 
         response.setNotificationTimelineValue(savedReminder.getNotificationTimelineValue());
         response.setRepeatTimelineValue(savedReminder.getRepeatTimelineValue());
         response.setRepeatTimelineType(savedReminder.getRepeatTimelineType());
-        response.setEnable(savedReminder.isEnable());
         response.setCreatedBy(savedReminder.getCreatedBy().getId());
         response.setWhomToSend(savedReminder.getWhomToSend().getId());
         response.setSuperAdminId(savedReminder.getSuperAdmin().getId());
@@ -95,7 +94,7 @@ public class ComplianceReminderServiceImpl implements ComplianceReminderService 
     }
 
     @Override
-    public List<ComplianceReminderResponse> fetchComplianceReminders(Long complianceId, Long subscriberId) {
+    public List<ReminderResponse> fetchReminders(Long complianceId, Long subscriberId) {
         // Validate Compliance
         Compliance compliance = complianceRepository.findById(complianceId)
                 .orElseThrow(() -> new NotFoundException("Compliance not found with ID: " + complianceId));
@@ -105,29 +104,31 @@ public class ComplianceReminderServiceImpl implements ComplianceReminderService 
                 .orElseThrow(() -> new NotFoundException("Subscriber not found with ID: " + subscriberId));
 
         // Fetch reminders
-        List<ComplianceReminder> reminders = complianceReminderRepository.findByComplianceAndSubscriber(compliance, subscriber);
+        List<Reminder> reminders = reminderRepository.findByComplianceAndSubscriber(compliance, subscriber);
 
         // Map to Response DTO
-        List<ComplianceReminderResponse> responseList = new ArrayList<>();
-        for (ComplianceReminder reminder : reminders) {
-            ComplianceReminderResponse response = new ComplianceReminderResponse();
-            response.setId(reminder.getId());
-            response.setComplianceId(reminder.getCompliance().getId());
-            response.setSubscriberId(reminder.getSubscriber().getId());
-            response.setReminderDate(reminder.getReminderDate());
-            response.setReminderEndDate(reminder.getReminderEndDate());
-            response.setNotificationTimelineValue(reminder.getNotificationTimelineValue());
-            response.setRepeatTimelineValue(reminder.getRepeatTimelineValue());
-            response.setRepeatTimelineType(reminder.getRepeatTimelineType());
-            response.setEnable(reminder.isEnable());
-            response.setCreatedBy(reminder.getCreatedBy().getId());
-            response.setWhomToSend(reminder.getWhomToSend().getId());
-            response.setSuperAdminId(reminder.getSuperAdmin().getId());
-            responseList.add(response);
+        List<ReminderResponse> responseList = new ArrayList<>();
+        for (Reminder reminder : reminders) {
+            responseList.add(mapToReminderResponse(reminder));
         }
 
         return responseList;
     }
 
+    private ReminderResponse mapToReminderResponse(Reminder reminder) {
+        ReminderResponse response = new ReminderResponse();
+        response.setId(reminder.getId());
+        response.setComplianceId(reminder.getCompliance().getId());
+        response.setSubscriberId(reminder.getSubscriber().getId());
+        response.setReminderDate(reminder.getReminderDate());
+        response.setReminderEndDate(reminder.getReminderEndDate());
+        response.setNotificationTimelineValue(reminder.getNotificationTimelineValue());
+        response.setRepeatTimelineValue(reminder.getRepeatTimelineValue());
+        response.setRepeatTimelineType(reminder.getRepeatTimelineType());
+        response.setCreatedBy(reminder.getCreatedBy().getId());
+        response.setWhomToSend(reminder.getWhomToSend().getId());
+        response.setSuperAdminId(reminder.getSuperAdmin().getId());
+        return response;
+    }
 
 }

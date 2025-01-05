@@ -87,7 +87,7 @@
 ////	private List<TaskAction> taskActionList=new ArrayList<>();
 //
 ////	@OneToOne(mappedBy = "complianceSubTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
-////	private Reminder complianceReminder;
+////	private Reminder Reminder;
 //
 ////	@OneToOne(mappedBy = "complianceSubTask",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
 ////	private RenewalReminder complianceRenewal;
@@ -114,7 +114,7 @@
 //				", assigneeUserId=" + assigneeUserId +
 //				", criticality='" + criticality + '\'' +
 //				", complianceTask=" + complianceTask +
-////				", complianceReminder=" + complianceReminder +
+////				", Reminder=" + Reminder +
 //				'}';
 //	}
 //}

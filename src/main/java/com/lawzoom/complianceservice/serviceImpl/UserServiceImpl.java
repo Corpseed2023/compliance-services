@@ -1,5 +1,7 @@
 package com.lawzoom.complianceservice.serviceImpl;
 
+import com.lawzoom.complianceservice.dto.teamMemberDto.MemberRequest;
+import com.lawzoom.complianceservice.dto.teamMemberDto.MemberResponse;
 import com.lawzoom.complianceservice.dto.userDto.UserRequest;
 import com.lawzoom.complianceservice.dto.userDto.UserResponse;
 import com.lawzoom.complianceservice.model.user.*;
@@ -7,6 +9,9 @@ import com.lawzoom.complianceservice.repository.*;
 import com.lawzoom.complianceservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.stream.Collectors;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -30,7 +35,6 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
-
     @Override
     public UserResponse createUser(UserRequest userRequest) {
         // Validate email
@@ -58,9 +62,10 @@ public class UserServiceImpl implements UserService {
         user.getRoles().add(role);
 
         // Conditional logic based on role
+        User savedUser;
         if ("Master".equalsIgnoreCase(role.getRoleName())) {
             // For Master: No subscription or subscriber required
-            return saveUserAndPrepareResponse(user);
+            savedUser = userRepository.save(user);
         } else {
             // For other roles: Subscription and Subscriber required
             Subscription subscription = subscriptionRepository.findById(userRequest.getSubscriptionId())
@@ -77,26 +82,98 @@ public class UserServiceImpl implements UserService {
 
             // Link User with Subscriber
             tempUser.setSubscriber(savedSubscriber);
-            User savedUser = userRepository.save(tempUser);
-
-            return prepareUserResponse(savedUser);
+            savedUser = userRepository.save(tempUser);
         }
-    }
 
-    private UserResponse saveUserAndPrepareResponse(User user) {
-        User savedUser = userRepository.save(user);
-        return prepareUserResponse(savedUser);
-    }
-
-    private UserResponse prepareUserResponse(User user) {
+        // Prepare and return response
         UserResponse response = new UserResponse();
-        response.setId(user.getId());
-        response.setEmail(user.getEmail());
-        response.setDesignation(user.getDesignation().getName());
-        response.setResourceType(user.getResourceType().getTypeOfResourceName());
-        response.setEnable(user.isEnable());
-        response.setCreatedAt(user.getCreatedAt());
-        response.setUpdatedAt(user.getUpdatedAt());
+        response.setId(savedUser.getId());
+        response.setEmail(savedUser.getEmail());
+        response.setDesignation(savedUser.getDesignation().getName());
+        response.setResourceType(savedUser.getResourceType().getTypeOfResourceName());
+        response.setEnable(savedUser.isEnable());
+        response.setCreatedAt(savedUser.getCreatedAt());
+        response.setUpdatedAt(savedUser.getUpdatedAt());
+
         return response;
     }
+
+    @Override
+    public MemberResponse createTeamMemberUser(MemberRequest memberRequest) {
+        // Step 1: Check for duplicate email
+        if (userRepository.existsByEmail(memberRequest.getMemberMail())) {
+            throw new RuntimeException("Email already exists: " + memberRequest.getMemberMail());
+        }
+
+        // Step 2: Create and populate a new User entity
+        User newUser = new User();
+        newUser.setUserName(memberRequest.getMemberName());
+        newUser.setEmail(memberRequest.getMemberMail());
+        newUser.setEnable(memberRequest.isEnable());
+
+        // Step 3: Validate and set required entities
+        newUser.setResourceType(resourceTypeRepository.findById(memberRequest.getTypeOfResource())
+                .orElseThrow(() -> new RuntimeException("Resource type not found")));
+        Designation designation = designationRepository.findById(memberRequest.getDesignationId())
+                .orElseThrow(() -> new RuntimeException("Designation not found"));
+        newUser.setDesignation(designation);
+
+        Department department = departmentRepository.findById(memberRequest.getDepartmentId())
+                .orElseThrow(() -> new RuntimeException("Department not found"));
+        newUser.setDepartment(department);
+
+        Subscriber subscriber = subscriberRepository.findById(memberRequest.getSubscriberId())
+                .orElseThrow(() -> new RuntimeException("Subscriber not found"));
+        newUser.setSubscriber(subscriber);
+
+        User reportingManager = userRepository.findById(memberRequest.getReportingManagerId())
+                .orElseThrow(() -> new RuntimeException("Reporting manager not found"));
+        newUser.setReportingManager(reportingManager);
+
+        newUser.getRoles().add(roleRepository.findById(memberRequest.getRoleId())
+                .orElseThrow(() -> new RuntimeException("Role not found")));
+
+        // Step 4: Save the new user entity
+        User savedUser = userRepository.save(newUser);
+
+        // Step 5: Prepare the response directly
+        MemberResponse response = new MemberResponse();
+        response.setId(savedUser.getId());
+        response.setName(savedUser.getUserName());
+        response.setMemberMail(savedUser.getEmail());
+        response.setEnable(savedUser.isEnable());
+
+        // Add department details
+        response.setDepartmentId(department.getId());
+        response.setDepartmentName(department.getName());
+
+        // Add designation details
+        response.setDesignationId(designation.getId());
+        response.setDesignationName(designation.getName());
+
+        // Add resource type
+        response.setTypeOfResource(
+                savedUser.getResourceType() != null ? savedUser.getResourceType().getTypeOfResourceName() : null);
+
+        // Add subscriber and super admin details
+        response.setSubscriberId(subscriber.getId());
+        response.setSuperAdminId(subscriber.getSuperAdmin().getId());
+        response.setSuperAdminName(subscriber.getSuperAdmin().getUserName());
+
+        // Add reporting manager details
+        response.setReportingManagerId(reportingManager.getId());
+        response.setReportingManagerName(reportingManager.getUserName());
+
+        // Map roles to a comma-separated string
+        response.setRoleName(
+                savedUser.getRoles().stream()
+                        .map(Roles::getRoleName)
+                        .collect(Collectors.joining(", ")));
+
+        return response;
+    }
+
+
+
+
 }

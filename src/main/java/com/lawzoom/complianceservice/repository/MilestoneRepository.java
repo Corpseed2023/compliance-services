@@ -1,6 +1,6 @@
 package com.lawzoom.complianceservice.repository;
 
-import com.lawzoom.complianceservice.model.complianceTaskModel.MileStone;
+import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

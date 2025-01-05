@@ -6,27 +6,34 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class UserRequest {
+public class  UserRequest {
 
     @NotBlank
     private String name;
 
-    private Long roleId; // Role of the user (e.g., Master, Administrator)
+    private Long superAdminId;
+
+    private Long roleId;
 
     @NotBlank
     private String email;
 
-    private Long typeOfResource; // Resource type (External/Internal)
+    private Long typeOfResource;  //act as external or interenal resource
 
     private boolean isEnable;
 
-    private Long departmentId; // Department association
+    private Long reportingManagerId;
 
-    private Long designationId; // Designation association
+    private Long departmentId ;
 
-    private Long subscriptionId; // Required for non-Master users
+    private Long designationId; // New field to map 'designation'
+
+    private Long subscriptionId;
+
 }

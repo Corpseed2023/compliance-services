@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TeamMemberRequest {
+public class MemberRequest {
 
 	@NotBlank
 	private String memberName;
@@ -22,19 +22,17 @@ public class TeamMemberRequest {
 	@NotBlank
 	private String memberMail;
 
-	private String memberMobile;
-
 	private Long typeOfResource;  //act as external or interenal resource
 
 	private boolean isEnable;
 
 	private Long reportingManagerId;
 
-	private Long subscriptionId;
-
 	private Long userId;
 
 	private Long departmentId ;
 
 	private Long designationId; // New field to map 'designation'
+
+	private Long subscriberId;
 }

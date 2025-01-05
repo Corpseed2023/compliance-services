@@ -1,5 +1,6 @@
 package com.lawzoom.complianceservice.model.reminderModel;
 
+import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
@@ -15,16 +16,20 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity
-@Table(name = "compliance_reminder")
-public class ComplianceReminder {
+@Table(name = "reminder")
+public class Reminder {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "compliance_id", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "compliance_id", nullable = true)
 	private Compliance compliance;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "milestone_id", nullable = true)
+	private MileStone milestone;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "subscriber_id", nullable = false)
@@ -54,12 +59,12 @@ public class ComplianceReminder {
 	@Column(name = "notification_timeline_value", nullable = false)
 	private int notificationTimelineValue;
 
-	@Comment("Number of intervals between repeated notifications (e.g., 1 for daily, 2 for bi-weekly)")
+	@Comment("Number of intervals between repeated notifications")
 	@Column(name = "repeat_timeline_value", nullable = false)
 	@Min(value = 0, message = "Value should not be negative.")
 	private int repeatTimelineValue;
 
-	@Comment("Type of repeat timeline: daily, weekly, monthly, quarterly, yearly")
+	@Comment("Type of repeat timeline: daily, weekly, etc.")
 	@Column(name = "repeat_timeline_type", nullable = false)
 	private String repeatTimelineType;
 
@@ -70,10 +75,6 @@ public class ComplianceReminder {
 	@Column(name = "updated_at")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updatedAt = new Date();
-
-	@Column(name = "is_enable", columnDefinition = "tinyint(1) default 1")
-	@Comment("1 : Active, 0 : Inactive")
-	private boolean isEnable = true;
 
 	@PrePersist
 	protected void onCreate() {

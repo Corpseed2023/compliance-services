@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Date;
 
 @Data
-public class ComplianceReminderRequest {
+public class ReminderRequest {
 
     @NotNull(message = "Reminder date is required")
     private Date reminderDate;

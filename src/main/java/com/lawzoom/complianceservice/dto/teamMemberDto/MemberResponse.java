@@ -19,41 +19,41 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;import java.util.Date;
-
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-public class TeamMemberResponse {
+@AllArgsConstructor
+@NoArgsConstructor
+public class MemberResponse {
 
+	private Long id;
 
 	@NotBlank
-	private String memberName;
+	private String name;
 
 	private String roleName;
 
 	@NotBlank
 	private String memberMail;
 
-	private String memberMobile;
-
 	private String typeOfResource;
-
-	private Date createdAt;
-
-	private Date updatedAt;
 
 	private boolean isEnable;
 
 	private Long reportingManagerId;
 
-	private Long subscriptionId;
+	private String reportingManagerName;
 
-	private Long createdBy;
+	private Long subscriberId;
 
 	private Long superAdminId;
 
-	private Long userId;
+	private String superAdminName;
 
+	private Long departmentId;
 
+	private String departmentName;
+
+	private Long designationId;
+
+	private String designationName;
 }

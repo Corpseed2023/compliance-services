@@ -5,9 +5,8 @@ import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequestForFe
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
-import com.lawzoom.complianceservice.model.companyModel.Company;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
-import com.lawzoom.complianceservice.model.complianceTaskModel.MileStone;
+import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
