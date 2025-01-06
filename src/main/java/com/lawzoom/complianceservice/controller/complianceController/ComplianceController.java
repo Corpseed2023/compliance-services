@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -105,6 +106,23 @@ public class ComplianceController {
             throw new RuntimeException("Failed to fetch compliance details: " + e.getMessage(), e);
         }
     }
+
+    @GetMapping("/fetch-compliance")
+    public ResponseEntity<Map<String, Object>> fetchComplianceById(@RequestParam("complianceId") Long complianceId) {
+        try {
+            Map<String, Object> response = complianceService.fetchComplianceById(complianceId);
+            return ResponseEntity.ok(response);
+        } catch (NotFoundException e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Compliance not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Failed to fetch compliance: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
 
 
 

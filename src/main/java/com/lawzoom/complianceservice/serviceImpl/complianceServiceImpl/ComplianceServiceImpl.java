@@ -324,6 +324,47 @@ public class ComplianceServiceImpl implements ComplianceService {
     }
 
 
+    @Override
+    public Map<String, Object> fetchComplianceById(Long complianceId) {
+        // Step 1: Fetch Compliance
+        Compliance compliance = complianceRepository.findById(complianceId)
+                .orElseThrow(() -> new NotFoundException("Compliance not found with ID: " + complianceId));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", compliance.getId());
+        response.put("name", compliance.getComplianceName());
+        response.put("issueAuthority", compliance.getIssueAuthority());
+        response.put("certificateType", compliance.getCertificateType());
+        response.put("approvalState", compliance.getApprovalState());
+        response.put("applicableZone", compliance.getApplicableZone());
+        response.put("createdAt", compliance.getCreatedAt());
+        response.put("updatedAt", compliance.getUpdatedAt());
+        response.put("isEnable", compliance.isEnable());
+        response.put("startDate", compliance.getStartDate());
+        response.put("dueDate", compliance.getDueDate());
+        response.put("completedDate", compliance.getCompletedDate());
+        response.put("workStatus", compliance.getWorkStatus());
+        response.put("priority", compliance.getPriority());
+        response.put("businessUnitId", compliance.getBusinessUnit().getId());
+        response.put("subscriberId", compliance.getSubscriber().getId());
+        response.put("durationMonth", compliance.getDurationMonth());
+        response.put("durationYear", compliance.getDurationYear());
+
+        List<Map<String, Object>> documentDetails = compliance.getDocuments().stream().map(doc -> {
+            Map<String, Object> docMap = new HashMap<>();
+            docMap.put("documentName", doc.getDocumentName());
+            docMap.put("referenceNumber", doc.getReferenceNumber());
+            docMap.put("issueDate", doc.getIssueDate());
+            return docMap;
+        }).toList();
+        response.put("documents", documentDetails);
+
+        return response;
+    }
+
+
+
+
 
 
 

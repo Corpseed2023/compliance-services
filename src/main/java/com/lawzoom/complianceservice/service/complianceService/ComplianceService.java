@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public interface ComplianceService {
@@ -19,4 +20,6 @@ public interface ComplianceService {
     List<ComplianceResponse> fetchCompliancesByBusinessUnit(Long businessUnitId, Long userId, Long subscriberId);
 
     List<CompanyComplianceDTO> getCompanyComplianceDetails(Long userId, Long subscriberId);
+
+    Map<String, Object> fetchComplianceById(Long complianceId);
 }

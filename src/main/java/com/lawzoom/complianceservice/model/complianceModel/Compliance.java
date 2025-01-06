@@ -1,109 +1,109 @@
-package com.lawzoom.complianceservice.model.complianceModel;
+	package com.lawzoom.complianceservice.model.complianceModel;
 
-import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
-import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
-import com.lawzoom.complianceservice.model.documentModel.Document;
-import com.lawzoom.complianceservice.model.reminderModel.Reminder;
-import com.lawzoom.complianceservice.model.reminderModel.Reminder;
-import com.lawzoom.complianceservice.model.renewalModel.Renewal;
-import com.lawzoom.complianceservice.model.user.Subscriber;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.Comment;
+	import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
+	import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
+	import com.lawzoom.complianceservice.model.documentModel.Document;
+	import com.lawzoom.complianceservice.model.reminderModel.Reminder;
+	import com.lawzoom.complianceservice.model.reminderModel.Reminder;
+	import com.lawzoom.complianceservice.model.renewalModel.Renewal;
+	import com.lawzoom.complianceservice.model.user.Subscriber;
+	import jakarta.persistence.*;
+	import lombok.AllArgsConstructor;
+	import lombok.Getter;
+	import lombok.NoArgsConstructor;
+	import lombok.Setter;
+	import org.hibernate.annotations.Comment;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-@Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-@Table(name = "compliance")
-public class Compliance {
+	import java.time.LocalDate;
+	import java.util.ArrayList;
+	import java.util.Date;
+	import java.util.List;
+	@Entity
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@Getter
+	@Setter
+	@Table(name = "compliance")
+	public class Compliance {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+		@Id
+		@GeneratedValue(strategy = GenerationType.IDENTITY)
+		private Long id;
 
-	private String issueAuthority;
+		private String issueAuthority;
 
-	private String certificateType;
+		private String certificateType;
 
-	private Long durationMonth;
+		private Long durationMonth;
 
-	private Long durationYear;
+		private Long durationYear;
 
-	@Column(name = "compliance_name")
-	private String complianceName;
+		@Column(name = "compliance_name")
+		private String complianceName;
 
-	@Column(name = "approval_state")
-	private String approvalState;
+		@Column(name = "approval_state")
+		private String approvalState;
 
-	@Column(name = "applicable_zone")
-	private String applicableZone;
+		@Column(name = "applicable_zone")
+		private String applicableZone;
 
-	@Column(name = "created_at")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date createdAt = new Date();
+		@Column(name = "created_at")
+		@Temporal(TemporalType.TIMESTAMP)
+		private Date createdAt = new Date();
 
-	@Column(name = "updated_at")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date updatedAt = new Date();
+		@Column(name = "updated_at")
+		@Temporal(TemporalType.TIMESTAMP)
+		private Date updatedAt = new Date();
 
-	@Column(length = 1, name = "is_enable", columnDefinition = "tinyint(1) default 1")
-	@Comment(value = "1 : Active, 0 : Inactive")
-	private boolean isEnable = true;
+		@Column(length = 1, name = "is_enable", columnDefinition = "tinyint(1) default 1")
+		@Comment(value = "1 : Active, 0 : Inactive")
+		private boolean isEnable = true;
 
-	@Column(name = "is_deleted", columnDefinition = "tinyint(1) default 0")
-	@Comment(value = "0 : Not Deleted, 1 : Deleted")
-	private boolean isDeleted = false;
+		@Column(name = "is_deleted", columnDefinition = "tinyint(1) default 0")
+		@Comment(value = "0 : Not Deleted, 1 : Deleted")
+		private boolean isDeleted = false;
 
-	private LocalDate startDate;
+		private LocalDate startDate;
 
-	private LocalDate dueDate;
+		private LocalDate dueDate;
 
-	private LocalDate completedDate;
+		private LocalDate completedDate;
 
-	@Comment(value = "0 : No Action ,1 : Apply Now, 2 : Already Done, 3 : Not Applicable")
-	private int workStatus;
+		@Comment(value = "0 : No Action ,1 : Apply Now, 2 : Already Done, 3 : Not Applicable")
+		private int workStatus;
 
-	@ManyToOne
-	@JoinColumn(name = "business_unit_id", nullable = false)
-	private BusinessUnit businessUnit;
+		@ManyToOne
+		@JoinColumn(name = "business_unit_id", nullable = false)
+		private BusinessUnit businessUnit;
 
-	@Comment(value = "1 : Mandatory Compliance, 2: Optional Compliance")
-	private int priority;
+		@Comment(value = "1 : Mandatory Compliance, 2: Optional Compliance")
+		private int priority;
 
-	@ManyToOne
-	@JoinColumn(name = "subscriber_id", nullable = false)
-	private Subscriber subscriber;
+		@ManyToOne
+		@JoinColumn(name = "subscriber_id", nullable = false)
+		private Subscriber subscriber;
 
-	@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Reminder> reminders = new ArrayList<>();
+		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
+		private List<Reminder> reminders = new ArrayList<>();
 
-	@OneToOne(mappedBy = "compliance", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-	private Renewal renewal;
+		@OneToOne(mappedBy = "compliance", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+		private Renewal renewal;
 
-	@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<MileStone> milestones = new ArrayList<>();
+		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
+		private List<MileStone> milestones = new ArrayList<>();
 
-	@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Document> documents = new ArrayList<>();
+		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
+		private List<Document> documents = new ArrayList<>();
 
 
-	@PrePersist
-	protected void onCreate() {
-		this.createdAt = new Date();
-		this.updatedAt = new Date();
+		@PrePersist
+		protected void onCreate() {
+			this.createdAt = new Date();
+			this.updatedAt = new Date();
+		}
+
+		@PreUpdate
+		protected void onUpdate() {
+			this.updatedAt = new Date();
+		}
 	}
-
-	@PreUpdate
-	protected void onUpdate() {
-		this.updatedAt = new Date();
-	}
-}
