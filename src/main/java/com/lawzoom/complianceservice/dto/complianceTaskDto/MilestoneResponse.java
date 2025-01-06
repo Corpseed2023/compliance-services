@@ -1,10 +1,10 @@
 package com.lawzoom.complianceservice.dto.complianceTaskDto;
 
-
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class MilestoneResponse {
@@ -29,5 +29,30 @@ public class MilestoneResponse {
     private Long subscriberId;
     private String remark;
 
-}
+    // List of reminders
+    private List<ReminderDetails> reminders;
 
+    // List of renewals
+    private List<RenewalDetails> renewals;
+
+    @Data
+    public static class ReminderDetails {
+        private Long id;
+        private Date reminderDate;
+        private Date reminderEndDate;
+        private int notificationTimelineValue;
+        private int repeatTimelineValue;
+        private String repeatTimelineType;
+        private Long whomToSendId;
+        private String whomToSendName;
+    }
+
+    @Data
+    public static class RenewalDetails {
+        private Long id;
+        private LocalDate nextRenewalDate;
+        private int renewalFrequency;
+        private String renewalType;
+        private String renewalNotes;
+    }
+}

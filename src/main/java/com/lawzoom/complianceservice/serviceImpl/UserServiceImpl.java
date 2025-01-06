@@ -10,6 +10,7 @@ import com.lawzoom.complianceservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -172,6 +173,65 @@ public class UserServiceImpl implements UserService {
 
         return response;
     }
+
+    @Override
+    public List<MemberResponse> fetchMembers(Long subscriberId, Long userId) {
+        // Step 1: Validate the subscriber
+        Subscriber subscriber = subscriberRepository.findById(subscriberId)
+                .orElseThrow(() -> new RuntimeException("Subscriber not found with ID: " + subscriberId));
+
+        // Step 2: Fetch all users associated with the subscriber
+        List<User> members = userRepository.findAllBySubscriber(subscriber);
+
+        // Step 3: Map each User to MemberResponse DTO
+        return members.stream().map(member -> {
+            MemberResponse response = new MemberResponse();
+            response.setId(member.getId());
+            response.setName(member.getUserName());
+            response.setMemberMail(member.getEmail());
+            response.setEnable(member.isEnable());
+            response.setSubscriberId(subscriber.getId());
+
+            // Add department details
+            if (member.getDepartment() != null) {
+                response.setDepartmentId(member.getDepartment().getId());
+                response.setDepartmentName(member.getDepartment().getName());
+            }
+
+            // Add designation details
+            if (member.getDesignation() != null) {
+                response.setDesignationId(member.getDesignation().getId());
+                response.setDesignationName(member.getDesignation().getName());
+            }
+
+            // Add resource type details
+            if (member.getResourceType() != null) {
+                response.setTypeOfResource(member.getResourceType().getTypeOfResourceName());
+            }
+
+            // Add reporting manager details
+            if (member.getReportingManager() != null) {
+                response.setReportingManagerId(member.getReportingManager().getId());
+                response.setReportingManagerName(member.getReportingManager().getUserName());
+            }
+
+            // Add roles as a comma-separated string
+            response.setRoleName(
+                    member.getRoles().stream()
+                            .map(Roles::getRoleName)
+                            .collect(Collectors.joining(", "))
+            );
+
+            // Add super admin details
+            if (subscriber.getSuperAdmin() != null) {
+                response.setSuperAdminId(subscriber.getSuperAdmin().getId());
+                response.setSuperAdminName(subscriber.getSuperAdmin().getUserName());
+            }
+
+            return response;
+        }).collect(Collectors.toList());
+    }
+
 
 
 

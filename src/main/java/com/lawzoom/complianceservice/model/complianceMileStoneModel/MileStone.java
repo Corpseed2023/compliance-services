@@ -7,6 +7,7 @@ import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
+import com.lawzoom.complianceservice.model.mileStoneTask.Task;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -96,6 +97,9 @@ public class MileStone {
 	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Renewal> renewals = new ArrayList<>();
 
+	// Multiple Tasks
+	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Task> tasks = new ArrayList<>();
 
 	@PrePersist
 	protected void onCreate() {

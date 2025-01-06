@@ -16,11 +16,10 @@ import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitReposit
 import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
 import com.lawzoom.complianceservice.service.MilestoneService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class MilestoneServiceImpl implements MilestoneService {
@@ -43,7 +42,7 @@ public class MilestoneServiceImpl implements MilestoneService {
     private SubscriberRepository subscriberRepository;
 
     @Override
-    public MilestoneResponse createMilestone(MilestoneRequest milestoneRequest) {
+    public ResponseEntity<Map<String, Object>> createMilestone(MilestoneRequest milestoneRequest) {
         // Step 1: Validate Compliance
         Compliance compliance = complianceRepository.findById(milestoneRequest.getComplianceId())
                 .orElseThrow(() -> new NotFoundException("Compliance not found with ID: " + milestoneRequest.getComplianceId()));
@@ -126,31 +125,29 @@ public class MilestoneServiceImpl implements MilestoneService {
         // Save Milestone with Reminder and Renewal
         MileStone savedMilestone = milestoneRepository.save(milestone);
 
-        // Step 11: Prepare Response
-        MilestoneResponse milestoneResponse = new MilestoneResponse();
-        milestoneResponse.setId(savedMilestone.getId());
-        milestoneResponse.setMileStoneName(savedMilestone.getMileStoneName());
-        milestoneResponse.setDescription(savedMilestone.getDescription());
-        milestoneResponse.setStatus(savedMilestone.getStatus());
-        milestoneResponse.setCreatedAt(savedMilestone.getCreatedAt());
-        milestoneResponse.setUpdatedAt(savedMilestone.getUpdatedAt());
-        milestoneResponse.setEnable(savedMilestone.isEnable());
-        milestoneResponse.setComplianceId(savedMilestone.getCompliance().getId());
-        milestoneResponse.setReporterId(reporter.getId());
-        milestoneResponse.setRemark(savedMilestone.getRemark());
-        if (assignedToUser != null) {
-            milestoneResponse.setAssignedTo(assignedToUser.getId());
-        }
-        if (assignedByUser != null) {
-            milestoneResponse.setAssignedBy(assignedByUser.getId());
-        }
-        milestoneResponse.setAssigneeMail(savedMilestone.getAssigneeMail());
-        milestoneResponse.setIssuedDate(savedMilestone.getIssuedDate());
-        milestoneResponse.setCriticality(savedMilestone.getCriticality());
-        milestoneResponse.setBusinessUnitId(businessUnit.getId());
-        milestoneResponse.setSubscriberId(savedMilestone.getSubscriber().getId());
+        // Step 11: Prepare Manual Response
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", savedMilestone.getId());
+        response.put("mileStoneName", savedMilestone.getMileStoneName());
+        response.put("description", savedMilestone.getDescription());
+        response.put("status", savedMilestone.getStatus());
+        response.put("createdAt", savedMilestone.getCreatedAt());
+        response.put("updatedAt", savedMilestone.getUpdatedAt());
+        response.put("isEnable", savedMilestone.isEnable());
+        response.put("complianceId", savedMilestone.getCompliance().getId());
+        response.put("reporterId", reporter.getId());
+        response.put("remark", savedMilestone.getRemark());
+        response.put("assignedTo", assignedToUser != null ? assignedToUser.getId() : null);
+        response.put("assignedBy", assignedByUser != null ? assignedByUser.getId() : null);
+        response.put("assigneeMail", savedMilestone.getAssigneeMail());
+        response.put("issuedDate", savedMilestone.getIssuedDate());
+        response.put("criticality", savedMilestone.getCriticality());
+        response.put("businessUnitId", businessUnit.getId());
+        response.put("subscriberId", savedMilestone.getSubscriber().getId());
+        response.put("reminders", savedMilestone.getReminders());
+        response.put("renewals", savedMilestone.getRenewals());
 
-        return milestoneResponse;
+        return ResponseEntity.status(201).body(response);
     }
 
     @Override
@@ -202,23 +199,12 @@ public class MilestoneServiceImpl implements MilestoneService {
 
         // Map milestones to response DTOs
         return milestones.stream()
-                .map(this::mapToMilestoneResponse)
+                .map(this::mapToMilestoneResponseWithDetails)
                 .toList();
     }
 
-    // Utility method to determine if a user is a SUPER_ADMIN
-    private boolean isSuperAdmin(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
-
-        // Check if the user has a role with the name "SUPER_ADMIN"
-        return user.getRoles().stream()
-                .anyMatch(role -> "SUPER_ADMIN".equalsIgnoreCase(role.getRoleName()));
-    }
-
-
-    // Utility method to map MileStone entity to MilestoneResponse DTO
-    private MilestoneResponse mapToMilestoneResponse(MileStone milestone) {
+    // Map method with Reminder and Renewal details
+    private MilestoneResponse mapToMilestoneResponseWithDetails(MileStone milestone) {
         MilestoneResponse response = new MilestoneResponse();
         response.setId(milestone.getId());
         response.setMileStoneName(milestone.getMileStoneName());
@@ -238,8 +224,53 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.setIssuedDate(milestone.getIssuedDate());
         response.setCriticality(milestone.getCriticality());
         response.setBusinessUnitId(milestone.getBusinessUnit().getId());
+        response.setSubscriberId(milestone.getSubscriber().getId());
+        response.setRemark(milestone.getRemark());
+
+        // Map Reminder details
+        List<MilestoneResponse.ReminderDetails> reminderDetails = milestone.getReminders().stream()
+                .map(reminder -> {
+                    MilestoneResponse.ReminderDetails rd = new MilestoneResponse.ReminderDetails();
+                    rd.setId(reminder.getId());
+                    rd.setReminderDate(reminder.getReminderDate());
+                    rd.setReminderEndDate(reminder.getReminderEndDate());
+                    rd.setNotificationTimelineValue(reminder.getNotificationTimelineValue());
+                    rd.setRepeatTimelineValue(reminder.getRepeatTimelineValue());
+                    rd.setRepeatTimelineType(reminder.getRepeatTimelineType());
+                    rd.setWhomToSendId(reminder.getWhomToSend() != null ? reminder.getWhomToSend().getId() : null);
+                    rd.setWhomToSendName(reminder.getWhomToSend() != null ? reminder.getWhomToSend().getUserName() : null);
+                    return rd;
+                })
+                .toList();
+        response.setReminders(reminderDetails);
+
+        // Map Renewal details
+        List<MilestoneResponse.RenewalDetails> renewalDetails = milestone.getRenewals().stream()
+                .map(renewal -> {
+                    MilestoneResponse.RenewalDetails rd = new MilestoneResponse.RenewalDetails();
+                    rd.setId(renewal.getId());
+                    rd.setNextRenewalDate(renewal.getNextRenewalDate());
+                    rd.setRenewalFrequency(renewal.getRenewalFrequency());
+                    rd.setRenewalType(renewal.getRenewalType());
+                    rd.setRenewalNotes(renewal.getRenewalNotes());
+                    return rd;
+                })
+                .toList();
+        response.setRenewals(renewalDetails);
+
         return response;
     }
+
+    // Utility method to determine if a user is a SUPER_ADMIN
+    private boolean isSuperAdmin(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
+
+        // Check if the user has a role with the name "SUPER_ADMIN"
+        return user.getRoles().stream()
+                .anyMatch(role -> "SUPER_ADMIN".equalsIgnoreCase(role.getRoleName()));
+    }
+
 
     @Override
     public List<MilestoneResponse> fetchMilestonesByStatus(Long userId, Long subscriberId, String status) {

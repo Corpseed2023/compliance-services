@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/compliance/milestone")
@@ -20,9 +21,8 @@ public class MilestoneController {
     private MilestoneService milestoneService;
 
     @PostMapping("/create")
-    public ResponseEntity<MilestoneResponse> createMilestone(@RequestBody MilestoneRequest milestoneRequest) {
-        MilestoneResponse response = milestoneService.createMilestone(milestoneRequest);
-        return ResponseEntity.status(201).body(response);
+    public ResponseEntity<Map<String, Object>> createMilestone(@RequestBody MilestoneRequest milestoneRequest) {
+        return milestoneService.createMilestone(milestoneRequest);
     }
 
 

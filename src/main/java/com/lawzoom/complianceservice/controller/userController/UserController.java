@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/compliance/users")
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -44,4 +46,19 @@ public class UserController {
                     .body("An unexpected error occurred: " + ex.getMessage());
         }
     }
+
+    @GetMapping("/fetch-members")
+    public ResponseEntity<?> fetchMembers(@RequestParam Long subscriberId, @RequestParam Long userId) {
+        try {
+            List<MemberResponse> members = userService.fetchMembers(subscriberId, userId);
+            return ResponseEntity.ok(members);
+        } catch (RuntimeException ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred: " + ex.getMessage());
+        }
+    }
+
+
 }
