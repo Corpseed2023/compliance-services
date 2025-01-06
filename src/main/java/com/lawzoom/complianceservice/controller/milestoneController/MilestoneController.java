@@ -27,8 +27,8 @@ public class MilestoneController {
 
 
     @PostMapping("/fetch-all-milestone")
-    public ResponseEntity<List<MilestoneResponse>> fetchAllMilestones(@RequestBody MilestoneRequestForFetch request) {
-        List<MilestoneResponse> responseList = milestoneService.fetchAllMilestones(request);
+    public ResponseEntity<List<MilestoneResponse>> fetchAllMilestones(@RequestBody MilestoneRequestForFetch milestoneRequestForFetch) {
+        List<MilestoneResponse> responseList = milestoneService.fetchAllMilestones(milestoneRequestForFetch);
         return ResponseEntity.ok(responseList);
     }
 
@@ -37,4 +37,22 @@ public class MilestoneController {
         MilestoneResponse response = milestoneService.fetchMilestoneById(milestoneId);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/status-milestone/")
+    public ResponseEntity<List<MilestoneResponse>> statusMileStone(
+            @RequestParam Long userId,
+            @RequestParam Long subscriberId,
+            @RequestParam String status) {
+        try {
+            // Fetch milestones based on status
+            List<MilestoneResponse> milestones = milestoneService.fetchMilestonesByStatus(userId, subscriberId, status);
+            return ResponseEntity.ok(milestones);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+
+
+
 }

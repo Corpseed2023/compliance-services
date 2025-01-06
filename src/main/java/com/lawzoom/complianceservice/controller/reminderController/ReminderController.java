@@ -33,8 +33,8 @@ public class ReminderController {
     }
 
 
-    @GetMapping("/fetch")
-    public ResponseEntity<List<ReminderResponse>> fetchReminders(
+    @GetMapping("/fetch-compliance-reminder")
+    public ResponseEntity<List<ReminderResponse>> fetchReminders(@RequestParam Long userId,
             @RequestParam("complianceId") Long complianceId,
             @RequestParam("subscriberId") Long subscriberId) {
 

@@ -16,4 +16,6 @@ public interface MilestoneService {
     List<MilestoneResponse> fetchAllMilestones(@Valid MilestoneRequestForFetch request);
 
     MilestoneResponse fetchMilestoneById(Long milestoneId);
+
+    List<MilestoneResponse> fetchMilestonesByStatus(Long userId, Long subscriberId, String status);
 }

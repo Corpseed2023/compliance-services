@@ -18,6 +18,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = "SELECT * FROM user WHERE id = :userId AND is_enable = 1 AND is_deleted = 0", nativeQuery = true)
     User findActiveUserById(@Param("userId") Long userId);
 
+    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.roleName = 'SUPER_ADMIN' AND u.subscriber.id = :subscriberId")
+    User findSuperAdminBySubscriberId(@Param("subscriberId") Long subscriberId);
+
 
 
 }

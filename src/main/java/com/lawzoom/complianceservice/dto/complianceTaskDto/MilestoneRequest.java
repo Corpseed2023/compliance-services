@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 public class MilestoneRequest {
@@ -20,11 +21,11 @@ public class MilestoneRequest {
 	private Long businessUnitId;
 
 	@NotNull(message = "Reporter ID is required")
-	private Long reporterId; // User ID of the reporter
+	private Long reporterId;
 
-	private Long assignedTo; // User ID of the assignee
+	private Long assignedTo;
 
-	private Long assignedBy; // User ID of the assigner
+	private Long assignedBy;
 
 	private String assigneeMail;
 
@@ -32,9 +33,17 @@ public class MilestoneRequest {
 
 	private String criticality;
 
-	private String status; // Status of the milestone
+	private String status;
 
 	private Long subscriberId;
 
 	private String remark;
+
+	// Reminder-specific fields
+	private Date reminderDate;
+	private Date reminderEndDate;
+	private Integer notificationTimelineValue;
+	private Integer repeatTimelineValue;
+	private String repeatTimelineType;
+	private Long whomToSend; // User ID of the recipient, null defaults to Super Admin
 }

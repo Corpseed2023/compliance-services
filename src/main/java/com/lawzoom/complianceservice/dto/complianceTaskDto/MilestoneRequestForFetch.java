@@ -15,5 +15,7 @@ public class MilestoneRequestForFetch {
     private Long subscriberId;
 
     private Long complianceId;
+
+    private Long userId;
 }
 
