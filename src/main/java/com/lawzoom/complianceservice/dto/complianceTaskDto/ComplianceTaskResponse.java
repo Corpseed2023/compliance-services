@@ -1,20 +1,12 @@
 package com.lawzoom.complianceservice.dto.complianceTaskDto;
 
-import lombok.*;
-import org.hibernate.annotations.Comment;
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.persistence.Column;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import jakarta.validation.constraints.Min;
 import java.util.Date;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -22,59 +14,16 @@ import java.util.Date;
 public class ComplianceTaskResponse {
 
 	private Long id;
-
 	private String taskName;
-
 	private String description;
-
-	private int timelineValue;
-
-	private String timelineType;
-
-	private String status;
-
-	private String approvalState;
-
-	private String applicableZone;
-
-	private String criticality;
-
-	private Long   taskCreatedBy;
-
-	private Long   taskReporter;
-
-	private Long   assignedTo;
-
-	private Long   assignedBy ;
-
-	private String assigneeMail;
-
-
-	@DateTimeFormat(pattern="yyyy/MM/dd")
+	private String criticality; // Maps criticality as a description
+	private Long reporterUserId;
+	private String reporterName; // Maps the reporter's name
+	private Long assigneeUserId;
+	private String assigneeUserName; // Maps the assignee's name
 	private Date startDate;
-
-	@DateTimeFormat(pattern="yyyy/MM/dd")
 	private Date dueDate;
-
-	@DateTimeFormat(pattern="yyyy/MM/dd")
-	private Date completedDate;
-
-	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdAt;
-
-	@Temporal(TemporalType.TIMESTAMP)
 	private Date updatedAt;
-
-	@Comment(value = "1 : Active, 0 : Inactive")
 	private boolean isEnable;
-
-	private Long companyId;
-
-	private Long businessUnitId;
-
-	private Long businessActivityId;
-
-	private Long userId;
-
-
 }

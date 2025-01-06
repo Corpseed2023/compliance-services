@@ -1,27 +1,20 @@
 package com.lawzoom.complianceservice.dto.userDto;
 
+import jakarta.validation.constraints.Size;
 import lombok.*;
-
+import org.hibernate.annotations.Comment;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
 public class UserResponse {
 
 	private Long id;
 
-	private String firstName;
-
-	private String lastName;
-
 	private String email;
-
-	private String mobile;
 
 	private String designation;
 
@@ -31,12 +24,10 @@ public class UserResponse {
 
 	private Date updatedAt;
 
+	@Comment(value = "1 : Active, 0 : Inactive")
 	private boolean isEnable;
 
-	private boolean isAssociated;
+	private boolean isSubscribed;
 
-	private Long userId;
-
-	private List<String> roles;
 
 }

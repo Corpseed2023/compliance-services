@@ -1,68 +1,45 @@
 package com.lawzoom.complianceservice.controller.reminderController;
 
-import com.lawzoom.complianceservice.dto.reminderDto.ReminderRequest;
-import com.lawzoom.complianceservice.model.complianceModel.Compliance;
-import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
-import com.lawzoom.complianceservice.model.reminderModel.Reminder;
-import com.lawzoom.complianceservice.repository.ComplianceRepo;
-import com.lawzoom.complianceservice.repository.ComplianceTaskRepository;
-import com.lawzoom.complianceservice.response.ResponseEntity;
-import com.lawzoom.complianceservice.services.reminderService.ReminderService;
-import jakarta.validation.Valid;
+
+import com.lawzoom.complianceservice.dto.complianceReminder.ReminderRequest;
+import com.lawzoom.complianceservice.dto.complianceReminder.ReminderResponse;
+import com.lawzoom.complianceservice.service.ReminderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
+import jakarta.validation.Valid;
 
+import java.util.List;
 
 @RestController
-@RequestMapping("/compliance/reminder")
+@RequestMapping("/api/compliance/reminder")
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class ReminderController {
 
-	@Autowired
-	private ReminderService reminderService;
+    @Autowired
+    private ReminderService reminderService;
 
-	@Autowired
-	private ComplianceTaskRepository complianceTaskRepository;
+    @PostMapping("/create")
+    public ResponseEntity<ReminderResponse> createReminder(
+            @RequestParam("complianceId") Long complianceId,
+            @RequestParam("subscriberId") Long subscriberId,
+            @Valid @RequestBody ReminderRequest reminderRequest) {
 
-	@Autowired
-	private ComplianceRepo complianceRepository;
+        ReminderResponse response = reminderService.createReminder(
+                complianceId, subscriberId, reminderRequest);
 
-	@PostMapping("/save")
-	public ResponseEntity<String> saveReminder(@RequestBody ReminderRequest requestDTO) {
-		Optional<Compliance> complianceData = complianceRepository.findById(requestDTO.getComplianceId());
-
-		if (complianceData.isPresent()) {
-			Optional<ComplianceTask> complianceTaskOptional = complianceTaskRepository.findById(requestDTO.getTaskId());
-
-			if (complianceTaskOptional.isPresent()) {
-				ResponseEntity<String> savedReminder = reminderService.saveReminder(requestDTO);
-
-				return savedReminder.ok("Reminder saved successfully");
-			} else {
-				return new ResponseEntity().ok("Task with ID " + requestDTO.getTaskId() + " not found");
-			}
-		} else {
-			return  new ResponseEntity().ok("Compliance with ID " + requestDTO.getComplianceId() + " not found");
-		}
-	}
+        return ResponseEntity.status(201).body(response);
+    }
 
 
-	@PutMapping("/updateReminder")
-	public ResponseEntity updateReminder(@Valid @RequestBody Reminder reminder){
-		return this.reminderService.updateReminder(reminder);
-	}
-	
-	@GetMapping("/fetchTheReminder")
-	public ResponseEntity fetchReminder(@RequestParam("id") Long id){
-		return this.reminderService.fetchReminder(id);
-	}
-	
-//	@DeleteMapping("/{id}")
-	@DeleteMapping("/removeReminder")
+    @GetMapping("/fetch-compliance-reminder")
+    public ResponseEntity<List<ReminderResponse>> fetchReminders(@RequestParam Long userId,
+            @RequestParam("complianceId") Long complianceId,
+            @RequestParam("subscriberId") Long subscriberId) {
 
-	public ResponseEntity deleteReminder(@RequestParam("id") Long id)
-	{
-		return this.reminderService.deleteReminder(id);
-	}
+        // Correctly use the instance of reminderService
+        List<ReminderResponse> responseList = reminderService.fetchReminders(complianceId, subscriberId);
+        return ResponseEntity.ok(responseList);
+    }
 }

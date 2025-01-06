@@ -1,116 +1,109 @@
-package com.lawzoom.complianceservice.model.complianceModel;
+	package com.lawzoom.complianceservice.model.complianceModel;
 
-import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
-import com.lawzoom.complianceservice.model.reminderModel.Reminder;
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.Comment;
+	import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
+	import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
+	import com.lawzoom.complianceservice.model.documentModel.Document;
+	import com.lawzoom.complianceservice.model.reminderModel.Reminder;
+	import com.lawzoom.complianceservice.model.reminderModel.Reminder;
+	import com.lawzoom.complianceservice.model.renewalModel.Renewal;
+	import com.lawzoom.complianceservice.model.user.Subscriber;
+	import jakarta.persistence.*;
+	import lombok.AllArgsConstructor;
+	import lombok.Getter;
+	import lombok.NoArgsConstructor;
+	import lombok.Setter;
+	import org.hibernate.annotations.Comment;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+	import java.time.LocalDate;
+	import java.util.ArrayList;
+	import java.util.Date;
+	import java.util.List;
+	@Entity
+	@AllArgsConstructor
+	@NoArgsConstructor
+	@Getter
+	@Setter
+	@Table(name = "compliance")
+	public class Compliance {
 
+		@Id
+		@GeneratedValue(strategy = GenerationType.IDENTITY)
+		private Long id;
 
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-@Builder
-@Entity
-@Table(name = "compliance")
-public class Compliance {
+		private String issueAuthority;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+		private String certificateType;
 
-	@Column(name = "created_by")
-	private Long createdBy;
+		private Long durationMonth;
 
-	@Column(name = "compliance_name")
-	private String complianceName;
+		private Long durationYear;
 
-	@Column(columnDefinition = "TEXT")
-	private String description;
-	
-	@Column(name = "approval_state")
-	private String approvalState;
-	
-	@Column(name = "applicable_zone")
-	private String applicableZone;
+		@Column(name = "compliance_name")
+		private String complianceName;
 
-	@Column(name = "created_at")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date createdAt;
+		@Column(name = "approval_state")
+		private String approvalState;
 
-	@Column(name = "updated_at")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date updatedAt;
+		@Column(name = "applicable_zone")
+		private String applicableZone;
 
-	@Column(length = 1,name="is_enable",columnDefinition = "tinyint(1) default 1")
-	@Comment(value = "1 : Active, 0 : Inactive")
-	private boolean isEnable;
-	
-	@Column(name = "start_date")
-	@Temporal(TemporalType.DATE)
-	private Date startDate;
-	
-	@Column(name = "due_date")
-	@Temporal(TemporalType.DATE)
-	private Date dueDate;
-	
-	@Column(name = "completed_date")
-	@Temporal(TemporalType.DATE)
-	private Date completedDate;
+		@Column(name = "created_at")
+		@Temporal(TemporalType.TIMESTAMP)
+		private Date createdAt = new Date();
 
-	private String duration;
+		@Column(name = "updated_at")
+		@Temporal(TemporalType.TIMESTAMP)
+		private Date updatedAt = new Date();
 
-	@Comment(value = "0 : No Action ,1 : Apply Now, 2 : Already Done, 3 : Not Applicable")
-	private int workStatus;
+		@Column(length = 1, name = "is_enable", columnDefinition = "tinyint(1) default 1")
+		@Comment(value = "1 : Active, 0 : Inactive")
+		private boolean isEnable = true;
 
-	@Column(name="category_id")
-	private Long categoryId;
-	
-	@Column(name ="company_id" )
-	private Long companyId;
+		@Column(name = "is_deleted", columnDefinition = "tinyint(1) default 0")
+		@Comment(value = "0 : Not Deleted, 1 : Deleted")
+		private boolean isDeleted = false;
 
-	@Column(name = "business_unit_id")
-	private Long businessUnitId;
+		private LocalDate startDate;
 
-	@Column(name = "team_id")
-	private Long teamId;
+		private LocalDate dueDate;
 
-	@Column(name = "team_member_id")
-	private Long teamMember;
+		private LocalDate completedDate;
 
-	@Comment(value="1 : Mandatory Compliance, 2: Optional Compliance")
-	private int priority;
+		@Comment(value = "0 : No Action ,1 : Apply Now, 2 : Already Done, 3 : Not Applicable")
+		private int workStatus;
 
-	@Column(name="certificate_type")
-	private String certificateType;
+		@ManyToOne
+		@JoinColumn(name = "business_unit_id", nullable = false)
+		private BusinessUnit businessUnit;
 
-	@Column
-	private String companyName;
+		@Comment(value = "1 : Mandatory Compliance, 2: Optional Compliance")
+		private int priority;
 
-	@Column
-	private String teamName;
+		@ManyToOne
+		@JoinColumn(name = "subscriber_id", nullable = false)
+		private Subscriber subscriber;
 
-	@Column
-	private String businessActivity;
+		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
+		private List<Reminder> reminders = new ArrayList<>();
 
-	private String businessUnitAddress;
+		@OneToOne(mappedBy = "compliance", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+		private Renewal renewal;
 
-	private Long businessActivityId;
+		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
+		private List<MileStone> milestones = new ArrayList<>();
 
-	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
-	private List<ComplianceTask> complianceTasks=new ArrayList<>();
-
-//	@OneToMany(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true)
-//	private List<Document> complianceDocuments=new ArrayList<>();
-
-	@OneToOne(mappedBy = "compliance",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
-	private Reminder complianceReminder;
+		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
+		private List<Document> documents = new ArrayList<>();
 
 
+		@PrePersist
+		protected void onCreate() {
+			this.createdAt = new Date();
+			this.updatedAt = new Date();
+		}
 
-}
+		@PreUpdate
+		protected void onUpdate() {
+			this.updatedAt = new Date();
+		}
+	}

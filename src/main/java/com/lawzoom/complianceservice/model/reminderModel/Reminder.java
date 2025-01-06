@@ -1,23 +1,20 @@
 package com.lawzoom.complianceservice.model.reminderModel;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-//import com.lawzoom.complianceservice.annotation.NotBeforeToday;
+import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
-import com.lawzoom.complianceservice.model.complianceSubTaskModel.ComplianceSubTask;
-import com.lawzoom.complianceservice.model.complianceTaskModel.ComplianceTask;
-import jakarta.persistence.Entity;
-import jakarta.validation.constraints.*;
+import com.lawzoom.complianceservice.model.user.Subscriber;
+import com.lawzoom.complianceservice.model.user.User;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.hibernate.annotations.Comment;
-import jakarta.persistence.*;
-import java.util.Date;
 
+import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
 @Entity
 @Table(name = "reminder")
 public class Reminder {
@@ -25,68 +22,68 @@ public class Reminder {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
-	@OneToOne(targetEntity = Compliance.class,fetch = FetchType.LAZY)
-	@JoinColumn(name = "compliance_id")
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "compliance_id", nullable = true)
 	private Compliance compliance;
 
-	@OneToOne(targetEntity = ComplianceTask.class,fetch = FetchType.LAZY)
-	@JoinColumn(name = "compliance_task_id")
-	private ComplianceTask complianceTask;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "milestone_id", nullable = true)
+	private MileStone milestone;
 
-	@OneToOne(targetEntity = ComplianceSubTask.class,fetch = FetchType.LAZY)
-	@JoinColumn(name = "compliance_sub_task_id")
-	private ComplianceSubTask complianceSubTask;
-	
-	@Column(name = "reminder_date")
-//	@NotBeforeToday(message = "Please enter future date..!!")
-	@JsonFormat(pattern="yyyy-MM-dd")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "subscriber_id", nullable = false)
+	private Subscriber subscriber;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "super_admin_id", nullable = false)
+	private User superAdmin;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "created_by", nullable = false)
+	private User createdBy;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "whom_to_send", nullable = false)
+	private User whomToSend;
+
+	@Column(name = "reminder_date", nullable = false)
 	@Temporal(TemporalType.DATE)
 	private Date reminderDate;
 
-	@Column(name = "reminder_end_date")
-	@JsonFormat(pattern="yyyy-MM-dd")
+	@Column(name = "reminder_end_date", nullable = false)
+	@Temporal(TemporalType.DATE)
 	private Date reminderEndDate;
 
-
-	@Comment("It will record value of when will notification trigger how much day before")
-	@Column(name = "notification_timeline_value")
-	@Min(value = 1,message = "Minimum value should be 1")
+	@Comment("Notification trigger timeline in days before the due date")
+	@Column(name = "notification_timeline_value", nullable = false)
 	private int notificationTimelineValue;
-	
-//	@NotBlank
-//	@NotEmpty
-//	@NotNull
-//	@Column(name ="notification_timeline_type" )
-//	private String notificationTimelineType;
-//
 
-	@Comment("It will store value of when willl user will get notification like 1 year , 1 half yealy , daily , 1 montly something like that ")
-	@Column(name = "repeat_timeline_value")
-	@Min(value = 0,message = "Value should not be -ve.")
+	@Comment("Number of intervals between repeated notifications")
+	@Column(name = "repeat_timeline_value", nullable = false)
+	@Min(value = 0, message = "Value should not be negative.")
 	private int repeatTimelineValue;
 
-	@Comment("type can be yealry, daily, hald yearley , monthly, quaterly like that ")
-	@Column(name ="repeat_timeline_type" )
+	@Comment("Type of repeat timeline: daily, weekly, etc.")
+	@Column(name = "repeat_timeline_type", nullable = false)
 	private String repeatTimelineType;
-//
-//	@Comment("On which day they want reminder like monday ,tuesday, wednesday ")
-//	@Column(name ="repeat_on_day" )
-//	private String repeatOnDay;
-//
 
-
-	@Column(name = "created_at")
+	@Column(name = "created_at", updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)
-	@JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
-	private Date createdAt;
+	private Date createdAt = new Date();
 
 	@Column(name = "updated_at")
 	@Temporal(TemporalType.TIMESTAMP)
-	@JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
-	private Date updatedAt;
+	private Date updatedAt = new Date();
 
-	@Column(length = 1,name="is_enable",columnDefinition = "tinyint(1) default 1")
-	@Comment(value = "1 : Active, 0 : Inactive")
-	private boolean isEnable;
+	@PrePersist
+	protected void onCreate() {
+		this.createdAt = new Date();
+		this.updatedAt = new Date();
+	}
+
+	@PreUpdate
+	protected void onUpdate() {
+		this.updatedAt = new Date();
+	}
 }

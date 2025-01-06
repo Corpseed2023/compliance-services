@@ -1,12 +1,9 @@
 package com.lawzoom.complianceservice.dto.companyResponseDto;
 
-
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-import java.util.Date;
 
+import java.util.Date;
 
 @Data
 @Getter
@@ -16,59 +13,62 @@ import java.util.Date;
 @Builder
 public class CompanyResponse {
 
-    private Long companyId;
+    private Long companyId; // Company ID
 
-    private Long userId;
+    private Long subscriberId; // Subscriber ID
 
-    private String companyType;
+    private String subscriberName; // Full name of the subscriber's super admin
 
-    private String companyName;
+    private String companyType; // Type of the company
 
-    private String firstName;
+    private String companyName; // Name of the company
 
-    private String lastName;
+    private String businessEmailId; // Business email ID
 
-    private String businessEmailId;
+    private String companyState; // State of the company
 
-    private String designation;
+    private String companyCity; // City of the company
 
-    private String companyState;
+    private String companyRegistrationNumber; // Registration number of the company
 
-    private String companyCity;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date companyRegistrationDate; // Registration date of the company
 
-    private String companyRegistrationNumber;
+    private String companyCINNumber; // CIN (Corporate Identification Number)
 
-    @DateTimeFormat(pattern="yyyy-MM-dd")
-    @Temporal(TemporalType.DATE)
-    private Date companyRegistrationDate;
+    private String companyRemarks; // Remarks about the company
 
-    private String companyCINNumber;
+    private String companyPinCode; // PIN code of the company's location
 
-    private String companyRemarks;
+    private String operationUnitAddress; // Address of the operation unit
 
-    private String companyPinCode;
+    private long companyTurnover; // Turnover of the company
 
-    private String companyAddress;
+    private String locatedAt; // Location details
 
-    private long companyTurnover;
+    private String businessActivityName; // Name of the business activity
 
-    private String locatedAt;
+    private String industryCategoryName; // Name of the industry category
 
-    private String businessActivityName;
+    private String industrySubCategoryName; // Name of the industry sub-category (if any)
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
+    private String companyPanNumber; // PAN number of the company
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
+    private int permanentEmployee; // Number of permanent employees
 
-    private boolean isEnable;
+    private int contractEmployee; // Number of contract employees
 
-    private int permanentEmployee;
+    private Date createdAt; // Creation timestamp
 
-    private int contractEmployee;
+    private Date updatedAt; // Last updated timestamp
 
-    private String gstNumber;
+    private boolean isEnable; // Whether the company is enabled
 
-    private String operationUnitAddress;
+    private boolean isDeleted; // Whether the company is deleted
+
+    private String superAdminName; // Name of the super admin associated with the company
+
+    private String countryName; // Country of the company
+
+    private String gstNumber; // GST number associated with the company
 }

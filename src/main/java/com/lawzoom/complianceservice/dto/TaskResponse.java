@@ -1,20 +1,28 @@
 package com.lawzoom.complianceservice.dto;
 
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+import java.util.Date;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TaskResponse {
-
-    private Long companyId;
-    private String companyName;
-    private Long businessId;
-    private String businessAddress;
-    private Long complianceId;
-    private String complianceName;
-    private Long taskId;
-    private String taskName;
-    private String taskDescription;
-
-
+    private Long id;
+    private String name;
+    private String description;
+    private String status;
+    private Date startDate;
+    private Date dueDate;
+    private Date completedDate;
+    private String criticality;
+    private Long reporterUserId;
+    private String reporterUserName;
+    private Long assigneeUserId;
+    private String assigneeUserName;
 }

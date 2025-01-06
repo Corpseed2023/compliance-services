@@ -1,15 +1,10 @@
 package com.lawzoom.complianceservice.dto.setComplianceMapDto;
 
-import lombok.*;
-import org.hibernate.annotations.Comment;
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.persistence.Column;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import jakarta.validation.constraints.Min;
+import lombok.*;
+
 import java.util.Date;
 
 @Data
@@ -30,19 +25,20 @@ public class SetComplianceMapResponse {
 
 	private String stateJurisdiction;
 
-	private String businessActivity;
+	private String activity;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+	private Date createdAt;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	@JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+	private Date updatedAt;
+
+	private boolean isEnable;
 
 	private Long complianceCount;
 
 	private String teamName;
-
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date createdAt;
-
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date updatedAt;
-
-	@Comment(value = "1 : Active, 0 : Inactive")
-	private boolean isEnable;
 
 }

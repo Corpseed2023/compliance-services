@@ -1,65 +1,45 @@
 package com.lawzoom.complianceservice.dto.complianceDto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;import lombok.*;
-import org.hibernate.annotations.Comment;
+import com.lawzoom.complianceservice.dto.DocumentRequest;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
 
-import java.util.Date;
-
+import java.time.LocalDate;
+import java.util.List;
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-@Builder
 public class ComplianceRequest {
 
-	private Long id;
+    @NotNull(message = "Compliance name is required.")
+    @Size(max = 255, message = "Compliance name must not exceed 255 characters.")
+    private String name;
 
-//	private Long createdBy;
-	
-	private String name;
-	
-	private String description;
-	
-	private String approvalState;
-	
-	private String applicableZone;
+    private String issueAuthority;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
-	private Date createdAt;
+    private Long durationMonth;
 
-	@Temporal(TemporalType.TIMESTAMP)
-	@JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss")
-	private Date updatedAt;
+    private Long durationYear;
 
-	@Comment(value = "1 : Active, 0 : Inactive")
-	private boolean isEnable;
+    private String approvalState;
 
-	@JsonFormat(pattern="yyyy-MM-dd")
-	private Date startDate;
+    private String applicableZone;
 
-	@JsonFormat(pattern="yyyy-MM-dd")
-	private Date dueDate;
+    private LocalDate startDate;
 
-	@JsonFormat(pattern="yyyy-MM-dd")
-	private Date completedDate;
+    private LocalDate dueDate;
 
-	private String duration;
+    private LocalDate completedDate;
 
-	@Comment(value = "0 : No Action ,1 : Apply Now, 2 : Already Done, 3 : Not Applicable")
-	private int workStatus;
+    private int workStatus;
 
-	@Comment(value="1 : Mandatory Compliance, 2: Optional Compliance")
-	private int priority;
+    private int priority;
 
-	private Long companyId;
+    private String certificateType;
 
-	private Long businessUnitId;
+    private boolean isEnable;
 
-	private Long teamMemberId;
+    private Long subscriberId;
 
-
+    // New field for documents
+    private List<DocumentRequest> documents;
 }
