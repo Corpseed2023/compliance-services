@@ -14,6 +14,7 @@ import com.lawzoom.complianceservice.model.companyModel.Company;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.gstdetails.GstDetails;
+import com.lawzoom.complianceservice.model.region.City;
 import com.lawzoom.complianceservice.model.region.States;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
@@ -339,6 +340,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         Company company = gstDetails.getCompany();
         BusinessActivity businessActivity = businessUnit.getBusinessActivity();
         States state = gstDetails.getState();
+        City city = gstDetails.getCompany().getCity();
 
         // Step 3: Construct Response Map
         Map<String, Object> response = new HashMap<>();
@@ -367,6 +369,8 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.put("businessActivityId", businessActivity.getId());
         response.put("businessActivityName", businessActivity.getBusinessActivityName());
         response.put("state", state != null ? state.getStateName() : null); // Assuming States has a getName() method
+        response.put("city", city != null ? city.getCityName() : null); // Assuming States has a getName() method
+
 
         // Document Details
         List<Map<String, Object>> documentDetails = compliance.getDocuments().stream().map(doc -> {
