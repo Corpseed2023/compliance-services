@@ -26,12 +26,6 @@ public class Task {
 	@Column(columnDefinition = "TEXT")
 	private String description;
 
-	@Column(name = "timeline_value")
-	private int timelineValue;
-
-	@Column(name = "timeline_type")
-	private String timelineType;
-
 	private String status;
 
 	@Column(name = "created_at")

@@ -48,8 +48,8 @@ public class TaskServiceImpl implements TaskService {
         Task task = new Task();
         task.setName(taskRequest.getName());
         task.setDescription(taskRequest.getDescription());
-        task.setTimelineValue(taskRequest.getTimelineValue());
-        task.setTimelineType(taskRequest.getTimelineType());
+//        task.setTimelineValue(taskRequest.getTimelineValue());
+//        task.setTimelineType(taskRequest.getTimelineType());
         task.setStatus(taskRequest.getStatus());
         task.setCreatedAt(new Date());
         task.setUpdatedAt(new Date());
@@ -86,8 +86,8 @@ public class TaskServiceImpl implements TaskService {
         response.setId(task.getId());
         response.setName(task.getName());
         response.setDescription(task.getDescription());
-        response.setTimelineValue(task.getTimelineValue());
-        response.setTimelineType(task.getTimelineType());
+//        response.setTimelineValue(task.getTimelineValue());
+//        response.setTimelineType(task.getTimelineType());
         response.setStatus(task.getStatus());
         response.setStartDate(task.getStartDate());
         response.setDueDate(task.getDueDate());

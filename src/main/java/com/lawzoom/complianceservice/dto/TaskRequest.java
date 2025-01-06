@@ -15,8 +15,6 @@ import java.util.Date;
 public class TaskRequest {
     private String name;
     private String description;
-    private int timelineValue;
-    private String timelineType;
     private String status;
     private Date startDate;
     private Date dueDate;

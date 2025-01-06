@@ -16,8 +16,6 @@ public class TaskResponse {
     private Long id;
     private String name;
     private String description;
-    private int timelineValue;
-    private String timelineType;
     private String status;
     private Date startDate;
     private Date dueDate;
