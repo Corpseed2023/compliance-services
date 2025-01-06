@@ -8,11 +8,13 @@ import com.lawzoom.complianceservice.dto.complianceDto.CompanyComplianceDTO;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
+import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.companyModel.Company;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.gstdetails.GstDetails;
+import com.lawzoom.complianceservice.model.region.States;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
@@ -324,12 +326,21 @@ public class ComplianceServiceImpl implements ComplianceService {
     }
 
 
+
     @Override
     public Map<String, Object> fetchComplianceById(Long complianceId) {
         // Step 1: Fetch Compliance
         Compliance compliance = complianceRepository.findById(complianceId)
                 .orElseThrow(() -> new NotFoundException("Compliance not found with ID: " + complianceId));
 
+        // Step 2: Extract Related Data
+        BusinessUnit businessUnit = compliance.getBusinessUnit();
+        GstDetails gstDetails = businessUnit.getGstDetails();
+        Company company = gstDetails.getCompany();
+        BusinessActivity businessActivity = businessUnit.getBusinessActivity();
+        States state = gstDetails.getState();
+
+        // Step 3: Construct Response Map
         Map<String, Object> response = new HashMap<>();
         response.put("id", compliance.getId());
         response.put("name", compliance.getComplianceName());
@@ -345,11 +356,19 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.put("completedDate", compliance.getCompletedDate());
         response.put("workStatus", compliance.getWorkStatus());
         response.put("priority", compliance.getPriority());
-        response.put("businessUnitId", compliance.getBusinessUnit().getId());
+        response.put("businessUnitId", businessUnit.getId());
         response.put("subscriberId", compliance.getSubscriber().getId());
         response.put("durationMonth", compliance.getDurationMonth());
         response.put("durationYear", compliance.getDurationYear());
 
+        // Additional Fields
+        response.put("companyId", company.getId());
+        response.put("companyName", company.getCompanyName());
+        response.put("businessActivityId", businessActivity.getId());
+        response.put("businessActivityName", businessActivity.getBusinessActivityName());
+        response.put("state", state != null ? state.getStateName() : null); // Assuming States has a getName() method
+
+        // Document Details
         List<Map<String, Object>> documentDetails = compliance.getDocuments().stream().map(doc -> {
             Map<String, Object> docMap = new HashMap<>();
             docMap.put("documentName", doc.getDocumentName());
