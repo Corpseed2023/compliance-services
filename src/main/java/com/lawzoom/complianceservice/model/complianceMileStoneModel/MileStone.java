@@ -3,6 +3,7 @@ package com.lawzoom.complianceservice.model.complianceMileStoneModel;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
+import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.user.Subscriber;
@@ -100,6 +101,10 @@ public class MileStone {
 	// Multiple Tasks
 	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Task> tasks = new ArrayList<>();
+
+	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Document> documents = new ArrayList<>();
+
 
 	@PrePersist
 	protected void onCreate() {

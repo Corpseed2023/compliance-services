@@ -1,11 +1,12 @@
 package com.lawzoom.complianceservice.dto.complianceDto;
 
+import com.lawzoom.complianceservice.dto.DocumentRequest;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.time.LocalDate;
-
+import java.util.List;
 @Data
 public class ComplianceRequest {
 
@@ -34,4 +35,7 @@ public class ComplianceRequest {
     private boolean isEnable;
 
     private Long subscriberId;
+
+    // New field for documents
+    private List<DocumentRequest> documents;
 }

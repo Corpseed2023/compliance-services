@@ -1,12 +1,15 @@
 package com.lawzoom.complianceservice.model.mileStoneTask;
 
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
+import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -65,4 +68,8 @@ public class Task {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "milestone_id", nullable = false)
 	private MileStone milestone;
+
+	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Document> documents = new ArrayList<>();
+
 }

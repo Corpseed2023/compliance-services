@@ -3,6 +3,7 @@ package com.lawzoom.complianceservice.serviceImpl.complianceServiceImpl;
 
 
 
+import com.lawzoom.complianceservice.dto.DocumentRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.CompanyComplianceDTO;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
@@ -10,13 +11,11 @@ import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.companyModel.Company;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
+import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.gstdetails.GstDetails;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
-import com.lawzoom.complianceservice.repository.ComplianceRepo;
-import com.lawzoom.complianceservice.repository.GstDetailsRepository;
-import com.lawzoom.complianceservice.repository.SubscriberRepository;
-import com.lawzoom.complianceservice.repository.UserRepository;
+import com.lawzoom.complianceservice.repository.*;
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitRepository;
 import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
 import com.lawzoom.complianceservice.service.complianceService.ComplianceService;
@@ -49,6 +48,9 @@ public class ComplianceServiceImpl implements ComplianceService {
 
     @Autowired
     private SubscriberRepository subscriberRepository;
+
+    @Autowired
+    private DocumentRepository documentRepository;
 
 
     @Override
@@ -87,12 +89,32 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setCertificateType(complianceRequest.getCertificateType());
         compliance.setBusinessUnit(businessUnit);
         compliance.setIssueAuthority(complianceRequest.getIssueAuthority());
-        compliance.setSubscriber(subscriber); // Associate validated subscriber
+        compliance.setSubscriber(subscriber);
         compliance.setCompletedDate(complianceRequest.getCompletedDate());
 
         Compliance savedCompliance = complianceRepository.save(compliance);
 
-        // Step 5: Map Saved Entity to Response
+        // Step 5: Save Documents if provided
+        if (complianceRequest.getDocuments() != null && !complianceRequest.getDocuments().isEmpty()) {
+            List<Document> documents = new ArrayList<>();
+            for (DocumentRequest docRequest : complianceRequest.getDocuments()) {
+                Document document = new Document();
+                document.setDocumentName(docRequest.getDocumentName());
+                document.setFileName(docRequest.getFileName());
+                document.setIssueDate(docRequest.getIssueDate());
+                document.setReferenceNumber(docRequest.getReferenceNumber());
+                document.setRemarks(docRequest.getRemarks());
+                document.setUploadDate(new Date());
+                document.setCompliance(savedCompliance); // Link to compliance
+                document.setAddedBy(user);
+                document.setSuperAdmin(subscriber.getSuperAdmin());
+                document.setSubscriber(subscriber);
+                documents.add(document);
+            }
+            documentRepository.saveAll(documents); // Save all documents
+        }
+
+        // Step 6: Map Saved Entity to Response
         ComplianceResponse response = new ComplianceResponse();
         response.setId(savedCompliance.getId());
         response.setName(savedCompliance.getComplianceName());
@@ -118,13 +140,8 @@ public class ComplianceServiceImpl implements ComplianceService {
     @Override
     public ComplianceResponse updateCompliance(ComplianceRequest complianceRequest, Long businessUnitId, Long complianceId) {
         // Retrieve the existing Compliance entity
-        Optional<Compliance> optionalCompliance = complianceRepository.findById(complianceId);
-
-        if (optionalCompliance.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No compliance found with the provided ID");
-        }
-
-        Compliance compliance = optionalCompliance.get();
+        Compliance compliance = complianceRepository.findById(complianceId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No compliance found with the provided ID"));
 
         // Validate if the compliance belongs to the provided BusinessUnit
         if (!compliance.getBusinessUnit().getId().equals(businessUnitId)) {
@@ -142,12 +159,36 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setPriority(complianceRequest.getPriority());
         compliance.setUpdatedAt(new Date()); // Update the updatedAt timestamp
 
+        // Handle documents
+        if (complianceRequest.getDocuments() != null) {
+            // Remove old documents linked to this compliance
+            documentRepository.deleteByComplianceId(complianceId);
+
+            // Add new documents
+            List<Document> documents = new ArrayList<>();
+            for (DocumentRequest docRequest : complianceRequest.getDocuments()) {
+                Document document = new Document();
+                document.setDocumentName(docRequest.getDocumentName());
+                document.setFileName(docRequest.getFileName());
+                document.setIssueDate(docRequest.getIssueDate());
+                document.setReferenceNumber(docRequest.getReferenceNumber());
+                document.setRemarks(docRequest.getRemarks());
+                document.setUploadDate(new Date());
+                document.setCompliance(compliance); // Link to compliance
+                document.setAddedBy(userRepository.findById(docRequest.getAddedById())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid addedById")));
+                documents.add(document);
+            }
+            documentRepository.saveAll(documents);
+        }
+
         // Save the updated Compliance entity
         Compliance updatedCompliance = complianceRepository.save(compliance);
 
         // Create and return the response
         return createComplianceResponse(updatedCompliance);
     }
+
 
     private ComplianceResponse createComplianceResponse(Compliance compliance) {
         ComplianceResponse response = new ComplianceResponse();
@@ -216,8 +257,6 @@ public class ComplianceServiceImpl implements ComplianceService {
             response.setPriority(compliance.getPriority());
             response.setBusinessUnitId(compliance.getBusinessUnit().getId());
             response.setSubscriberId(compliance.getSubscriber().getId());
-            response.setComplianceCategory("Category Placeholder"); // Modify as necessary
-            response.setBusinessActivity("Activity Placeholder"); // Modify as necessary
             responses.add(response);
         }
 

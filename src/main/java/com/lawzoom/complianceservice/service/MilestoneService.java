@@ -14,8 +14,6 @@ public interface MilestoneService {
 
     ResponseEntity<Map<String, Object>> createMilestone(MilestoneRequest milestoneRequest);
 
-
-
     List<MilestoneResponse> fetchAllMilestones(@Valid MilestoneRequestForFetch request);
 
     MilestoneResponse fetchMilestoneById(Long milestoneId);
