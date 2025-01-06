@@ -35,6 +35,9 @@ public class MilestoneResponse {
     // List of renewals
     private List<RenewalDetails> renewals;
 
+    // List of documents
+    private List<DocumentDetails> documents;
+
     @Data
     public static class ReminderDetails {
         private Long id;
@@ -54,5 +57,16 @@ public class MilestoneResponse {
         private int renewalFrequency;
         private String renewalType;
         private String renewalNotes;
+    }
+
+    @Data
+    public static class DocumentDetails {
+        private Long id;
+        private String documentName;
+        private String fileName;
+        private Date issueDate;
+        private String referenceNumber;
+        private String remarks;
+        private Date uploadDate;
     }
 }

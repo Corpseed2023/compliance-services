@@ -91,6 +91,8 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setIssueAuthority(complianceRequest.getIssueAuthority());
         compliance.setSubscriber(subscriber);
         compliance.setCompletedDate(complianceRequest.getCompletedDate());
+        compliance.setDurationMonth(complianceRequest.getDurationMonth());
+        compliance.setDurationYear(complianceRequest.getDurationYear());
 
         Compliance savedCompliance = complianceRepository.save(compliance);
 
@@ -132,6 +134,8 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.setCreatedBy(user.getId());
         response.setIssueAuthority(savedCompliance.getIssueAuthority());
         response.setSubscriberId(savedCompliance.getSubscriber().getId());
+        response.setDurationYear(savedCompliance.getDurationYear());
+        response.setDurationMonth(savedCompliance.getDurationMonth());
 
         return response;
     }
@@ -257,6 +261,10 @@ public class ComplianceServiceImpl implements ComplianceService {
             response.setPriority(compliance.getPriority());
             response.setBusinessUnitId(compliance.getBusinessUnit().getId());
             response.setSubscriberId(compliance.getSubscriber().getId());
+            response.setDurationMonth(compliance.getDurationMonth());
+            response.setDurationYear(compliance.getDurationYear());
+            response.setCreatedBy(userId); // Assuming the user who requested this is the creator
+
             responses.add(response);
         }
 

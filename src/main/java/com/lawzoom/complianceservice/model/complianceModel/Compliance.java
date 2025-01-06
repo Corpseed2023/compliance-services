@@ -34,6 +34,10 @@ public class Compliance {
 
 	private String certificateType;
 
+	private Long durationMonth;
+
+	private Long durationYear;
+
 	@Column(name = "compliance_name")
 	private String complianceName;
 

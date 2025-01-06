@@ -16,6 +16,10 @@ public class ComplianceRequest {
 
     private String issueAuthority;
 
+    private Long durationMonth;
+
+    private Long durationYear;
+
     private String approvalState;
 
     private String applicableZone;

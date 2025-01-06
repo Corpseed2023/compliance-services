@@ -1,11 +1,14 @@
 package com.lawzoom.complianceservice.dto.complianceTaskDto;
 
+import com.lawzoom.complianceservice.dto.DocumentRequest;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
+
 @Data
 public class MilestoneRequest {
 	@NotEmpty(message = "Milestone name is required")
@@ -44,11 +47,14 @@ public class MilestoneRequest {
 	private Integer notificationTimelineValue;
 	private Integer repeatTimelineValue;
 	private String repeatTimelineType;
-	private Long whomToSend; // User ID of the recipient, null defaults to Super Admin
+	private Long whomToSend;
 
 	// Renewal-specific fields
-	private LocalDate nextRenewalDate; // Next renewal date
-	private Integer renewalFrequency;  // Renewal frequency in months
-	private String renewalType;        // Renewal type (e.g., Half-Yearly, Yearly)
-	private String renewalNotes;       // Notes or additional details about the renewal
+	private LocalDate nextRenewalDate;
+	private Integer renewalFrequency;
+	private String renewalType;
+	private String renewalNotes;
+
+	// Document-specific field
+	private List<DocumentRequest> documents;
 }

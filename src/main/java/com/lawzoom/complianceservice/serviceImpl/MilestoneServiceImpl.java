@@ -1,5 +1,6 @@
 package com.lawzoom.complianceservice.serviceImpl;
 
+import com.lawzoom.complianceservice.dto.DocumentRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequestForFetch;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneResponse;
@@ -7,8 +8,7 @@ import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
-import com.lawzoom.complianceservice.model.reminderModel.Reminder;
-import com.lawzoom.complianceservice.model.renewalModel.Renewal;
+import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
@@ -73,14 +73,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         Subscriber subscriber = subscriberRepository.findById(milestoneRequest.getSubscriberId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + milestoneRequest.getSubscriberId()));
 
-        // Step 7: Validate Whom to Send Reminder
-        User whomToSend = null;
-        if (milestoneRequest.getWhomToSend() != null) {
-            whomToSend = userRepository.findById(milestoneRequest.getWhomToSend())
-                    .orElseGet(() -> userRepository.findSuperAdminBySubscriberId(subscriber.getId()));
-        }
-
-        // Step 8: Create Milestone
+        // Step 7: Create Milestone
         MileStone milestone = new MileStone();
         milestone.setMileStoneName(milestoneRequest.getMileStoneName());
         milestone.setDescription(milestoneRequest.getDescription());
@@ -98,34 +91,29 @@ public class MilestoneServiceImpl implements MilestoneService {
         milestone.setSubscriber(subscriber);
         milestone.setRemark(milestoneRequest.getRemark());
 
-        // Step 9: Create Reminder
-        Reminder reminder = new Reminder();
-        reminder.setMilestone(milestone);
-        reminder.setSubscriber(subscriber);
-        reminder.setSuperAdmin(userRepository.findSuperAdminBySubscriberId(subscriber.getId())); // Default to Super Admin
-        reminder.setCreatedBy(reporter);
-        reminder.setWhomToSend(whomToSend);
-        reminder.setReminderDate(milestoneRequest.getReminderDate());
-        reminder.setReminderEndDate(milestoneRequest.getReminderEndDate());
-        reminder.setNotificationTimelineValue(milestoneRequest.getNotificationTimelineValue());
-        reminder.setRepeatTimelineValue(milestoneRequest.getRepeatTimelineValue());
-        reminder.setRepeatTimelineType(milestoneRequest.getRepeatTimelineType());
-        milestone.getReminders().add(reminder);
+        // Step 8: Add Documents if Provided
+        if (milestoneRequest.getDocuments() != null && !milestoneRequest.getDocuments().isEmpty()) {
+            List<Document> documents = new ArrayList<>();
+            for (DocumentRequest documentRequest : milestoneRequest.getDocuments()) {
+                Document document = new Document();
+                document.setDocumentName(documentRequest.getDocumentName());
+                document.setFileName(documentRequest.getFileName());
+                document.setIssueDate(documentRequest.getIssueDate());
+                document.setReferenceNumber(documentRequest.getReferenceNumber());
+                document.setRemarks(documentRequest.getRemarks());
+                document.setUploadDate(new Date());
+                document.setMilestone(milestone); // Link document to milestone
+                document.setSubscriber(subscriber);
+                document.setAddedBy(reporter);
+                documents.add(document);
+            }
+            milestone.getDocuments().addAll(documents);
+        }
 
-        // Step 10: Create Renewal
-        Renewal renewal = new Renewal();
-        renewal.setMilestone(milestone);
-        renewal.setCompliance(compliance);
-        renewal.setNextRenewalDate(milestoneRequest.getNextRenewalDate());
-        renewal.setRenewalFrequency(milestoneRequest.getRenewalFrequency());
-        renewal.setRenewalType(milestoneRequest.getRenewalType());
-        renewal.setRenewalNotes(milestoneRequest.getRenewalNotes());
-        milestone.getRenewals().add(renewal);
-
-        // Save Milestone with Reminder and Renewal
+        // Save Milestone
         MileStone savedMilestone = milestoneRepository.save(milestone);
 
-        // Step 11: Prepare Manual Response
+        // Step 9: Prepare Response
         Map<String, Object> response = new HashMap<>();
         response.put("id", savedMilestone.getId());
         response.put("mileStoneName", savedMilestone.getMileStoneName());
@@ -137,18 +125,11 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.put("complianceId", savedMilestone.getCompliance().getId());
         response.put("reporterId", reporter.getId());
         response.put("remark", savedMilestone.getRemark());
-        response.put("assignedTo", assignedToUser != null ? assignedToUser.getId() : null);
-        response.put("assignedBy", assignedByUser != null ? assignedByUser.getId() : null);
-        response.put("assigneeMail", savedMilestone.getAssigneeMail());
-        response.put("issuedDate", savedMilestone.getIssuedDate());
-        response.put("criticality", savedMilestone.getCriticality());
-        response.put("businessUnitId", businessUnit.getId());
-        response.put("subscriberId", savedMilestone.getSubscriber().getId());
-        response.put("reminders", savedMilestone.getReminders());
-        response.put("renewals", savedMilestone.getRenewals());
+        response.put("documents", savedMilestone.getDocuments()); // Include documents in response
 
         return ResponseEntity.status(201).body(response);
     }
+
 
     @Override
     public MilestoneResponse fetchMilestoneById(Long milestoneId) {
@@ -258,8 +239,25 @@ public class MilestoneServiceImpl implements MilestoneService {
                 .toList();
         response.setRenewals(renewalDetails);
 
+        // Map Document details
+        List<MilestoneResponse.DocumentDetails> documentDetails = milestone.getDocuments().stream()
+                .map(document -> {
+                    MilestoneResponse.DocumentDetails dd = new MilestoneResponse.DocumentDetails();
+                    dd.setId(document.getId());
+                    dd.setDocumentName(document.getDocumentName());
+                    dd.setFileName(document.getFileName());
+                    dd.setIssueDate(document.getIssueDate());
+                    dd.setReferenceNumber(document.getReferenceNumber());
+                    dd.setRemarks(document.getRemarks());
+                    dd.setUploadDate(document.getUploadDate());
+                    return dd;
+                })
+                .toList();
+        response.setDocuments(documentDetails);
+
         return response;
     }
+
 
     // Utility method to determine if a user is a SUPER_ADMIN
     private boolean isSuperAdmin(Long userId) {

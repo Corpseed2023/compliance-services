@@ -105,7 +105,6 @@ public class MileStone {
 	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Document> documents = new ArrayList<>();
 
-
 	@PrePersist
 	protected void onCreate() {
 		this.createdAt = new Date();
