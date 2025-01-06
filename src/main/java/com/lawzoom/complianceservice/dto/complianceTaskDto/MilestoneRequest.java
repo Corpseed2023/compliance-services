@@ -6,7 +6,6 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.Date;
-
 @Data
 public class MilestoneRequest {
 	@NotEmpty(message = "Milestone name is required")
@@ -46,4 +45,10 @@ public class MilestoneRequest {
 	private Integer repeatTimelineValue;
 	private String repeatTimelineType;
 	private Long whomToSend; // User ID of the recipient, null defaults to Super Admin
+
+	// Renewal-specific fields
+	private LocalDate nextRenewalDate; // Next renewal date
+	private Integer renewalFrequency;  // Renewal frequency in months
+	private String renewalType;        // Renewal type (e.g., Half-Yearly, Yearly)
+	private String renewalNotes;       // Notes or additional details about the renewal
 }

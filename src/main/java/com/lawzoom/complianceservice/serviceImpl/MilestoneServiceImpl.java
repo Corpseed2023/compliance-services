@@ -8,6 +8,7 @@ import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
+import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
@@ -112,9 +113,20 @@ public class MilestoneServiceImpl implements MilestoneService {
         reminder.setRepeatTimelineType(milestoneRequest.getRepeatTimelineType());
         milestone.getReminders().add(reminder);
 
+        // Step 10: Create Renewal
+        Renewal renewal = new Renewal();
+        renewal.setMilestone(milestone);
+        renewal.setCompliance(compliance);
+        renewal.setNextRenewalDate(milestoneRequest.getNextRenewalDate());
+        renewal.setRenewalFrequency(milestoneRequest.getRenewalFrequency());
+        renewal.setRenewalType(milestoneRequest.getRenewalType());
+        renewal.setRenewalNotes(milestoneRequest.getRenewalNotes());
+        milestone.getRenewals().add(renewal);
+
+        // Save Milestone with Reminder and Renewal
         MileStone savedMilestone = milestoneRepository.save(milestone);
 
-        // Step 10: Prepare Response
+        // Step 11: Prepare Response
         MilestoneResponse milestoneResponse = new MilestoneResponse();
         milestoneResponse.setId(savedMilestone.getId());
         milestoneResponse.setMileStoneName(savedMilestone.getMileStoneName());
