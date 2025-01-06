@@ -123,6 +123,25 @@ public class ComplianceController {
         }
     }
 
+    @GetMapping("/fetch-compliance-list")
+    public ResponseEntity<List<Map<String, Object>>> fetchComplianceList(
+            @RequestParam("userId") Long userId,
+            @RequestParam("subscriberId") Long subscriberId,
+            @RequestParam("businessUnitId") Long businessUnitId) {
+
+        if (userId == null || subscriberId == null || businessUnitId == null) {
+            throw new IllegalArgumentException("Please provide valid userId, subscriberId, and businessUnitId");
+        }
+
+        try {
+            List<Map<String, Object>> complianceList = complianceService.fetchComplianceList(userId, subscriberId, businessUnitId);
+            return ResponseEntity.ok(complianceList);
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch compliance list: " + e.getMessage(), e);
+        }
+    }
 
 
 

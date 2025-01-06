@@ -29,7 +29,18 @@ public class Task {
 	@Column(columnDefinition = "TEXT")
 	private String description;
 
-	private String status;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "status", length = 20)
+	private Task.Status status = Task.Status.INITIATED; // Default initial status
+
+
+	public enum Status {
+		INITIATED,
+		PROGRESS,
+		REJECTED,
+		COMPLETED,
+		ON_HOLD
+	}
 
 	@Column(name = "created_at")
 	@Temporal(TemporalType.TIMESTAMP)

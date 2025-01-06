@@ -11,6 +11,7 @@ import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.companyModel.Company;
+import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.gstdetails.GstDetails;
@@ -96,6 +97,8 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setCompletedDate(complianceRequest.getCompletedDate());
         compliance.setDurationMonth(complianceRequest.getDurationMonth());
         compliance.setDurationYear(complianceRequest.getDurationYear());
+        compliance.setDeleted(false); // Explicitly set isDeleted
+        compliance.setStatus(Compliance.Status.INITIATED); // Explicitly set status
 
         Compliance savedCompliance = complianceRepository.save(compliance);
 
@@ -334,13 +337,18 @@ public class ComplianceServiceImpl implements ComplianceService {
         Compliance compliance = complianceRepository.findById(complianceId)
                 .orElseThrow(() -> new NotFoundException("Compliance not found with ID: " + complianceId));
 
-        // Step 2: Extract Related Data
-        BusinessUnit businessUnit = compliance.getBusinessUnit();
-        GstDetails gstDetails = businessUnit.getGstDetails();
-        Company company = gstDetails.getCompany();
-        BusinessActivity businessActivity = businessUnit.getBusinessActivity();
-        States state = gstDetails.getState();
-        City city = gstDetails.getCompany().getCity();
+        // Step 2: Fetch Milestones
+        List<MileStone> milestones = compliance.getMilestones();
+        long totalMilestones = milestones.size();
+
+        // Calculate completed milestones
+        long completedMilestones = milestones.stream()
+                .filter(m -> m.getStatus() == MileStone.Status.COMPLETED)
+                .count();
+
+        // Calculate progress percentage
+        double milestoneContribution = totalMilestones > 0 ? 100.0 / totalMilestones : 0.0;
+        double progressPercentage = completedMilestones * milestoneContribution;
 
         // Step 3: Construct Response Map
         Map<String, Object> response = new HashMap<>();
@@ -358,19 +366,31 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.put("completedDate", compliance.getCompletedDate());
         response.put("workStatus", compliance.getWorkStatus());
         response.put("priority", compliance.getPriority());
-        response.put("businessUnitId", businessUnit.getId());
+        response.put("businessUnitId", compliance.getBusinessUnit().getId());
         response.put("subscriberId", compliance.getSubscriber().getId());
         response.put("durationMonth", compliance.getDurationMonth());
         response.put("durationYear", compliance.getDurationYear());
 
         // Additional Fields
+        BusinessUnit businessUnit = compliance.getBusinessUnit();
+        GstDetails gstDetails = businessUnit.getGstDetails();
+        Company company = gstDetails.getCompany();
+        BusinessActivity businessActivity = businessUnit.getBusinessActivity();
+        States state = gstDetails.getState();
+        City city = gstDetails.getCompany().getCity();
         response.put("companyId", company.getId());
         response.put("companyName", company.getCompanyName());
         response.put("businessActivityId", businessActivity.getId());
         response.put("businessActivityName", businessActivity.getBusinessActivityName());
-        response.put("state", state != null ? state.getStateName() : null); // Assuming States has a getName() method
-        response.put("city", city != null ? city.getCityName() : null); // Assuming States has a getName() method
+        response.put("state", state != null ? state.getStateName() : null);
+        response.put("city", city != null ? city.getCityName() : null);
 
+        // Add Milestone Details
+        Map<String, Object> milestoneStats = new HashMap<>();
+        milestoneStats.put("totalMilestones", totalMilestones);
+        milestoneStats.put("completedMilestones", completedMilestones);
+        milestoneStats.put("progressPercentage", progressPercentage);
+        response.put("milestoneStatistics", milestoneStats);
 
         // Document Details
         List<Map<String, Object>> documentDetails = compliance.getDocuments().stream().map(doc -> {
@@ -386,6 +406,70 @@ public class ComplianceServiceImpl implements ComplianceService {
     }
 
 
+
+    @Override
+    public List<Map<String, Object>> fetchComplianceList(Long userId, Long subscriberId, Long businessUnitId) {
+        // Step 1: Validate User
+        User user = userRepository.findActiveUserById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("Error: User not found!");
+        }
+
+        // Step 2: Validate Subscriber
+        Subscriber subscriber = subscriberRepository.findById(subscriberId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + subscriberId));
+
+        // Step 3: Validate Business Unit
+        BusinessUnit businessUnit = businessUnitRepository.findById(businessUnitId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid businessUnitId: " + businessUnitId));
+
+        if (!businessUnit.getGstDetails().getCompany().getSubscriber().getId().equals(subscriberId)) {
+            throw new IllegalArgumentException("Business Unit does not belong to the provided Subscriber.");
+        }
+
+        // Step 4: Fetch Compliances
+        List<Compliance> compliances = complianceRepository.findByBusinessUnitId(businessUnitId);
+
+        if (compliances.isEmpty()) {
+            throw new NotFoundException("No compliances found for the given Business Unit ID");
+        }
+
+        // Step 5: Map Compliances to Response Format
+        List<Map<String, Object>> complianceList = new ArrayList<>();
+        for (Compliance compliance : compliances) {
+            Map<String, Object> complianceMap = new HashMap<>();
+            complianceMap.put("id", compliance.getId());
+            complianceMap.put("name", compliance.getComplianceName());
+            complianceMap.put("issueAuthority", compliance.getIssueAuthority());
+            complianceMap.put("certificateType", compliance.getCertificateType());
+            complianceMap.put("approvalState", compliance.getApprovalState());
+            complianceMap.put("applicableZone", compliance.getApplicableZone());
+            complianceMap.put("startDate", compliance.getStartDate());
+            complianceMap.put("dueDate", compliance.getDueDate());
+            complianceMap.put("completedDate", compliance.getCompletedDate());
+            complianceMap.put("workStatus", compliance.getWorkStatus());
+            complianceMap.put("priority", compliance.getPriority());
+
+            // Step 6: Calculate Milestone Statistics
+            List<MileStone> milestones = compliance.getMilestones();
+            long totalMilestones = milestones.size();
+            long completedMilestones = milestones.stream()
+                    .filter(m -> m.getStatus() == MileStone.Status.COMPLETED)
+                    .count();
+            double milestoneContribution = totalMilestones > 0 ? 100.0 / totalMilestones : 0.0;
+            double progressPercentage = completedMilestones * milestoneContribution;
+
+            Map<String, Object> milestoneStats = new HashMap<>();
+            milestoneStats.put("totalMilestones", totalMilestones);
+            milestoneStats.put("completedMilestones", completedMilestones);
+            milestoneStats.put("progressPercentage", progressPercentage);
+
+            complianceMap.put("milestoneStatistics", milestoneStats);
+            complianceList.add(complianceMap);
+        }
+
+        return complianceList;
+    }
 
 
 

@@ -25,7 +25,6 @@ public class MilestoneController {
         return milestoneService.createMilestone(milestoneRequest);
     }
 
-
     @PostMapping("/fetch-all-milestone")
     public ResponseEntity<List<MilestoneResponse>> fetchAllMilestones(@RequestBody MilestoneRequestForFetch milestoneRequestForFetch) {
         List<MilestoneResponse> responseList = milestoneService.fetchAllMilestones(milestoneRequestForFetch);

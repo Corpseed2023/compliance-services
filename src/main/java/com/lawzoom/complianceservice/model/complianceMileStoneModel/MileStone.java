@@ -35,8 +35,6 @@ public class MileStone {
 	@Column(columnDefinition = "TEXT")
 	private String description;
 
-	private String status;
-
 	@Column(name = "created_at")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdAt = new Date();
@@ -73,6 +71,19 @@ public class MileStone {
 	private String criticality;
 
 	private String remark;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "status", length = 20)
+	private MileStone.Status status = MileStone.Status.INITIATED; // Default initial status
+
+	public enum Status {
+		INITIATED,
+		PROGRESS,
+		REJECTED,
+		COMPLETED,
+		ON_HOLD
+	}
+
 
 	@ManyToOne
 	@JoinColumn(name = "business_unit_id", nullable = false)

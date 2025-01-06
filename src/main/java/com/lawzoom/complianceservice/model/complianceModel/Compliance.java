@@ -95,6 +95,18 @@
 		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
 		private List<Document> documents = new ArrayList<>();
 
+		@Enumerated(EnumType.STRING)
+		@Column(name = "status", length = 20)
+		private Status status = Status.INITIATED; // Default initial status
+
+		public enum Status {
+			INITIATED,
+			PROGRESS,
+			REJECTED,
+			COMPLETED,
+			ON_HOLD
+		}
+
 
 		@PrePersist
 		protected void onCreate() {
