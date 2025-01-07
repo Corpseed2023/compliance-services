@@ -42,8 +42,6 @@ public class Company {
 
 	private String lastName;
 
-	private Designation designation;
-
 	@ManyToOne
 	@JoinColumn(name = "created_by", nullable = false)
 	private User createdBy;
