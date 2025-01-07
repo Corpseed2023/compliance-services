@@ -16,6 +16,9 @@ public class UserResponse {
 
 	private String email;
 
+	private String mobile;
+
+
 	private String designation;
 
 	private String resourceType;

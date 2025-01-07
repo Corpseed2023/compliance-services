@@ -61,6 +61,7 @@ public class UserServiceImpl implements UserService {
         user.setDesignation(designation);
         user.setResourceType(resourceType);
         user.getRoles().add(role);
+        user.setMobile(userRequest.getMobile());
 
         // Conditional logic based on role
         User savedUser;
@@ -95,6 +96,9 @@ public class UserServiceImpl implements UserService {
         response.setEnable(savedUser.isEnable());
         response.setCreatedAt(savedUser.getCreatedAt());
         response.setUpdatedAt(savedUser.getUpdatedAt());
+        response.setMobile(savedUser.getMobile());
+
+
 
         return response;
     }
@@ -143,6 +147,8 @@ public class UserServiceImpl implements UserService {
         response.setName(savedUser.getUserName());
         response.setMemberMail(savedUser.getEmail());
         response.setEnable(savedUser.isEnable());
+        response.setMobile(savedUser.getMobile());
+
 
         // Add department details
         response.setDepartmentId(department.getId());
@@ -191,6 +197,8 @@ public class UserServiceImpl implements UserService {
             response.setMemberMail(member.getEmail());
             response.setEnable(member.isEnable());
             response.setSubscriberId(subscriber.getId());
+            response.setMobile(member.getMobile());
+
 
             // Add department details
             if (member.getDepartment() != null) {

@@ -35,6 +35,9 @@ public class MemberResponse {
 	@NotBlank
 	private String memberMail;
 
+	private String mobile;
+
+
 	private String typeOfResource;
 
 	private boolean isEnable;

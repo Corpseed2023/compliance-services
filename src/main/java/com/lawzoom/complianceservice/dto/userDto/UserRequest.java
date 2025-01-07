@@ -21,6 +21,8 @@ public class  UserRequest {
 
     private Long roleId;
 
+    private String mobile;
+
     @NotBlank
     private String email;
 

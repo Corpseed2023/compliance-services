@@ -351,7 +351,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         long totalMilestones = milestones.size();
 
         // Fetch the "COMPLETED" status from the Status table
-        Status completedStatus = statusRepository.findByName("COMPLETED")
+        Status completedStatus = statusRepository.findByName("Completed")
                 .orElseThrow(() -> new NotFoundException("Status 'COMPLETED' not found"));
 
         // Calculate completed milestones
@@ -360,10 +360,10 @@ public class ComplianceServiceImpl implements ComplianceService {
                 .count();
 
         // Fetch the "IN_PROGRESS" and "NOT_STARTED" statuses (if needed)
-        Status inProgressStatus = statusRepository.findByName("IN_PROGRESS")
+        Status inProgressStatus = statusRepository.findByName("Progress")
                 .orElseThrow(() -> new NotFoundException("Status 'IN_PROGRESS' not found"));
-        Status notStartedStatus = statusRepository.findByName("NOT_STARTED")
-                .orElseThrow(() -> new NotFoundException("Status 'NOT_STARTED' not found"));
+        Status notStartedStatus = statusRepository.findByName("Initiated")
+                .orElseThrow(() -> new NotFoundException("Status 'Initiated' not found"));
 
         long inProgressMilestones = milestones.stream()
                 .filter(m -> m.getStatus().getId().equals(inProgressStatus.getId()))
@@ -465,7 +465,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         }
 
         // Fetch statuses for filtering
-        Status completedStatus = statusRepository.findByName("COMPLETED")
+        Status completedStatus = statusRepository.findByName("Completed")
                 .orElseThrow(() -> new NotFoundException("Status 'COMPLETED' not found"));
 
         // Step 5: Map Compliances to Response Format
