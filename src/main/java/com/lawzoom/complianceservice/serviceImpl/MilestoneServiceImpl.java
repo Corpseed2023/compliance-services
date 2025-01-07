@@ -308,7 +308,7 @@ public class MilestoneServiceImpl implements MilestoneService {
 
 
     @Override
-    public List<MilestoneResponse> fetchMilestonesByStatus(Long userId, Long subscriberId, String status) {
+    public List<MilestoneResponse> fetchMilestonesByStatus(Long userId, Long subscriberId, String statusName) {
         // Step 1: Validate Subscriber
         Subscriber subscriber = subscriberRepository.findById(subscriberId)
                 .orElseThrow(() -> new NotFoundException("Subscriber not found with ID: " + subscriberId));
@@ -317,8 +317,13 @@ public class MilestoneServiceImpl implements MilestoneService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
 
-        // Step 3: Check User Role
-        boolean isSuperAdmin = user.getRoles().stream().anyMatch(role -> role.getRoleName().equalsIgnoreCase("SUPER_ADMIN"));
+        // Step 3: Fetch the Status entity
+        Status status = statusRepository.findByName(statusName)
+                .orElseThrow(() -> new NotFoundException("Status not found with name: " + statusName));
+
+        // Step 4: Check User Role
+        boolean isSuperAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getRoleName().equalsIgnoreCase("SUPER_ADMIN"));
 
         List<MileStone> milestones;
 
@@ -330,14 +335,14 @@ public class MilestoneServiceImpl implements MilestoneService {
             milestones = milestoneRepository.findBySubscriberAndAssignedToAndStatus(subscriber, user, status);
         }
 
-        // Step 4: Map milestones to response
+        // Step 5: Map milestones to response
         List<MilestoneResponse> responses = new ArrayList<>();
         for (MileStone milestone : milestones) {
             MilestoneResponse response = new MilestoneResponse();
             response.setId(milestone.getId());
             response.setMileStoneName(milestone.getMileStoneName());
             response.setDescription(milestone.getDescription());
-            response.setStatus(milestone.getStatus().toString());
+            response.setStatus(milestone.getStatus().getName()); // Use status name
             response.setCreatedAt(milestone.getCreatedAt());
             response.setUpdatedAt(milestone.getUpdatedAt());
             response.setEnable(milestone.isEnable());
