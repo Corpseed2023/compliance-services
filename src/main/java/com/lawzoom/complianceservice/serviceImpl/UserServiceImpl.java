@@ -112,12 +112,12 @@ public class UserServiceImpl implements UserService {
 
         // Step 2: Create and populate a new User entity
         User newUser = new User();
-        newUser.setUserName(memberRequest.getUserName());
+        newUser.setUserName(memberRequest.getName());
         newUser.setEmail(memberRequest.getEmail());
         newUser.setEnable(memberRequest.isEnable());
 
         // Step 3: Validate and set required entities
-        newUser.setResourceType(resourceTypeRepository.findById(memberRequest.getResourceTypeId())
+        newUser.setResourceType(resourceTypeRepository.findById(memberRequest.getTypeOfResource())
                 .orElseThrow(() -> new RuntimeException("Resource type not found")));
         Designation designation = designationRepository.findById(memberRequest.getDesignationId())
                 .orElseThrow(() -> new RuntimeException("Designation not found"));

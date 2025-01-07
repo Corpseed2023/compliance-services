@@ -15,7 +15,7 @@ import lombok.Setter;
 public class MemberRequest {
 
 	@NotBlank
-	private String userName;
+	private String name;
 
 	private Long roleId;
 
@@ -24,7 +24,7 @@ public class MemberRequest {
 
 	private String mobile;
 
-	private Long resourceTypeId;
+	private Long typeOfResource;  //act as external or interenal resource
 
 	private boolean isEnable;
 
