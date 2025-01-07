@@ -15,14 +15,16 @@ import lombok.Setter;
 public class MemberRequest {
 
 	@NotBlank
-	private String memberName;
+	private String userName;
 
 	private Long roleId;
 
 	@NotBlank
-	private String memberMail;
+	private String email;
 
-	private Long typeOfResource;  //act as external or interenal resource
+	private String mobile;
+
+	private Long resourceTypeId;
 
 	private boolean isEnable;
 
@@ -34,5 +36,5 @@ public class MemberRequest {
 
 	private Long designationId; // New field to map 'designation'
 
-	private Long subscriberId;
+	private Long subscribedId;
 }

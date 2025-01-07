@@ -106,18 +106,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public MemberResponse createTeamMemberUser(MemberRequest memberRequest) {
         // Step 1: Check for duplicate email
-        if (userRepository.existsByEmail(memberRequest.getMemberMail())) {
-            throw new RuntimeException("Email already exists: " + memberRequest.getMemberMail());
+        if (userRepository.existsByEmail(memberRequest.getEmail())) {
+            throw new RuntimeException("Email already exists: " + memberRequest.getEmail());
         }
 
         // Step 2: Create and populate a new User entity
         User newUser = new User();
-        newUser.setUserName(memberRequest.getMemberName());
-        newUser.setEmail(memberRequest.getMemberMail());
+        newUser.setUserName(memberRequest.getUserName());
+        newUser.setEmail(memberRequest.getEmail());
         newUser.setEnable(memberRequest.isEnable());
 
         // Step 3: Validate and set required entities
-        newUser.setResourceType(resourceTypeRepository.findById(memberRequest.getTypeOfResource())
+        newUser.setResourceType(resourceTypeRepository.findById(memberRequest.getResourceTypeId())
                 .orElseThrow(() -> new RuntimeException("Resource type not found")));
         Designation designation = designationRepository.findById(memberRequest.getDesignationId())
                 .orElseThrow(() -> new RuntimeException("Designation not found"));
@@ -127,7 +127,7 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("Department not found"));
         newUser.setDepartment(department);
 
-        Subscriber subscriber = subscriberRepository.findById(memberRequest.getSubscriberId())
+        Subscriber subscriber = subscriberRepository.findById(memberRequest.getSubscribedId())
                 .orElseThrow(() -> new RuntimeException("Subscriber not found"));
         newUser.setSubscriber(subscriber);
 
