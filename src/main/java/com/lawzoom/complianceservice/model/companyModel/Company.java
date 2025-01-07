@@ -9,6 +9,7 @@ import com.lawzoom.complianceservice.model.region.City;
 import com.lawzoom.complianceservice.model.region.Country;
 import com.lawzoom.complianceservice.model.region.LocatedAt;
 import com.lawzoom.complianceservice.model.region.States;
+import com.lawzoom.complianceservice.model.user.Designation;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
@@ -36,6 +37,12 @@ public class Company {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+	private String firstName;
+
+	private String lastName;
+
+	private Designation designation;
 
 	@ManyToOne
 	@JoinColumn(name = "created_by", nullable = false)

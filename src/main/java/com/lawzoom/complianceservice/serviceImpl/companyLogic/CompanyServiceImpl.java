@@ -171,6 +171,8 @@ public class CompanyServiceImpl implements CompanyService {
         company.setCreatedAt(new Date());
         company.setUpdatedAt(new Date());
         company.setDate(LocalDate.now());
+        company.setFirstName(companyRequest.getFirstName());
+        company.setLastName(companyRequest.getLastName());
 
         // Save Company
         company = companyRepository.save(company);
