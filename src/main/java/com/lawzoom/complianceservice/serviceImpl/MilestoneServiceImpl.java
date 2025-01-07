@@ -78,8 +78,8 @@ public class MilestoneServiceImpl implements MilestoneService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + milestoneRequest.getSubscriberId()));
 
         // Step 7: Fetch Default Status
-        Status defaultStatus = statusRepository.findByName("INITIATED")
-                .orElseThrow(() -> new NotFoundException("Status 'INITIATED' not found"));
+        Status defaultStatus = statusRepository.findByName("Initiated")
+                .orElseThrow(() -> new NotFoundException("Status 'Initiated' not found"));
 
         // Step 8: Create Milestone
         MileStone milestone = new MileStone();

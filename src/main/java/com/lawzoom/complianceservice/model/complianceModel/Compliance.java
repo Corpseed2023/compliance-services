@@ -30,6 +30,8 @@
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
 		private Long id;
 
+		private String description;
+
 		private String issueAuthority;
 
 		private String certificateType;

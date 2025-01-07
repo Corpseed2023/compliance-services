@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ComplianceServiceImpl implements ComplianceService {
@@ -78,8 +79,6 @@ public class ComplianceServiceImpl implements ComplianceService {
         Subscriber subscriber = subscriberRepository.findById(subscriberId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + subscriberId));
 
-
-
         if (!businessUnit.getGstDetails().getCompany().getSubscriber().getId().equals(subscriberId)) {
             throw new IllegalArgumentException("Business Unit does not belong to the provided Subscriber.");
         }
@@ -87,33 +86,34 @@ public class ComplianceServiceImpl implements ComplianceService {
         // Step 4: Create and Save Compliance Entity
         Compliance compliance = new Compliance();
         compliance.setComplianceName(complianceRequest.getName());
+        compliance.setDescription(complianceRequest.getDescription());
         compliance.setApprovalState(complianceRequest.getApprovalState());
         compliance.setApplicableZone(complianceRequest.getApplicableZone());
-        compliance.setCreatedAt(new Date());
-        compliance.setUpdatedAt(new Date());
-        compliance.setEnable(complianceRequest.isEnable());
         compliance.setStartDate(complianceRequest.getStartDate());
         compliance.setDueDate(complianceRequest.getDueDate());
+        compliance.setCompletedDate(complianceRequest.getCompletedDate());
         compliance.setWorkStatus(complianceRequest.getWorkStatus());
         compliance.setPriority(complianceRequest.getPriority());
         compliance.setCertificateType(complianceRequest.getCertificateType());
-        compliance.setBusinessUnit(businessUnit);
-        compliance.setIssueAuthority(complianceRequest.getIssueAuthority());
-        compliance.setSubscriber(subscriber);
-        compliance.setCompletedDate(complianceRequest.getCompletedDate());
+        compliance.setEnable(complianceRequest.isEnable());
         compliance.setDurationMonth(complianceRequest.getDurationMonth());
         compliance.setDurationYear(complianceRequest.getDurationYear());
-        Status status = statusRepository.findById(complianceRequest.getStatusId())
-                .orElseThrow(() -> new NotFoundException("no found status "));
-        compliance.setStatus(status);
+        compliance.setIssueAuthority(complianceRequest.getIssueAuthority());
+        compliance.setBusinessUnit(businessUnit);
+        compliance.setSubscriber(subscriber);
+        compliance.setCreatedAt(new Date());
+        compliance.setUpdatedAt(new Date());
         compliance.setDeleted(false); // Explicitly set isDeleted
+        compliance.setDescription(complianceRequest.getDescription());
+        Status status = statusRepository.findById(complianceRequest.getStatusId())
+                .orElseThrow(() -> new NotFoundException("No status found."));
+        compliance.setStatus(status);
 
         Compliance savedCompliance = complianceRepository.save(compliance);
 
         // Step 5: Save Documents if provided
         if (complianceRequest.getDocuments() != null && !complianceRequest.getDocuments().isEmpty()) {
-            List<Document> documents = new ArrayList<>();
-            for (DocumentRequest docRequest : complianceRequest.getDocuments()) {
+            List<Document> documents = complianceRequest.getDocuments().stream().map(docRequest -> {
                 Document document = new Document();
                 document.setDocumentName(docRequest.getDocumentName());
                 document.setFileName(docRequest.getFileName());
@@ -121,19 +121,20 @@ public class ComplianceServiceImpl implements ComplianceService {
                 document.setReferenceNumber(docRequest.getReferenceNumber());
                 document.setRemarks(docRequest.getRemarks());
                 document.setUploadDate(new Date());
-                document.setCompliance(savedCompliance); // Link to compliance
+                document.setCompliance(savedCompliance);
                 document.setAddedBy(user);
                 document.setSuperAdmin(subscriber.getSuperAdmin());
                 document.setSubscriber(subscriber);
-                documents.add(document);
-            }
-            documentRepository.saveAll(documents); // Save all documents
+                return document;
+            }).collect(Collectors.toList());
+            documentRepository.saveAll(documents);
         }
 
         // Step 6: Map Saved Entity to Response
         ComplianceResponse response = new ComplianceResponse();
         response.setId(savedCompliance.getId());
         response.setName(savedCompliance.getComplianceName());
+        response.setDescription(savedCompliance.getDescription());
         response.setApprovalState(savedCompliance.getApprovalState());
         response.setApplicableZone(savedCompliance.getApplicableZone());
         response.setCreatedAt(savedCompliance.getCreatedAt());
@@ -150,6 +151,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.setSubscriberId(savedCompliance.getSubscriber().getId());
         response.setDurationYear(savedCompliance.getDurationYear());
         response.setDurationMonth(savedCompliance.getDurationMonth());
+        response.setCertificateType(savedCompliance.getCertificateType());
         response.setStatusName(savedCompliance.getStatus().getName());
 
         return response;
@@ -340,6 +342,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
 
 
+
     @Override
     public Map<String, Object> fetchComplianceById(Long complianceId) {
         // Step 1: Fetch Compliance
@@ -350,37 +353,12 @@ public class ComplianceServiceImpl implements ComplianceService {
         List<MileStone> milestones = compliance.getMilestones();
         long totalMilestones = milestones.size();
 
-        // Fetch the "COMPLETED" status from the Status table
-        Status completedStatus = statusRepository.findByName("Completed")
-                .orElseThrow(() -> new NotFoundException("Status 'COMPLETED' not found"));
-
-        // Calculate completed milestones
-        long completedMilestones = milestones.stream()
-                .filter(m -> m.getStatus().getId().equals(completedStatus.getId()))
-                .count();
-
-        // Fetch the "IN_PROGRESS" and "NOT_STARTED" statuses (if needed)
-        Status inProgressStatus = statusRepository.findByName("Progress")
-                .orElseThrow(() -> new NotFoundException("Status 'IN_PROGRESS' not found"));
-        Status notStartedStatus = statusRepository.findByName("Initiated")
-                .orElseThrow(() -> new NotFoundException("Status 'Initiated' not found"));
-
-        long inProgressMilestones = milestones.stream()
-                .filter(m -> m.getStatus().getId().equals(inProgressStatus.getId()))
-                .count();
-
-        long notStartedMilestones = milestones.stream()
-                .filter(m -> m.getStatus().getId().equals(notStartedStatus.getId()))
-                .count();
-
-        // Calculate progress percentage
-        double milestoneContribution = totalMilestones > 0 ? 100.0 / totalMilestones : 0.0;
-        double progressPercentage = completedMilestones * milestoneContribution;
 
         // Step 3: Construct Response Map
         Map<String, Object> response = new HashMap<>();
         response.put("id", compliance.getId());
         response.put("name", compliance.getComplianceName());
+        response.put("description", compliance.getDescription());
         response.put("issueAuthority", compliance.getIssueAuthority());
         response.put("certificateType", compliance.getCertificateType());
         response.put("approvalState", compliance.getApprovalState());
@@ -397,15 +375,15 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.put("subscriberId", compliance.getSubscriber().getId());
         response.put("durationMonth", compliance.getDurationMonth());
         response.put("durationYear", compliance.getDurationYear());
-        response.put("status",compliance.getStatus());
+        response.put("statusName", compliance.getStatus().getName());
 
-        // Additional Fields
+        // Add Company and Business Details
         BusinessUnit businessUnit = compliance.getBusinessUnit();
         GstDetails gstDetails = businessUnit.getGstDetails();
         Company company = gstDetails.getCompany();
         BusinessActivity businessActivity = businessUnit.getBusinessActivity();
         States state = gstDetails.getState();
-        City city = gstDetails.getCompany().getCity();
+        City city = company.getCity();
         response.put("companyId", company.getId());
         response.put("companyName", company.getCompanyName());
         response.put("businessActivityId", businessActivity.getId());
@@ -415,11 +393,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         // Add Milestone Details
         Map<String, Object> milestoneStats = new HashMap<>();
-        milestoneStats.put("totalMilestones", totalMilestones);
-        milestoneStats.put("completedMilestones", completedMilestones);
-        milestoneStats.put("inProgressMilestones", inProgressMilestones);
-        milestoneStats.put("notStartedMilestones", notStartedMilestones);
-        milestoneStats.put("progressPercentage", progressPercentage);
+
         response.put("milestoneStatistics", milestoneStats);
 
         // Document Details
@@ -428,9 +402,11 @@ public class ComplianceServiceImpl implements ComplianceService {
             docMap.put("documentName", doc.getDocumentName());
             docMap.put("referenceNumber", doc.getReferenceNumber());
             docMap.put("issueDate", doc.getIssueDate());
+            docMap.put("remarks", doc.getRemarks());
             return docMap;
         }).toList();
         response.put("documents", documentDetails);
+
 
         return response;
     }
@@ -465,8 +441,9 @@ public class ComplianceServiceImpl implements ComplianceService {
         }
 
         // Fetch statuses for filtering
-        Status completedStatus = statusRepository.findByName("Completed")
-                .orElseThrow(() -> new NotFoundException("Status 'COMPLETED' not found"));
+        Status completedStatus = statusRepository.findByName("Completed").orElse(null);
+        Status inProgressStatus = statusRepository.findByName("Progress").orElse(null);
+        Status notStartedStatus = statusRepository.findByName("Initiated").orElse(null);
 
         // Step 5: Map Compliances to Response Format
         List<Map<String, Object>> complianceList = new ArrayList<>();
@@ -483,13 +460,32 @@ public class ComplianceServiceImpl implements ComplianceService {
             complianceMap.put("completedDate", compliance.getCompletedDate());
             complianceMap.put("workStatus", compliance.getWorkStatus());
             complianceMap.put("priority", compliance.getPriority());
+            complianceMap.put("statusName", compliance.getStatus().getName());
 
             // Step 6: Calculate Milestone Statistics
             List<MileStone> milestones = compliance.getMilestones();
             long totalMilestones = milestones.size();
-            long completedMilestones = milestones.stream()
-                    .filter(m -> m.getStatus().getId().equals(completedStatus.getId()))
-                    .count();
+            long completedMilestones = 0L;
+            long inProgressMilestones = 0L;
+            long notStartedMilestones = 0L;
+
+            if (completedStatus != null) {
+                completedMilestones = milestones.stream()
+                        .filter(m -> m.getStatus() != null && m.getStatus().getId().equals(completedStatus.getId()))
+                        .count();
+            }
+
+            if (inProgressStatus != null) {
+                inProgressMilestones = milestones.stream()
+                        .filter(m -> m.getStatus() != null && m.getStatus().getId().equals(inProgressStatus.getId()))
+                        .count();
+            }
+
+            if (notStartedStatus != null) {
+                notStartedMilestones = milestones.stream()
+                        .filter(m -> m.getStatus() != null && m.getStatus().getId().equals(notStartedStatus.getId()))
+                        .count();
+            }
 
             double milestoneContribution = totalMilestones > 0 ? 100.0 / totalMilestones : 0.0;
             double progressPercentage = completedMilestones * milestoneContribution;
@@ -497,9 +493,12 @@ public class ComplianceServiceImpl implements ComplianceService {
             Map<String, Object> milestoneStats = new HashMap<>();
             milestoneStats.put("totalMilestones", totalMilestones);
             milestoneStats.put("completedMilestones", completedMilestones);
+            milestoneStats.put("inProgressMilestones", inProgressMilestones);
+            milestoneStats.put("notStartedMilestones", notStartedMilestones);
             milestoneStats.put("progressPercentage", progressPercentage);
 
             complianceMap.put("milestoneStatistics", milestoneStats);
+
             complianceList.add(complianceMap);
         }
 
