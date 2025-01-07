@@ -1,9 +1,9 @@
 	package com.lawzoom.complianceservice.model.complianceModel;
 
+	import com.lawzoom.complianceservice.model.Status;
 	import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 	import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 	import com.lawzoom.complianceservice.model.documentModel.Document;
-	import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 	import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 	import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 	import com.lawzoom.complianceservice.model.user.Subscriber;
@@ -95,17 +95,9 @@
 		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
 		private List<Document> documents = new ArrayList<>();
 
-		@Enumerated(EnumType.STRING)
-		@Column(name = "status", length = 20)
-		private Status status = Status.INITIATED; // Default initial status
-
-		public enum Status {
-			INITIATED,
-			PROGRESS,
-			REJECTED,
-			COMPLETED,
-			ON_HOLD
-		}
+		@ManyToOne
+		@JoinColumn(name = "status_id")
+		private Status status;
 
 
 		@PrePersist

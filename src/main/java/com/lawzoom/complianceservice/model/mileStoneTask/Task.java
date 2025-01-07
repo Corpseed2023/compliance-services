@@ -1,5 +1,6 @@
 package com.lawzoom.complianceservice.model.mileStoneTask;
 
+import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.user.User;
@@ -29,18 +30,9 @@ public class Task {
 	@Column(columnDefinition = "TEXT")
 	private String description;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "status", length = 20)
-	private Task.Status status = Task.Status.INITIATED; // Default initial status
-
-
-	public enum Status {
-		INITIATED,
-		PROGRESS,
-		REJECTED,
-		COMPLETED,
-		ON_HOLD
-	}
+	@ManyToOne
+	@JoinColumn(name = "status_id")
+	private Status status;
 
 	@Column(name = "created_at")
 	@Temporal(TemporalType.TIMESTAMP)

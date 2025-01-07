@@ -1,5 +1,6 @@
 package com.lawzoom.complianceservice.model.complianceMileStoneModel;
 
+import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
@@ -72,18 +73,9 @@ public class MileStone {
 
 	private String remark;
 
-	@Enumerated(EnumType.STRING)
-	@Column(name = "status", length = 20)
-	private MileStone.Status status = MileStone.Status.INITIATED; // Default initial status
-
-	public enum Status {
-		INITIATED,
-		PROGRESS,
-		REJECTED,
-		COMPLETED,
-		ON_HOLD
-	}
-
+	@ManyToOne
+	@JoinColumn(name = "status_id")
+	private Status status;
 
 	@ManyToOne
 	@JoinColumn(name = "business_unit_id", nullable = false)

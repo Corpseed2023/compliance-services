@@ -42,4 +42,6 @@ public class ComplianceRequest {
 
     // New field for documents
     private List<DocumentRequest> documents;
+
+    private Long statusId;
 }

@@ -8,6 +8,7 @@ import com.lawzoom.complianceservice.dto.complianceDto.CompanyComplianceDTO;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
+import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.companyModel.Company;
@@ -56,6 +57,9 @@ public class ComplianceServiceImpl implements ComplianceService {
     @Autowired
     private DocumentRepository documentRepository;
 
+    @Autowired
+    private StatusRepository statusRepository;
+
 
     @Override
     public ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long businessUnitId, Long userId) {
@@ -73,6 +77,8 @@ public class ComplianceServiceImpl implements ComplianceService {
         Long subscriberId = complianceRequest.getSubscriberId();
         Subscriber subscriber = subscriberRepository.findById(subscriberId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + subscriberId));
+
+
 
         if (!businessUnit.getGstDetails().getCompany().getSubscriber().getId().equals(subscriberId)) {
             throw new IllegalArgumentException("Business Unit does not belong to the provided Subscriber.");
@@ -97,8 +103,10 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setCompletedDate(complianceRequest.getCompletedDate());
         compliance.setDurationMonth(complianceRequest.getDurationMonth());
         compliance.setDurationYear(complianceRequest.getDurationYear());
+        Status status = statusRepository.findById(complianceRequest.getStatusId())
+                .orElseThrow(() -> new NotFoundException("no found status "));
+        compliance.setStatus(status);
         compliance.setDeleted(false); // Explicitly set isDeleted
-        compliance.setStatus(Compliance.Status.INITIATED); // Explicitly set status
 
         Compliance savedCompliance = complianceRepository.save(compliance);
 
@@ -142,6 +150,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.setSubscriberId(savedCompliance.getSubscriber().getId());
         response.setDurationYear(savedCompliance.getDurationYear());
         response.setDurationMonth(savedCompliance.getDurationMonth());
+        response.setStatusName(savedCompliance.getStatus().getName());
 
         return response;
     }
@@ -341,9 +350,27 @@ public class ComplianceServiceImpl implements ComplianceService {
         List<MileStone> milestones = compliance.getMilestones();
         long totalMilestones = milestones.size();
 
+        // Fetch the "COMPLETED" status from the Status table
+        Status completedStatus = statusRepository.findByName("COMPLETED")
+                .orElseThrow(() -> new NotFoundException("Status 'COMPLETED' not found"));
+
         // Calculate completed milestones
         long completedMilestones = milestones.stream()
-                .filter(m -> m.getStatus() == MileStone.Status.COMPLETED)
+                .filter(m -> m.getStatus().getId().equals(completedStatus.getId()))
+                .count();
+
+        // Fetch the "IN_PROGRESS" and "NOT_STARTED" statuses (if needed)
+        Status inProgressStatus = statusRepository.findByName("IN_PROGRESS")
+                .orElseThrow(() -> new NotFoundException("Status 'IN_PROGRESS' not found"));
+        Status notStartedStatus = statusRepository.findByName("NOT_STARTED")
+                .orElseThrow(() -> new NotFoundException("Status 'NOT_STARTED' not found"));
+
+        long inProgressMilestones = milestones.stream()
+                .filter(m -> m.getStatus().getId().equals(inProgressStatus.getId()))
+                .count();
+
+        long notStartedMilestones = milestones.stream()
+                .filter(m -> m.getStatus().getId().equals(notStartedStatus.getId()))
                 .count();
 
         // Calculate progress percentage
@@ -370,6 +397,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.put("subscriberId", compliance.getSubscriber().getId());
         response.put("durationMonth", compliance.getDurationMonth());
         response.put("durationYear", compliance.getDurationYear());
+        response.put("status",compliance.getStatus());
 
         // Additional Fields
         BusinessUnit businessUnit = compliance.getBusinessUnit();
@@ -389,6 +417,8 @@ public class ComplianceServiceImpl implements ComplianceService {
         Map<String, Object> milestoneStats = new HashMap<>();
         milestoneStats.put("totalMilestones", totalMilestones);
         milestoneStats.put("completedMilestones", completedMilestones);
+        milestoneStats.put("inProgressMilestones", inProgressMilestones);
+        milestoneStats.put("notStartedMilestones", notStartedMilestones);
         milestoneStats.put("progressPercentage", progressPercentage);
         response.put("milestoneStatistics", milestoneStats);
 
@@ -434,6 +464,10 @@ public class ComplianceServiceImpl implements ComplianceService {
             throw new NotFoundException("No compliances found for the given Business Unit ID");
         }
 
+        // Fetch statuses for filtering
+        Status completedStatus = statusRepository.findByName("COMPLETED")
+                .orElseThrow(() -> new NotFoundException("Status 'COMPLETED' not found"));
+
         // Step 5: Map Compliances to Response Format
         List<Map<String, Object>> complianceList = new ArrayList<>();
         for (Compliance compliance : compliances) {
@@ -454,8 +488,9 @@ public class ComplianceServiceImpl implements ComplianceService {
             List<MileStone> milestones = compliance.getMilestones();
             long totalMilestones = milestones.size();
             long completedMilestones = milestones.stream()
-                    .filter(m -> m.getStatus() == MileStone.Status.COMPLETED)
+                    .filter(m -> m.getStatus().getId().equals(completedStatus.getId()))
                     .count();
+
             double milestoneContribution = totalMilestones > 0 ? 100.0 / totalMilestones : 0.0;
             double progressPercentage = completedMilestones * milestoneContribution;
 
@@ -470,8 +505,6 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         return complianceList;
     }
-
-
 
 
 

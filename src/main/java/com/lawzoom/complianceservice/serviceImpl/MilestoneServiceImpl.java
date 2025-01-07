@@ -5,6 +5,7 @@ import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequestForFetch;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
+import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
@@ -41,6 +42,9 @@ public class MilestoneServiceImpl implements MilestoneService {
     @Autowired
     private SubscriberRepository subscriberRepository;
 
+    @Autowired
+    private StatusRepository statusRepository;
+
     @Override
     public ResponseEntity<Map<String, Object>> createMilestone(MilestoneRequest milestoneRequest) {
         // Step 1: Validate Compliance
@@ -73,7 +77,11 @@ public class MilestoneServiceImpl implements MilestoneService {
         Subscriber subscriber = subscriberRepository.findById(milestoneRequest.getSubscriberId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + milestoneRequest.getSubscriberId()));
 
-        // Step 7: Create Milestone
+        // Step 7: Fetch Default Status
+        Status defaultStatus = statusRepository.findByName("INITIATED")
+                .orElseThrow(() -> new NotFoundException("Status 'INITIATED' not found"));
+
+        // Step 8: Create Milestone
         MileStone milestone = new MileStone();
         milestone.setMileStoneName(milestoneRequest.getMileStoneName());
         milestone.setDescription(milestoneRequest.getDescription());
@@ -85,13 +93,13 @@ public class MilestoneServiceImpl implements MilestoneService {
         milestone.setAssigneeMail(milestoneRequest.getAssigneeMail());
         milestone.setIssuedDate(milestoneRequest.getIssuedDate());
         milestone.setCriticality(milestoneRequest.getCriticality());
-        milestone.setStatus(MileStone.Status.INITIATED); // Default status
+        milestone.setStatus(defaultStatus); // Set default status from Status table
         milestone.setCreatedAt(new Date());
         milestone.setUpdatedAt(new Date());
         milestone.setSubscriber(subscriber);
         milestone.setRemark(milestoneRequest.getRemark());
 
-        // Step 8: Add Documents if Provided
+        // Step 9: Add Documents if Provided
         if (milestoneRequest.getDocuments() != null && !milestoneRequest.getDocuments().isEmpty()) {
             List<Document> documents = new ArrayList<>();
             for (DocumentRequest documentRequest : milestoneRequest.getDocuments()) {
@@ -113,12 +121,12 @@ public class MilestoneServiceImpl implements MilestoneService {
         // Save Milestone
         MileStone savedMilestone = milestoneRepository.save(milestone);
 
-        // Step 9: Prepare Response
+        // Step 10: Prepare Response
         Map<String, Object> response = new HashMap<>();
         response.put("id", savedMilestone.getId());
         response.put("mileStoneName", savedMilestone.getMileStoneName());
         response.put("description", savedMilestone.getDescription());
-        response.put("status", savedMilestone.getStatus());
+        response.put("status", savedMilestone.getStatus().getName());
         response.put("createdAt", savedMilestone.getCreatedAt());
         response.put("updatedAt", savedMilestone.getUpdatedAt());
         response.put("isEnable", savedMilestone.isEnable());

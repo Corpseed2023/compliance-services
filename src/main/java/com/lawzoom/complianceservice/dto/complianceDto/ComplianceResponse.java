@@ -29,5 +29,6 @@ public class ComplianceResponse {
     private Long businessUnitId; // Associated business unit ID
     private Long createdBy; // User ID of the compliance creator
     private Long subscriberId; // Subscriber ID to whom the compliance is linked
+    private String statusName;
 
 }
