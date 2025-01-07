@@ -23,6 +23,7 @@ public class StatusController {
         return ResponseEntity.ok(createdStatus);
     }
 
+
     // API to fetch all Status entries
     @GetMapping("/all")
     public ResponseEntity<List<Status>> getAllStatuses() {

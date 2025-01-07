@@ -17,11 +17,12 @@ public class StatusServiceImpl implements StatusService {
 
     @Override
     public Status createStatus(String status) {
-
+        // Create a new Status object and set the name
         Status status1 = new Status();
-        status1.setName(status1.getName());
-        return statusRepository.save(status1);
+        status1.setName(status); // Set the name from the parameter
+        return statusRepository.save(status1); // Save the status to the database
     }
+
 
     @Override
     public List<Status> getAllStatuses() {
