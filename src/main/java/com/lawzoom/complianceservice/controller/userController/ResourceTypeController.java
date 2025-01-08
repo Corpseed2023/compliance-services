@@ -3,6 +3,7 @@ package com.lawzoom.complianceservice.controller.userController;
 
 import com.lawzoom.complianceservice.model.user.ResourceType;
 import com.lawzoom.complianceservice.service.ResourceTypeService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,8 @@ public class ResourceTypeController {
     private ResourceTypeService resourceTypeService;
 
     @PostMapping("/create")
+    @Transactional
+
     public ResponseEntity<ResourceType> createResourceType(@RequestParam String typeOfResourceName) {
         ResourceType createdResource = resourceTypeService.createResourceType(typeOfResourceName);
         return new ResponseEntity<>(createdResource, HttpStatus.CREATED);

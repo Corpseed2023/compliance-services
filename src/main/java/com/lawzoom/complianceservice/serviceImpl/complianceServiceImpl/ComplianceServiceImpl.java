@@ -18,6 +18,7 @@ import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.gstdetails.GstDetails;
 import com.lawzoom.complianceservice.model.region.City;
 import com.lawzoom.complianceservice.model.region.States;
+import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
@@ -30,6 +31,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -61,6 +63,8 @@ public class ComplianceServiceImpl implements ComplianceService {
     @Autowired
     private StatusRepository statusRepository;
 
+    @Autowired
+    private RenewalRepository renewalRepository;
 
     @Override
     public ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long businessUnitId, Long userId) {
@@ -103,15 +107,43 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setSubscriber(subscriber);
         compliance.setCreatedAt(new Date());
         compliance.setUpdatedAt(new Date());
-        compliance.setDeleted(false); // Explicitly set isDeleted
-        compliance.setDescription(complianceRequest.getDescription());
+        compliance.setDeleted(false);
         Status status = statusRepository.findById(complianceRequest.getStatusId())
                 .orElseThrow(() -> new NotFoundException("No status found."));
         compliance.setStatus(status);
 
         Compliance savedCompliance = complianceRepository.save(compliance);
 
-        // Step 5: Save Documents if provided
+        // Step 5: Calculate and Save Renewal Date
+        if (compliance.getIssueDate() != null) {
+            LocalDate renewalDate = null;
+
+            // Check if durationMonth or durationYear is provided
+            if (complianceRequest.getDurationYear() != null && complianceRequest.getDurationYear() > 0) {
+                renewalDate = compliance.getIssueDate().plusYears(complianceRequest.getDurationYear());
+            }
+            if (complianceRequest.getDurationMonth() != null && complianceRequest.getDurationMonth() > 0) {
+                renewalDate = (renewalDate != null ? renewalDate : compliance.getIssueDate())
+                        .plusMonths(complianceRequest.getDurationMonth());
+            }
+
+            if (renewalDate != null) {
+                Renewal renewal = new Renewal();
+                renewal.setCompliance(savedCompliance);
+                renewal.setNextRenewalDate(renewalDate);
+                renewal.setRenewalFrequency(
+                        complianceRequest.getDurationYear() != null ? complianceRequest.getDurationYear().intValue() * 12
+                                : complianceRequest.getDurationMonth().intValue());
+                renewal.setRenewalType(complianceRequest.getDurationYear() != null ? "Yearly" : "Monthly");
+                renewal.setRenewalNotes("Auto-generated renewal based on duration.");
+                renewal.setCreatedAt(LocalDate.now());
+                renewal.setUpdatedAt(LocalDate.now());
+
+                renewalRepository.save(renewal);
+            }
+        }
+
+        // Step 6: Save Documents if provided
         if (complianceRequest.getDocuments() != null && !complianceRequest.getDocuments().isEmpty()) {
             List<Document> documents = complianceRequest.getDocuments().stream().map(docRequest -> {
                 Document document = new Document();
@@ -130,7 +162,7 @@ public class ComplianceServiceImpl implements ComplianceService {
             documentRepository.saveAll(documents);
         }
 
-        // Step 6: Map Saved Entity to Response
+        // Step 7: Map Saved Entity to Response
         ComplianceResponse response = new ComplianceResponse();
         response.setId(savedCompliance.getId());
         response.setName(savedCompliance.getComplianceName());

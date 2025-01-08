@@ -3,6 +3,7 @@ package com.lawzoom.complianceservice.controller.userController;
 
 import com.lawzoom.complianceservice.model.user.Roles;
 import com.lawzoom.complianceservice.service.RolesService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,8 @@ public class RolesController {
     private RolesService rolesService;
 
     @PostMapping
+    @Transactional
+
     public ResponseEntity<Roles> createRole(@RequestParam String roleName) {
         Roles createdRole = rolesService.createRole(roleName);
         return ResponseEntity.status(201).body(createdRole);

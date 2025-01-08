@@ -71,6 +71,8 @@
 
 		private LocalDate completedDate;
 
+		private LocalDate issueDate;
+
 		@Comment(value = "0 : No Action ,1 : Apply Now, 2 : Already Done, 3 : Not Applicable")
 		private int workStatus;
 

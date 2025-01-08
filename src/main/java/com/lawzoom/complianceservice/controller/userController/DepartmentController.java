@@ -4,6 +4,7 @@ import com.lawzoom.complianceservice.dto.DepartmentDTO.DepartmentRequest;
 import com.lawzoom.complianceservice.dto.DepartmentDTO.DepartmentResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.service.DepartmentService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,8 @@ public class DepartmentController {
     private DepartmentService departmentService;
 
     @PostMapping("/create")
+    @Transactional
+
     public ResponseEntity<DepartmentResponse> createDepartment(@RequestParam String departmentName, @RequestParam Long userId) {
         try {
             DepartmentResponse department = departmentService.createDepartment(departmentName, userId);

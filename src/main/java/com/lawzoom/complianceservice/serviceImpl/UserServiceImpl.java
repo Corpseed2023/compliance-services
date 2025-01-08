@@ -36,6 +36,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
+
+
     @Override
     public UserResponse createUser(UserRequest userRequest) {
         // Validate email
@@ -62,17 +64,19 @@ public class UserServiceImpl implements UserService {
         user.setResourceType(resourceType);
         user.getRoles().add(role);
         user.setMobile(userRequest.getMobile());
+        user.setEnable(true);
 
-        // Conditional logic based on role
         User savedUser;
-        if ("Master".equalsIgnoreCase(role.getRoleName())) {
-            // For Master: No subscription or subscriber required
+
+        if ("MASTER".equalsIgnoreCase(role.getRoleName())) {
+            // If the role is MASTER, no subscription or reporting manager needed
             savedUser = userRepository.save(user);
         } else {
-            // For other roles: Subscription and Subscriber required
+            // For other roles, Subscription plan is required
             Subscription subscription = subscriptionRepository.findById(userRequest.getSubscriptionId())
                     .orElseThrow(() -> new RuntimeException("Subscription not found with ID: " + userRequest.getSubscriptionId()));
 
+            // Save user temporarily
             User tempUser = userRepository.save(user);
 
             Subscriber subscriber = new Subscriber();
@@ -80,9 +84,19 @@ public class UserServiceImpl implements UserService {
             subscriber.setSubscription(subscription);
             subscriber.setActive(true);
 
+            // Save Subscriber
             Subscriber savedSubscriber = subscriberRepository.save(subscriber);
 
-            // Link User with Subscriber
+            // For SUPER_ADMIN, the user is their own reporting manager
+            if ("SUPER_ADMIN".equalsIgnoreCase(role.getRoleName())) {
+                tempUser.setReportingManager(tempUser);
+            } else {
+                // For other roles, validate and set reporting manager
+                User reportingManager = userRepository.findById(userRequest.getReportingManagerId())
+                        .orElseThrow(() -> new RuntimeException("Reporting Manager not found with ID: " + userRequest.getReportingManagerId()));
+                tempUser.setReportingManager(reportingManager);
+            }
+
             tempUser.setSubscriber(savedSubscriber);
             savedUser = userRepository.save(tempUser);
         }
@@ -97,7 +111,6 @@ public class UserServiceImpl implements UserService {
         response.setCreatedAt(savedUser.getCreatedAt());
         response.setUpdatedAt(savedUser.getUpdatedAt());
         response.setMobile(savedUser.getMobile());
-
 
 
         return response;
@@ -115,6 +128,7 @@ public class UserServiceImpl implements UserService {
         newUser.setUserName(memberRequest.getName());
         newUser.setEmail(memberRequest.getEmail());
         newUser.setEnable(memberRequest.isEnable());
+        newUser.setEnable(true);
 
         // Step 3: Validate and set required entities
         newUser.setResourceType(resourceTypeRepository.findById(memberRequest.getTypeOfResource())
