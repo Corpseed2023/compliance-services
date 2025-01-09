@@ -1,10 +1,16 @@
 package com.lawzoom.complianceservice.dto.complianceDto;
 
-import lombok.Data;
+import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceMilestoneResponse;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Date;
-@Data
+import java.util.List;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ComplianceResponse {
 
     private Long id; // Unique ID of the compliance
@@ -30,4 +36,7 @@ public class ComplianceResponse {
     private Long subscriberId; // Subscriber ID to whom the compliance is linked
     private String statusName;
 
+
+    private double progressPercentage; // Progress percentage of compliance
+    private List<ComplianceMilestoneResponse> milestones; // List of milestones for compliance
 }

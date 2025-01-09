@@ -7,6 +7,7 @@ import com.lawzoom.complianceservice.dto.DocumentRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.CompanyComplianceDTO;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
+import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceMilestoneResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
@@ -27,7 +28,6 @@ import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
 import com.lawzoom.complianceservice.service.complianceService.ComplianceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -264,33 +264,27 @@ public class ComplianceServiceImpl implements ComplianceService {
 
     @Override
     public List<ComplianceResponse> fetchCompliancesByBusinessUnit(Long businessUnitId, Long userId, Long subscriberId) {
-
         // Step 1: Validate User
         User user = userRepository.findActiveUserById(userId);
         if (user == null) {
             throw new IllegalArgumentException("Error: User not found!");
         }
 
-        // Step 2: Validate Subscriber
-        Subscriber subscriber = subscriberRepository.findById(subscriberId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + subscriberId));
-
-        // Step 3: Validate BusinessUnit
+        // Step 2: Validate Business Unit
         BusinessUnit businessUnit = businessUnitRepository.findById(businessUnitId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid businessUnitId: " + businessUnitId));
 
-        if (!businessUnit.getGstDetails().getCompany().getSubscriber().getId().equals(subscriberId)) {
-            throw new IllegalArgumentException("Business Unit does not belong to the provided Subscriber.");
-        }
-
-        // Step 4: Fetch Compliances
+        // Step 3: Fetch Compliances
         List<Compliance> compliances = complianceRepository.findByBusinessUnitId(businessUnitId);
 
         if (compliances.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No compliances found for the given Business Unit ID");
         }
 
-        // Step 5: Map Compliances to Responses
+        // Fetch 'Completed' status
+        Status completedStatus = statusRepository.findByName("Completed").orElse(null);
+
+        // Step 4: Map Compliances to Responses
         List<ComplianceResponse> responses = new ArrayList<>();
         for (Compliance compliance : compliances) {
             ComplianceResponse response = new ComplianceResponse();
@@ -312,14 +306,42 @@ public class ComplianceServiceImpl implements ComplianceService {
             response.setSubscriberId(compliance.getSubscriber().getId());
             response.setDurationMonth(compliance.getDurationMonth());
             response.setDurationYear(compliance.getDurationYear());
-            response.setCreatedBy(userId); // Assuming the user who requested this is the creator
+            response.setCreatedBy(userId);
+
+            // Step 5: Calculate Progress and Milestones
+            List<MileStone> milestones = compliance.getMilestones();
+            long totalMilestones = milestones.size();
+            long completedMilestones = 0;
+
+            List<ComplianceMilestoneResponse> milestoneResponses = new ArrayList<>();
+            for (MileStone milestone : milestones) {
+                // Check if the milestone is completed
+                if (completedStatus != null && milestone.getStatus() != null
+                        && milestone.getStatus().getId().equals(completedStatus.getId())) {
+                    completedMilestones++;
+                }
+
+                // Map milestone details
+                ComplianceMilestoneResponse milestoneResponse = new ComplianceMilestoneResponse();
+                milestoneResponse.setId(milestone.getId());
+                milestoneResponse.setName(milestone.getMileStoneName());
+                milestoneResponse.setStatus(milestone.getStatus() != null ? milestone.getStatus().getName() : "Unknown");
+                milestoneResponses.add(milestoneResponse);
+            }
+
+            // Calculate progress percentage
+            double milestoneContribution = totalMilestones > 0 ? 100.0 / totalMilestones : 0.0;
+            double progressPercentage = completedMilestones * milestoneContribution;
+
+            // Add milestones and progress to response
+            response.setMilestones(milestoneResponses);
+            response.setProgressPercentage(progressPercentage);
 
             responses.add(response);
         }
 
         return responses;
     }
-
 
 
 
@@ -443,83 +465,6 @@ public class ComplianceServiceImpl implements ComplianceService {
         return response;
     }
 
-
-
-    @Override
-    public List<Map<String, Object>> fetchComplianceList(Long userId, Long subscriberId, Long businessUnitId) {
-        // Step 1: Validate User
-        User user = userRepository.findActiveUserById(userId);
-        if (user == null) {
-            throw new IllegalArgumentException("Error: User not found!");
-        }
-
-        // Step 2: Validate Subscriber
-        Subscriber subscriber = subscriberRepository.findById(subscriberId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + subscriberId));
-
-        // Step 3: Validate Business Unit
-        BusinessUnit businessUnit = businessUnitRepository.findById(businessUnitId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid businessUnitId: " + businessUnitId));
-
-        if (!businessUnit.getGstDetails().getCompany().getSubscriber().getId().equals(subscriberId)) {
-            throw new IllegalArgumentException("Business Unit does not belong to the provided Subscriber.");
-        }
-
-        // Step 4: Fetch Compliances
-        List<Compliance> compliances = complianceRepository.findByBusinessUnitId(businessUnitId);
-
-        if (compliances.isEmpty()) {
-            throw new NotFoundException("No compliances found for the given Business Unit ID");
-        }
-
-        // Fetch statuses for filtering
-        Status completedStatus = statusRepository.findByName("Completed").orElse(null);
-
-        // Step 5: Map Compliances to Response Format
-        List<Map<String, Object>> complianceList = new ArrayList<>();
-        for (Compliance compliance : compliances) {
-            Map<String, Object> complianceMap = new HashMap<>();
-            complianceMap.put("id", compliance.getId());
-            complianceMap.put("name", compliance.getComplianceName());
-            complianceMap.put("status", compliance.getStatus().getName());
-
-            // Step 6: Calculate Milestone Statistics and Progress
-            List<MileStone> milestones = compliance.getMilestones();
-            long totalMilestones = milestones.size();
-            long completedMilestones = 0L;
-
-            List<Map<String, Object>> milestoneDetails = new ArrayList<>();
-            for (MileStone milestone : milestones) {
-                if (completedStatus != null && milestone.getStatus() != null
-                        && milestone.getStatus().getId().equals(completedStatus.getId())) {
-                    completedMilestones++;
-                }
-
-                // Add milestone details to the list
-                Map<String, Object> milestoneMap = new HashMap<>();
-                milestoneMap.put("id", milestone.getId());
-                milestoneMap.put("name", milestone.getMileStoneName());
-                milestoneMap.put("status", milestone.getStatus().getName());
-                milestoneDetails.add(milestoneMap);
-            }
-
-            double milestoneContribution = totalMilestones > 0 ? 100.0 / totalMilestones : 0.0;
-            double progressPercentage = completedMilestones * milestoneContribution;
-
-            Map<String, Object> milestoneStats = new HashMap<>();
-            milestoneStats.put("totalMilestones", totalMilestones);
-            milestoneStats.put("completedMilestones", completedMilestones);
-            milestoneStats.put("progressPercentage", progressPercentage);
-
-            // Add milestones and statistics to compliance
-            complianceMap.put("milestones", milestoneDetails);
-            complianceMap.put("progress", milestoneStats);
-
-            complianceList.add(complianceMap);
-        }
-
-        return complianceList;
-    }
 
 
 

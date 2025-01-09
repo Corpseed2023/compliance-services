@@ -23,5 +23,4 @@ public interface ComplianceService {
 
     Map<String, Object> fetchComplianceById(Long complianceId);
 
-    List<Map<String, Object>> fetchComplianceList(Long userId, Long subscriberId, Long businessUnitId);
 }
