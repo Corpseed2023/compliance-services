@@ -56,6 +56,7 @@ public class MileStone {
 	@JoinColumn(name = "assigned_to")
 	private User assignedTo;
 
+
 	@ManyToOne
 	@JoinColumn(name = "assigned_by")
 	private User assignedBy;

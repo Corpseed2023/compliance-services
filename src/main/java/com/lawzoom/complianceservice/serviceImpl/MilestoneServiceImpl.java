@@ -366,5 +366,32 @@ public class MilestoneServiceImpl implements MilestoneService {
     }
 
 
+    @Override
+    public MilestoneResponse updateMilestoneAssignment(Long milestoneId, Long assignedToId, Long taskReporterId) {
+        // Validate Milestone
+        MileStone milestone = milestoneRepository.findById(milestoneId)
+                .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
+
+        // Validate Assigned To User
+        User assignedTo = userRepository.findById(assignedToId)
+                .orElseThrow(() -> new NotFoundException("Assigned To user not found with ID: " + assignedToId));
+
+        // Validate Task Reporter
+        User taskReporter = userRepository.findById(taskReporterId)
+                .orElseThrow(() -> new NotFoundException("Task Reporter not found with ID: " + taskReporterId));
+
+        // Update Fields
+        milestone.setAssignedTo(assignedTo);
+        milestone.setTaskReporter(taskReporter);
+        milestone.setUpdatedAt(new Date());
+
+        // Save Updated Milestone
+        MileStone updatedMilestone = milestoneRepository.save(milestone);
+
+        // Map to Response DTO
+        return mapToMilestoneResponseWithDetails(updatedMilestone);
+    }
+
+
 }
 

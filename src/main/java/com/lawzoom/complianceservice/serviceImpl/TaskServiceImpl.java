@@ -76,7 +76,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskResponse> fetchTasks(Long milestoneId) {
+    public List<TaskResponse>  fetchTasks(Long milestoneId) {
         // Validate Milestone
         MileStone milestone = milestoneRepository.findById(milestoneId)
                 .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
@@ -105,5 +105,34 @@ public class TaskServiceImpl implements TaskService {
         response.setAssigneeUserName(task.getAssigneeUserId().getUserName());
         return response;
     }
+
+
+    @Override
+    public TaskResponse updateTaskAssignment(Long taskId, Long assigneeUserId, Long reporterUserId) {
+        // Validate Task
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new NotFoundException("Task not found with ID: " + taskId));
+
+        // Validate Assignee User
+        User assignee = userRepository.findById(assigneeUserId)
+                .orElseThrow(() -> new NotFoundException("Assignee not found with ID: " + assigneeUserId));
+
+        // Validate Reporter User
+        User reporter = userRepository.findById(reporterUserId)
+                .orElseThrow(() -> new NotFoundException("Reporter not found with ID: " + reporterUserId));
+
+        // Update Task with new Assignee and Reporter
+        task.setAssigneeUserId(assignee);
+        task.setReporterUserId(reporter);
+        task.setUpdatedAt(new Date());
+
+        // Save Updated Task
+        Task updatedTask = taskRepository.save(task);
+
+        // Map to Response DTO
+        return mapToTaskResponse(updatedTask);
+    }
+
+
 }
 
