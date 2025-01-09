@@ -15,7 +15,7 @@ import java.util.Date;
 public class TaskRequest {
     private String name;
     private String description;
-    private String status;
+    private Long statusId;
     private Date startDate;
     private Date dueDate;
     private Date completedDate;

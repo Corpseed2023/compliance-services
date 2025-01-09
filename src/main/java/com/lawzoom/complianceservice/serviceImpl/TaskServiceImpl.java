@@ -4,10 +4,12 @@ package com.lawzoom.complianceservice.serviceImpl;
 import com.lawzoom.complianceservice.dto.TaskRequest;
 import com.lawzoom.complianceservice.dto.TaskResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
+import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.mileStoneTask.Task;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.MilestoneRepository;
+import com.lawzoom.complianceservice.repository.StatusRepository;
 import com.lawzoom.complianceservice.repository.TaskRepository;
 import com.lawzoom.complianceservice.repository.UserRepository;
 import com.lawzoom.complianceservice.service.TaskService;
@@ -30,6 +32,8 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private StatusRepository statusRepository;
     @Override
     public TaskResponse createTask(TaskRequest taskRequest) {
         // Validate Milestone
@@ -44,6 +48,9 @@ public class TaskServiceImpl implements TaskService {
         User assignee = userRepository.findById(taskRequest.getAssigneeUserId())
                 .orElseThrow(() -> new NotFoundException("Assignee not found with ID: " + taskRequest.getAssigneeUserId()));
 
+      Status status = statusRepository.findById(taskRequest.getStatusId())
+              .orElseThrow(() -> new NotFoundException("Status not found with ID: " + taskRequest.getStatusId()));
+
         // Create Task Entity
         Task task = new Task();
         task.setName(taskRequest.getName());
@@ -52,6 +59,7 @@ public class TaskServiceImpl implements TaskService {
 //        task.setTimelineType(taskRequest.getTimelineType());
         task.setCreatedAt(new Date());
         task.setUpdatedAt(new Date());
+        task.setStatus(status);
         task.setStartDate(taskRequest.getStartDate());
         task.setDueDate(taskRequest.getDueDate());
         task.setCompletedDate(taskRequest.getCompletedDate());
