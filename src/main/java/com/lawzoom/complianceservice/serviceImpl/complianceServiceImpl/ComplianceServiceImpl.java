@@ -474,8 +474,6 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         // Fetch statuses for filtering
         Status completedStatus = statusRepository.findByName("Completed").orElse(null);
-        Status inProgressStatus = statusRepository.findByName("Progress").orElse(null);
-        Status notStartedStatus = statusRepository.findByName("Initiated").orElse(null);
 
         // Step 5: Map Compliances to Response Format
         List<Map<String, Object>> complianceList = new ArrayList<>();
@@ -483,40 +481,26 @@ public class ComplianceServiceImpl implements ComplianceService {
             Map<String, Object> complianceMap = new HashMap<>();
             complianceMap.put("id", compliance.getId());
             complianceMap.put("name", compliance.getComplianceName());
-            complianceMap.put("issueAuthority", compliance.getIssueAuthority());
-            complianceMap.put("certificateType", compliance.getCertificateType());
-            complianceMap.put("approvalState", compliance.getApprovalState());
-            complianceMap.put("applicableZone", compliance.getApplicableZone());
-            complianceMap.put("startDate", compliance.getStartDate());
-            complianceMap.put("dueDate", compliance.getDueDate());
-            complianceMap.put("completedDate", compliance.getCompletedDate());
-            complianceMap.put("workStatus", compliance.getWorkStatus());
-            complianceMap.put("priority", compliance.getPriority());
-            complianceMap.put("statusName", compliance.getStatus().getName());
+            complianceMap.put("status", compliance.getStatus().getName());
 
-            // Step 6: Calculate Milestone Statistics
+            // Step 6: Calculate Milestone Statistics and Progress
             List<MileStone> milestones = compliance.getMilestones();
             long totalMilestones = milestones.size();
             long completedMilestones = 0L;
-            long inProgressMilestones = 0L;
-            long notStartedMilestones = 0L;
 
-            if (completedStatus != null) {
-                completedMilestones = milestones.stream()
-                        .filter(m -> m.getStatus() != null && m.getStatus().getId().equals(completedStatus.getId()))
-                        .count();
-            }
+            List<Map<String, Object>> milestoneDetails = new ArrayList<>();
+            for (MileStone milestone : milestones) {
+                if (completedStatus != null && milestone.getStatus() != null
+                        && milestone.getStatus().getId().equals(completedStatus.getId())) {
+                    completedMilestones++;
+                }
 
-            if (inProgressStatus != null) {
-                inProgressMilestones = milestones.stream()
-                        .filter(m -> m.getStatus() != null && m.getStatus().getId().equals(inProgressStatus.getId()))
-                        .count();
-            }
-
-            if (notStartedStatus != null) {
-                notStartedMilestones = milestones.stream()
-                        .filter(m -> m.getStatus() != null && m.getStatus().getId().equals(notStartedStatus.getId()))
-                        .count();
+                // Add milestone details to the list
+                Map<String, Object> milestoneMap = new HashMap<>();
+                milestoneMap.put("id", milestone.getId());
+                milestoneMap.put("name", milestone.getMileStoneName());
+                milestoneMap.put("status", milestone.getStatus().getName());
+                milestoneDetails.add(milestoneMap);
             }
 
             double milestoneContribution = totalMilestones > 0 ? 100.0 / totalMilestones : 0.0;
@@ -525,11 +509,11 @@ public class ComplianceServiceImpl implements ComplianceService {
             Map<String, Object> milestoneStats = new HashMap<>();
             milestoneStats.put("totalMilestones", totalMilestones);
             milestoneStats.put("completedMilestones", completedMilestones);
-            milestoneStats.put("inProgressMilestones", inProgressMilestones);
-            milestoneStats.put("notStartedMilestones", notStartedMilestones);
             milestoneStats.put("progressPercentage", progressPercentage);
 
-            complianceMap.put("milestoneStatistics", milestoneStats);
+            // Add milestones and statistics to compliance
+            complianceMap.put("milestones", milestoneDetails);
+            complianceMap.put("progress", milestoneStats);
 
             complianceList.add(complianceMap);
         }

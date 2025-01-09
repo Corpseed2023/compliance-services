@@ -99,6 +99,7 @@ public class GstDetailsServiceImpl implements GstDetailsService {
         gstDetails.setCompany(company);
         gstDetails.setCountry(country);
         gstDetails.setState(state);
+        gstDetails.setEnable(true);
         gstDetails.setGstRegistrationDate(gstDetailsRequest.getGstRegistrationDate());
         gstDetails.setCreatedAt(new Date());
         gstDetails.setUpdatedAt(new Date());
