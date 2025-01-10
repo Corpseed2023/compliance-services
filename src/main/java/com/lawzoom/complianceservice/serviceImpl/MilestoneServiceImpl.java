@@ -391,6 +391,26 @@ public class MilestoneServiceImpl implements MilestoneService {
         // Map to Response DTO
         return mapToMilestoneResponseWithDetails(updatedMilestone);
     }
+    @Override
+    public MilestoneResponse updateMilestoneStatus(Long milestoneId, Long statusId) {
+        // Validate Milestone
+        MileStone milestone = milestoneRepository.findById(milestoneId)
+                .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
+
+        // Validate Status
+        Status status = statusRepository.findById(statusId)
+                .orElseThrow(() -> new NotFoundException("Status not found with ID: " + statusId));
+
+        // Update Milestone Status
+        milestone.setStatus(status);
+        milestone.setUpdatedAt(new Date());
+
+        // Save Updated Milestone
+        MileStone updatedMilestone = milestoneRepository.save(milestone);
+
+        // Map Updated Milestone to Response
+        return mapToMilestoneResponseWithDetails(updatedMilestone);
+    }
 
 
 }

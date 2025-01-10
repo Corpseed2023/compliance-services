@@ -61,6 +61,15 @@ public class MilestoneController {
     }
 
 
+    @PutMapping("/update-status")
+    public ResponseEntity<MilestoneResponse> updateMilestoneStatus(
+            @RequestParam Long milestoneId,
+            @RequestParam Long statusId) {
+        MilestoneResponse updatedMilestone = milestoneService.updateMilestoneStatus(milestoneId, statusId);
+        return ResponseEntity.ok(updatedMilestone);
+    }
+
+
 
 
 
