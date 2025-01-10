@@ -243,6 +243,8 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.setRemark(milestone.getRemark());
         response.setBusinessUnitId(milestone.getBusinessUnit().getId());
         response.setSubscriberId(milestone.getSubscriber().getId());
+        response.setStatusId(milestone.getStatus().getId());
+        response.setStatus(milestone.getStatus().getName());
 
         // Map Reminder details
         List<MilestoneResponse.ReminderDetails> reminderDetails = milestone.getReminders().stream()

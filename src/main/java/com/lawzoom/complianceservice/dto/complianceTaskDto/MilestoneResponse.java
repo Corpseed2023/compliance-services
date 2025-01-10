@@ -11,6 +11,7 @@ public class MilestoneResponse {
     private Long id;
     private String mileStoneName;
     private String description;
+    private Long statusId;
     private String status;
     private Date createdAt;
     private Date updatedAt;
