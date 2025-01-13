@@ -65,12 +65,6 @@
 		@Comment(value = "0 : Not Deleted, 1 : Deleted")
 		private boolean isDeleted = false;
 
-		private LocalDate startDate;
-
-		private LocalDate dueDate;
-
-		private LocalDate completedDate;
-
 		private LocalDate issueDate;
 
 		@Comment(value = "0 : No Action ,1 : Apply Now, 2 : Already Done, 3 : Not Applicable")

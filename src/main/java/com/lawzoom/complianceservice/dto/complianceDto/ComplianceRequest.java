@@ -27,12 +27,6 @@ public class ComplianceRequest {
 
     private String applicableZone;
 
-    private LocalDate startDate;
-
-    private LocalDate dueDate;
-
-    private LocalDate completedDate;
-
     private int workStatus;
 
     private int priority;
@@ -47,4 +41,9 @@ public class ComplianceRequest {
     private List<DocumentRequest> documents;
 
     private Long statusId;
+
+    private LocalDate issueDate;
+
+    private LocalDate renewalDate;
+
 }

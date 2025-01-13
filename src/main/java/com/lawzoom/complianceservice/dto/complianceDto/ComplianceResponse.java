@@ -1,6 +1,8 @@
 package com.lawzoom.complianceservice.dto.complianceDto;
 
+import com.lawzoom.complianceservice.dto.RenewalResponse;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceMilestoneResponse;
+import com.lawzoom.complianceservice.dto.document.DocumentResponse;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -36,7 +38,10 @@ public class ComplianceResponse {
     private Long subscriberId; // Subscriber ID to whom the compliance is linked
     private String statusName;
 
-
     private double progressPercentage; // Progress percentage of compliance
     private List<ComplianceMilestoneResponse> milestones; // List of milestones for compliance
+
+    // New Fields
+    private List<DocumentResponse> documents; // List of document details
+    private RenewalResponse renewal; // Renewal details
 }

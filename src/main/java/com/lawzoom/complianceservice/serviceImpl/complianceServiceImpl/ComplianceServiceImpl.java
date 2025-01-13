@@ -4,10 +4,12 @@ package com.lawzoom.complianceservice.serviceImpl.complianceServiceImpl;
 
 
 import com.lawzoom.complianceservice.dto.DocumentRequest;
+import com.lawzoom.complianceservice.dto.RenewalResponse;
 import com.lawzoom.complianceservice.dto.complianceDto.CompanyComplianceDTO;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceMilestoneResponse;
+import com.lawzoom.complianceservice.dto.document.DocumentResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
@@ -93,9 +95,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setDescription(complianceRequest.getDescription());
         compliance.setApprovalState(complianceRequest.getApprovalState());
         compliance.setApplicableZone(complianceRequest.getApplicableZone());
-        compliance.setStartDate(complianceRequest.getStartDate());
-        compliance.setDueDate(complianceRequest.getDueDate());
-        compliance.setCompletedDate(complianceRequest.getCompletedDate());
+
         compliance.setWorkStatus(complianceRequest.getWorkStatus());
         compliance.setPriority(complianceRequest.getPriority());
         compliance.setCertificateType(complianceRequest.getCertificateType());
@@ -108,40 +108,22 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setCreatedAt(new Date());
         compliance.setUpdatedAt(new Date());
         compliance.setDeleted(false);
+        compliance.setIssueDate(complianceRequest.getIssueDate());
         Status status = statusRepository.findById(complianceRequest.getStatusId())
                 .orElseThrow(() -> new NotFoundException("No status found."));
         compliance.setStatus(status);
 
         Compliance savedCompliance = complianceRepository.save(compliance);
 
-        // Step 5: Calculate and Save Renewal Date
-        if (compliance.getIssueDate() != null) {
-            LocalDate renewalDate = null;
 
-            // Check if durationMonth or durationYear is provided
-            if (complianceRequest.getDurationYear() != null && complianceRequest.getDurationYear() > 0) {
-                renewalDate = compliance.getIssueDate().plusYears(complianceRequest.getDurationYear());
-            }
-            if (complianceRequest.getDurationMonth() != null && complianceRequest.getDurationMonth() > 0) {
-                renewalDate = (renewalDate != null ? renewalDate : compliance.getIssueDate())
-                        .plusMonths(complianceRequest.getDurationMonth());
-            }
-
-            if (renewalDate != null) {
                 Renewal renewal = new Renewal();
                 renewal.setCompliance(savedCompliance);
-                renewal.setNextRenewalDate(renewalDate);
-                renewal.setRenewalFrequency(
-                        complianceRequest.getDurationYear() != null ? complianceRequest.getDurationYear().intValue() * 12
-                                : complianceRequest.getDurationMonth().intValue());
-                renewal.setRenewalType(complianceRequest.getDurationYear() != null ? "Yearly" : "Monthly");
-                renewal.setRenewalNotes("Auto-generated renewal based on duration.");
                 renewal.setCreatedAt(LocalDate.now());
                 renewal.setUpdatedAt(LocalDate.now());
+                renewal.setNextRenewalDate(complianceRequest.getRenewalDate());
 
                 renewalRepository.save(renewal);
-            }
-        }
+
 
         // Step 6: Save Documents if provided
         if (complianceRequest.getDocuments() != null && !complianceRequest.getDocuments().isEmpty()) {
@@ -172,9 +154,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.setCreatedAt(savedCompliance.getCreatedAt());
         response.setUpdatedAt(savedCompliance.getUpdatedAt());
         response.setEnable(savedCompliance.isEnable());
-        response.setStartDate(savedCompliance.getStartDate());
-        response.setDueDate(savedCompliance.getDueDate());
-        response.setCompletedDate(savedCompliance.getCompletedDate());
+
         response.setWorkStatus(savedCompliance.getWorkStatus());
         response.setPriority(savedCompliance.getPriority());
         response.setBusinessUnitId(savedCompliance.getBusinessUnit().getId());
@@ -205,9 +185,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setComplianceName(complianceRequest.getName());
         compliance.setApprovalState(complianceRequest.getApprovalState());
         compliance.setApplicableZone(complianceRequest.getApplicableZone());
-        compliance.setStartDate(complianceRequest.getStartDate());
-        compliance.setDueDate(complianceRequest.getDueDate());
-        compliance.setCompletedDate(complianceRequest.getCompletedDate());
+
         compliance.setWorkStatus(complianceRequest.getWorkStatus());
         compliance.setPriority(complianceRequest.getPriority());
         compliance.setUpdatedAt(new Date()); // Update the updatedAt timestamp
@@ -252,9 +230,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.setCreatedAt(compliance.getCreatedAt());
         response.setUpdatedAt(compliance.getUpdatedAt());
         response.setEnable(compliance.isEnable());
-        response.setStartDate(compliance.getStartDate());
-        response.setDueDate(compliance.getDueDate());
-        response.setCompletedDate(compliance.getCompletedDate());
+
         response.setWorkStatus(compliance.getWorkStatus());
         response.setPriority(compliance.getPriority());
         response.setBusinessUnitId(compliance.getBusinessUnit().getId());
@@ -281,9 +257,6 @@ public class ComplianceServiceImpl implements ComplianceService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No compliances found for the given Business Unit ID");
         }
 
-        // Fetch 'Completed' status
-        Status completedStatus = statusRepository.findByName("Completed").orElse(null);
-
         // Step 4: Map Compliances to Responses
         List<ComplianceResponse> responses = new ArrayList<>();
         for (Compliance compliance : compliances) {
@@ -297,52 +270,44 @@ public class ComplianceServiceImpl implements ComplianceService {
             response.setCreatedAt(compliance.getCreatedAt());
             response.setUpdatedAt(compliance.getUpdatedAt());
             response.setEnable(compliance.isEnable());
-            response.setStartDate(compliance.getStartDate());
-            response.setDueDate(compliance.getDueDate());
-            response.setCompletedDate(compliance.getCompletedDate());
             response.setWorkStatus(compliance.getWorkStatus());
             response.setPriority(compliance.getPriority());
             response.setBusinessUnitId(compliance.getBusinessUnit().getId());
             response.setSubscriberId(compliance.getSubscriber().getId());
-            response.setDurationMonth(compliance.getDurationMonth());
-            response.setDurationYear(compliance.getDurationYear());
-            response.setCreatedBy(userId);
 
-            // Step 5: Calculate Progress and Milestones
-            List<MileStone> milestones = compliance.getMilestones();
-            long totalMilestones = milestones.size();
-            long completedMilestones = 0;
-
-            List<ComplianceMilestoneResponse> milestoneResponses = new ArrayList<>();
-            for (MileStone milestone : milestones) {
-                // Check if the milestone is completed
-                if (completedStatus != null && milestone.getStatus() != null
-                        && milestone.getStatus().getId().equals(completedStatus.getId())) {
-                    completedMilestones++;
-                }
-
-                // Map milestone details
-                ComplianceMilestoneResponse milestoneResponse = new ComplianceMilestoneResponse();
-                milestoneResponse.setId(milestone.getId());
-                milestoneResponse.setName(milestone.getMileStoneName());
-                milestoneResponse.setStatus(milestone.getStatus() != null ? milestone.getStatus().getName() : "Unknown");
-                milestoneResponses.add(milestoneResponse);
+            // Fetch Document Details
+            List<DocumentResponse> documentResponses = new ArrayList<>();
+            for (Document document : compliance.getDocuments()) {
+                DocumentResponse documentResponse = new DocumentResponse();
+                documentResponse.setId(document.getId());
+                documentResponse.setDocumentName(document.getDocumentName());
+                documentResponse.setFileName(document.getFileName());
+                documentResponse.setIssueDate(document.getIssueDate());
+                documentResponse.setReferenceNumber(document.getReferenceNumber());
+                documentResponse.setRemarks(document.getRemarks());
+                documentResponse.setUploadDate(document.getUploadDate());
+                documentResponse.setEnable(document.isEnable());
+                documentResponses.add(documentResponse);
             }
+            response.setDocuments(documentResponses);
 
-            // Calculate progress percentage
-            double milestoneContribution = totalMilestones > 0 ? 100.0 / totalMilestones : 0.0;
-            double progressPercentage = completedMilestones * milestoneContribution;
-
-            // Add milestones and progress to response
-            response.setMilestones(milestoneResponses);
-            response.setProgressPercentage(progressPercentage);
+            // Fetch Renewal Details
+            Renewal renewal = compliance.getRenewal();
+            if (renewal != null) {
+                RenewalResponse renewalResponse = new RenewalResponse();
+                renewalResponse.setId(renewal.getId());
+                renewalResponse.setNextRenewalDate(renewal.getNextRenewalDate());
+                renewalResponse.setRenewalFrequency(renewal.getRenewalFrequency());
+                renewalResponse.setRenewalType(renewal.getRenewalType());
+                renewalResponse.setRenewalNotes(renewal.getRenewalNotes());
+                response.setRenewal(renewalResponse);
+            }
 
             responses.add(response);
         }
 
         return responses;
     }
-
 
 
     @Override
@@ -420,9 +385,6 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.put("createdAt", compliance.getCreatedAt());
         response.put("updatedAt", compliance.getUpdatedAt());
         response.put("isEnable", compliance.isEnable());
-        response.put("startDate", compliance.getStartDate());
-        response.put("dueDate", compliance.getDueDate());
-        response.put("completedDate", compliance.getCompletedDate());
         response.put("workStatus", compliance.getWorkStatus());
         response.put("priority", compliance.getPriority());
         response.put("businessUnitId", compliance.getBusinessUnit().getId());
