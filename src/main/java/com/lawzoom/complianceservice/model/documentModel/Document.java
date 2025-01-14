@@ -10,7 +10,6 @@ import lombok.*;
 import org.hibernate.annotations.Comment;
 
 import java.util.Date;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
