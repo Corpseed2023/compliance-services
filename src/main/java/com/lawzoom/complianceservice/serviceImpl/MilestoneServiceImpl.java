@@ -5,6 +5,7 @@ import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequestForFetch;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
+import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
@@ -41,6 +42,9 @@ public class MilestoneServiceImpl implements MilestoneService {
     @Autowired
     private SubscriberRepository subscriberRepository;
 
+    @Autowired
+    private StatusRepository statusRepository;
+
     @Override
     public ResponseEntity<Map<String, Object>> createMilestone(MilestoneRequest milestoneRequest) {
         // Step 1: Validate Compliance
@@ -73,7 +77,11 @@ public class MilestoneServiceImpl implements MilestoneService {
         Subscriber subscriber = subscriberRepository.findById(milestoneRequest.getSubscriberId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + milestoneRequest.getSubscriberId()));
 
-        // Step 7: Create Milestone
+        // Step 7: Fetch Default Status
+        Status defaultStatus = statusRepository.findByName("Initiated")
+                .orElseThrow(() -> new NotFoundException("Status 'Initiated' not found"));
+
+        // Step 8: Create Milestone
         MileStone milestone = new MileStone();
         milestone.setMileStoneName(milestoneRequest.getMileStoneName());
         milestone.setDescription(milestoneRequest.getDescription());
@@ -85,13 +93,13 @@ public class MilestoneServiceImpl implements MilestoneService {
         milestone.setAssigneeMail(milestoneRequest.getAssigneeMail());
         milestone.setIssuedDate(milestoneRequest.getIssuedDate());
         milestone.setCriticality(milestoneRequest.getCriticality());
-        milestone.setStatus(milestoneRequest.getStatus() != null ? milestoneRequest.getStatus() : "Pending");
+        milestone.setStatus(defaultStatus); // Set default status from Status table
         milestone.setCreatedAt(new Date());
         milestone.setUpdatedAt(new Date());
         milestone.setSubscriber(subscriber);
         milestone.setRemark(milestoneRequest.getRemark());
 
-        // Step 8: Add Documents if Provided
+        // Step 9: Add Documents if Provided
         if (milestoneRequest.getDocuments() != null && !milestoneRequest.getDocuments().isEmpty()) {
             List<Document> documents = new ArrayList<>();
             for (DocumentRequest documentRequest : milestoneRequest.getDocuments()) {
@@ -113,19 +121,30 @@ public class MilestoneServiceImpl implements MilestoneService {
         // Save Milestone
         MileStone savedMilestone = milestoneRepository.save(milestone);
 
-        // Step 9: Prepare Response
+        // Step 10: Prepare Response
         Map<String, Object> response = new HashMap<>();
         response.put("id", savedMilestone.getId());
         response.put("mileStoneName", savedMilestone.getMileStoneName());
         response.put("description", savedMilestone.getDescription());
-        response.put("status", savedMilestone.getStatus());
+        response.put("status", savedMilestone.getStatus().getName());
         response.put("createdAt", savedMilestone.getCreatedAt());
         response.put("updatedAt", savedMilestone.getUpdatedAt());
         response.put("isEnable", savedMilestone.isEnable());
         response.put("complianceId", savedMilestone.getCompliance().getId());
         response.put("reporterId", reporter.getId());
         response.put("remark", savedMilestone.getRemark());
-        response.put("documents", savedMilestone.getDocuments()); // Include documents in response
+
+        // Prepare Document Details
+        List<Map<String, Object>> documentDetails = new ArrayList<>();
+        for (Document document : savedMilestone.getDocuments()) {
+            Map<String, Object> docMap = new HashMap<>();
+            docMap.put("documentName", document.getDocumentName());
+            docMap.put("fileName", document.getFileName());
+            docMap.put("issueDate", document.getIssueDate());
+            docMap.put("referenceNumber", document.getReferenceNumber());
+            documentDetails.add(docMap);
+        }
+        response.put("documents", documentDetails);
 
         return ResponseEntity.status(201).body(response);
     }
@@ -137,26 +156,42 @@ public class MilestoneServiceImpl implements MilestoneService {
         MileStone milestone = milestoneRepository.findById(milestoneId)
                 .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
 
-        // Step 2: Manually Map to Response DTO
+        // Step 2: Map Milestone Entity to Response DTO
         MilestoneResponse response = new MilestoneResponse();
         response.setId(milestone.getId());
         response.setMileStoneName(milestone.getMileStoneName());
         response.setDescription(milestone.getDescription());
-        response.setStatus(milestone.getStatus());
+        response.setStatus(milestone.getStatus().toString());
         response.setCreatedAt(milestone.getCreatedAt());
         response.setUpdatedAt(milestone.getUpdatedAt());
         response.setEnable(milestone.isEnable());
-        response.setComplianceId(milestone.getCompliance().getId());
+        response.setComplianceId(milestone.getCompliance() != null ? milestone.getCompliance().getId() : null);
         response.setReporterId(milestone.getTaskReporter() != null ? milestone.getTaskReporter().getId() : null);
         response.setAssignedTo(milestone.getAssignedTo() != null ? milestone.getAssignedTo().getId() : null);
         response.setAssignedBy(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getId() : null);
         response.setAssigneeMail(milestone.getAssigneeMail());
         response.setIssuedDate(milestone.getIssuedDate());
         response.setCriticality(milestone.getCriticality());
-        response.setBusinessUnitId(milestone.getBusinessUnit().getId());
+        response.setRemark(milestone.getRemark());
+        response.setBusinessUnitId(milestone.getBusinessUnit() != null ? milestone.getBusinessUnit().getId() : null);
+
+        // Step 3: Map Document Details to DocumentDetails DTO
+        List<MilestoneResponse.DocumentDetails> documentDetails = milestone.getDocuments().stream().map(document -> {
+            MilestoneResponse.DocumentDetails docDetails = new MilestoneResponse.DocumentDetails();
+            docDetails.setId(document.getId());
+            docDetails.setDocumentName(document.getDocumentName());
+            docDetails.setFileName(document.getFileName());
+            docDetails.setIssueDate(document.getIssueDate());
+            docDetails.setReferenceNumber(document.getReferenceNumber());
+            docDetails.setRemarks(document.getRemarks());
+            docDetails.setUploadDate(document.getUploadDate());
+            return docDetails;
+        }).toList();
+        response.setDocuments(documentDetails);
 
         return response;
     }
+
 
 
     @Override
@@ -184,17 +219,18 @@ public class MilestoneServiceImpl implements MilestoneService {
                 .toList();
     }
 
-    // Map method with Reminder and Renewal details
     private MilestoneResponse mapToMilestoneResponseWithDetails(MileStone milestone) {
         MilestoneResponse response = new MilestoneResponse();
+
+        // Set basic details
         response.setId(milestone.getId());
         response.setMileStoneName(milestone.getMileStoneName());
         response.setDescription(milestone.getDescription());
-        response.setStatus(milestone.getStatus());
+        response.setStatus(milestone.getStatus().toString());
         response.setCreatedAt(milestone.getCreatedAt());
         response.setUpdatedAt(milestone.getUpdatedAt());
         response.setEnable(milestone.isEnable());
-        response.setComplianceId(milestone.getCompliance().getId());
+        response.setComplianceId(milestone.getCompliance() != null ? milestone.getCompliance().getId() : null);
         response.setReporterId(milestone.getTaskReporter() != null ? milestone.getTaskReporter().getId() : null);
         response.setReporterName(milestone.getTaskReporter() != null ? milestone.getTaskReporter().getUserName() : null);
         response.setAssignedTo(milestone.getAssignedTo() != null ? milestone.getAssignedTo().getId() : null);
@@ -204,9 +240,11 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.setAssigneeMail(milestone.getAssigneeMail());
         response.setIssuedDate(milestone.getIssuedDate());
         response.setCriticality(milestone.getCriticality());
+        response.setRemark(milestone.getRemark());
         response.setBusinessUnitId(milestone.getBusinessUnit().getId());
         response.setSubscriberId(milestone.getSubscriber().getId());
-        response.setRemark(milestone.getRemark());
+        response.setStatusId(milestone.getStatus().getId());
+        response.setStatus(milestone.getStatus().getName());
 
         // Map Reminder details
         List<MilestoneResponse.ReminderDetails> reminderDetails = milestone.getReminders().stream()
@@ -259,6 +297,7 @@ public class MilestoneServiceImpl implements MilestoneService {
     }
 
 
+
     // Utility method to determine if a user is a SUPER_ADMIN
     private boolean isSuperAdmin(Long userId) {
         User user = userRepository.findById(userId)
@@ -271,7 +310,7 @@ public class MilestoneServiceImpl implements MilestoneService {
 
 
     @Override
-    public List<MilestoneResponse> fetchMilestonesByStatus(Long userId, Long subscriberId, String status) {
+    public List<MilestoneResponse> fetchMilestonesByStatus(Long userId, Long subscriberId, String statusName) {
         // Step 1: Validate Subscriber
         Subscriber subscriber = subscriberRepository.findById(subscriberId)
                 .orElseThrow(() -> new NotFoundException("Subscriber not found with ID: " + subscriberId));
@@ -280,8 +319,13 @@ public class MilestoneServiceImpl implements MilestoneService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
 
-        // Step 3: Check User Role
-        boolean isSuperAdmin = user.getRoles().stream().anyMatch(role -> role.getRoleName().equalsIgnoreCase("SUPER_ADMIN"));
+        // Step 3: Fetch the Status entity
+        Status status = statusRepository.findByName(statusName)
+                .orElseThrow(() -> new NotFoundException("Status not found with name: " + statusName));
+
+        // Step 4: Check User Role
+        boolean isSuperAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getRoleName().equalsIgnoreCase("SUPER_ADMIN"));
 
         List<MileStone> milestones;
 
@@ -293,14 +337,14 @@ public class MilestoneServiceImpl implements MilestoneService {
             milestones = milestoneRepository.findBySubscriberAndAssignedToAndStatus(subscriber, user, status);
         }
 
-        // Step 4: Map milestones to response
+        // Step 5: Map milestones to response
         List<MilestoneResponse> responses = new ArrayList<>();
         for (MileStone milestone : milestones) {
             MilestoneResponse response = new MilestoneResponse();
             response.setId(milestone.getId());
             response.setMileStoneName(milestone.getMileStoneName());
             response.setDescription(milestone.getDescription());
-            response.setStatus(milestone.getStatus());
+            response.setStatus(milestone.getStatus().getName()); // Use status name
             response.setCreatedAt(milestone.getCreatedAt());
             response.setUpdatedAt(milestone.getUpdatedAt());
             response.setEnable(milestone.isEnable());
@@ -321,6 +365,53 @@ public class MilestoneServiceImpl implements MilestoneService {
         }
 
         return responses;
+    }
+
+
+    @Override
+    public MilestoneResponse updateMilestoneAssignment(Long milestoneId, Long assignedToId, Long taskReporterId) {
+        // Validate Milestone
+        MileStone milestone = milestoneRepository.findById(milestoneId)
+                .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
+
+        // Validate Assigned To User
+        User assignedTo = userRepository.findById(assignedToId)
+                .orElseThrow(() -> new NotFoundException("Assigned To user not found with ID: " + assignedToId));
+
+        // Validate Task Reporter
+        User taskReporter = userRepository.findById(taskReporterId)
+                .orElseThrow(() -> new NotFoundException("Task Reporter not found with ID: " + taskReporterId));
+
+        // Update Fields
+        milestone.setAssignedTo(assignedTo);
+        milestone.setTaskReporter(taskReporter);
+        milestone.setUpdatedAt(new Date());
+
+        // Save Updated Milestone
+        MileStone updatedMilestone = milestoneRepository.save(milestone);
+
+        // Map to Response DTO
+        return mapToMilestoneResponseWithDetails(updatedMilestone);
+    }
+    @Override
+    public MilestoneResponse updateMilestoneStatus(Long milestoneId, Long statusId) {
+        // Validate Milestone
+        MileStone milestone = milestoneRepository.findById(milestoneId)
+                .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
+
+        // Validate Status
+        Status status = statusRepository.findById(statusId)
+                .orElseThrow(() -> new NotFoundException("Status not found with ID: " + statusId));
+
+        // Update Milestone Status
+        milestone.setStatus(status);
+        milestone.setUpdatedAt(new Date());
+
+        // Save Updated Milestone
+        MileStone updatedMilestone = milestoneRepository.save(milestone);
+
+        // Map Updated Milestone to Response
+        return mapToMilestoneResponseWithDetails(updatedMilestone);
     }
 
 

@@ -170,7 +170,10 @@ public class CompanyServiceImpl implements CompanyService {
         company.setCreatedBy(user);
         company.setCreatedAt(new Date());
         company.setUpdatedAt(new Date());
+        company.setEnable(true);
         company.setDate(LocalDate.now());
+        company.setFirstName(companyRequest.getFirstName());
+        company.setLastName(companyRequest.getLastName());
 
         // Save Company
         company = companyRepository.save(company);
@@ -185,6 +188,8 @@ public class CompanyServiceImpl implements CompanyService {
         gstDetails.setCreatedBy(user);
         gstDetails.setCreatedAt(new Date());
         gstDetails.setUpdatedAt(new Date());
+        company.setEnable(true);
+
         gstDetails.setDate(LocalDate.now());
         gstDetailsRepository.save(gstDetails);
 
@@ -198,6 +203,8 @@ public class CompanyServiceImpl implements CompanyService {
         businessUnit.setCreatedBy(user);
         businessUnit.setCreatedAt(new Date());
         businessUnit.setUpdatedAt(new Date());
+        businessUnit.setEnable(true);
+
         businessUnit.setLocatedAt(company.getLocatedAt());
         businessUnit.setDate(LocalDate.now());
         businessUnitRepository.save(businessUnit);
@@ -441,13 +448,13 @@ public class CompanyServiceImpl implements CompanyService {
 
         // Step 4: Fetch Companies under Subscriber
         List<Company> companies = companyRepository.findBySubscriberAndIsEnableAndIsDeletedFalse(subscriber.getId());
-        if (companies.isEmpty()) {
-            throw new NotFoundException("No companies found for the provided subscriber ID: " + subscriberId);
-        }
 
         // Step 5: Map Company entities to CompanyResponse DTOs
-        return companies.stream().map(this::mapCompanyToResponse).collect(Collectors.toList());
+        return companies.stream()
+                .map(this::mapCompanyToResponse)
+                .collect(Collectors.toList());
     }
+
 
     private CompanyResponse mapCompanyToResponse(Company company) {
         CompanyResponse response = new CompanyResponse();

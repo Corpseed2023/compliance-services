@@ -70,6 +70,7 @@ public class ComplianceController {
     }
 
 
+    //Fetching all complaince list here by using business unit id
     @GetMapping("/fetchByBusinessUnit")
     public ResponseEntity<List<ComplianceResponse>> fetchComplianceByBusinessUnit(
             @RequestParam("businessUnitId") Long businessUnitId,

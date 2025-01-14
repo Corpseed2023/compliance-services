@@ -1,5 +1,6 @@
 package com.lawzoom.complianceservice.repository;
 
+import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
@@ -9,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
 
 @Repository
 public interface MilestoneRepository extends JpaRepository<MileStone, Long> {
@@ -27,9 +29,11 @@ public interface MilestoneRepository extends JpaRepository<MileStone, Long> {
             @Param("subscriberId") Long subscriberId
     );
 
+    // Find milestones by Subscriber
     List<MileStone> findBySubscriber(Subscriber subscriber);
 
-    List<MileStone> findBySubscriberAndAssignedToAndStatus(Subscriber subscriber, User assignedTo, String status);
+    // Corrected method: Accepts Status object instead of String
+    List<MileStone> findBySubscriberAndAssignedToAndStatus(Subscriber subscriber, User assignedTo, Status status);
 
     @Query(value = """
         SELECT * 

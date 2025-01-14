@@ -10,9 +10,12 @@ import java.util.List;
 @Data
 public class ComplianceRequest {
 
+
     @NotNull(message = "Compliance name is required.")
     @Size(max = 255, message = "Compliance name must not exceed 255 characters.")
     private String name;
+
+    private String description;
 
     private String issueAuthority;
 
@@ -23,12 +26,6 @@ public class ComplianceRequest {
     private String approvalState;
 
     private String applicableZone;
-
-    private LocalDate startDate;
-
-    private LocalDate dueDate;
-
-    private LocalDate completedDate;
 
     private int workStatus;
 
@@ -42,4 +39,13 @@ public class ComplianceRequest {
 
     // New field for documents
     private List<DocumentRequest> documents;
+
+    private Long statusId;
+
+    private LocalDate issueDate;
+
+    private LocalDate renewalDate;
+
+
+
 }

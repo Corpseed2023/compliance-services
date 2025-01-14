@@ -16,6 +16,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class CompanyRequest {
 
+    private String firstName;
+
+    private String lastName;
+
+    private Long designationId;
+
     @NotEmpty(message = "Business email is required")
     @Email(message = "Please provide a valid email address")
     private String businessEmailId;

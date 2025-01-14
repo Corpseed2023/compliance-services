@@ -4,10 +4,12 @@ package com.lawzoom.complianceservice.serviceImpl;
 import com.lawzoom.complianceservice.dto.TaskRequest;
 import com.lawzoom.complianceservice.dto.TaskResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
+import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.mileStoneTask.Task;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.MilestoneRepository;
+import com.lawzoom.complianceservice.repository.StatusRepository;
 import com.lawzoom.complianceservice.repository.TaskRepository;
 import com.lawzoom.complianceservice.repository.UserRepository;
 import com.lawzoom.complianceservice.service.TaskService;
@@ -30,6 +32,8 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private StatusRepository statusRepository;
     @Override
     public TaskResponse createTask(TaskRequest taskRequest) {
         // Validate Milestone
@@ -44,15 +48,18 @@ public class TaskServiceImpl implements TaskService {
         User assignee = userRepository.findById(taskRequest.getAssigneeUserId())
                 .orElseThrow(() -> new NotFoundException("Assignee not found with ID: " + taskRequest.getAssigneeUserId()));
 
+      Status status = statusRepository.findById(taskRequest.getStatusId())
+              .orElseThrow(() -> new NotFoundException("Status not found with ID: " + taskRequest.getStatusId()));
+
         // Create Task Entity
         Task task = new Task();
         task.setName(taskRequest.getName());
         task.setDescription(taskRequest.getDescription());
 //        task.setTimelineValue(taskRequest.getTimelineValue());
 //        task.setTimelineType(taskRequest.getTimelineType());
-        task.setStatus(taskRequest.getStatus());
         task.setCreatedAt(new Date());
         task.setUpdatedAt(new Date());
+        task.setStatus(status);
         task.setStartDate(taskRequest.getStartDate());
         task.setDueDate(taskRequest.getDueDate());
         task.setCompletedDate(taskRequest.getCompletedDate());
@@ -69,7 +76,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskResponse> fetchTasks(Long milestoneId) {
+    public List<TaskResponse>  fetchTasks(Long milestoneId) {
         // Validate Milestone
         MileStone milestone = milestoneRepository.findById(milestoneId)
                 .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
@@ -86,9 +93,8 @@ public class TaskServiceImpl implements TaskService {
         response.setId(task.getId());
         response.setName(task.getName());
         response.setDescription(task.getDescription());
-//        response.setTimelineValue(task.getTimelineValue());
-//        response.setTimelineType(task.getTimelineType());
-        response.setStatus(task.getStatus());
+        response.setStatus(task.getStatus().getName());
+        response.setStatus(task.getStatus().toString());
         response.setStartDate(task.getStartDate());
         response.setDueDate(task.getDueDate());
         response.setCompletedDate(task.getCompletedDate());
@@ -99,5 +105,34 @@ public class TaskServiceImpl implements TaskService {
         response.setAssigneeUserName(task.getAssigneeUserId().getUserName());
         return response;
     }
+
+
+    @Override
+    public TaskResponse updateTaskAssignment(Long taskId, Long assigneeUserId, Long reporterUserId) {
+        // Validate Task
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new NotFoundException("Task not found with ID: " + taskId));
+
+        // Validate Assignee User
+        User assignee = userRepository.findById(assigneeUserId)
+                .orElseThrow(() -> new NotFoundException("Assignee not found with ID: " + assigneeUserId));
+
+        // Validate Reporter User
+        User reporter = userRepository.findById(reporterUserId)
+                .orElseThrow(() -> new NotFoundException("Reporter not found with ID: " + reporterUserId));
+
+        // Update Task with new Assignee and Reporter
+        task.setAssigneeUserId(assignee);
+        task.setReporterUserId(reporter);
+        task.setUpdatedAt(new Date());
+
+        // Save Updated Task
+        Task updatedTask = taskRepository.save(task);
+
+        // Map to Response DTO
+        return mapToTaskResponse(updatedTask);
+    }
+
+
 }
 

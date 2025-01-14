@@ -22,4 +22,5 @@ public interface ComplianceService {
     List<CompanyComplianceDTO> getCompanyComplianceDetails(Long userId, Long subscriberId);
 
     Map<String, Object> fetchComplianceById(Long complianceId);
+
 }

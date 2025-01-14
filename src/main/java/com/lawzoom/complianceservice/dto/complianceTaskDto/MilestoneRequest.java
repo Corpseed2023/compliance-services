@@ -11,6 +11,7 @@ import java.util.List;
 
 @Data
 public class MilestoneRequest {
+
 	@NotEmpty(message = "Milestone name is required")
 	private String mileStoneName;
 
@@ -35,7 +36,7 @@ public class MilestoneRequest {
 
 	private String criticality;
 
-	private String status;
+	private Long status;
 
 	private Long subscriberId;
 
@@ -49,11 +50,6 @@ public class MilestoneRequest {
 	private String repeatTimelineType;
 	private Long whomToSend;
 
-	// Renewal-specific fields
-	private LocalDate nextRenewalDate;
-	private Integer renewalFrequency;
-	private String renewalType;
-	private String renewalNotes;
 
 	// Document-specific field
 	private List<DocumentRequest> documents;

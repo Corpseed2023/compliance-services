@@ -1,5 +1,6 @@
 package com.lawzoom.complianceservice.model.complianceMileStoneModel;
 
+import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
@@ -35,8 +36,6 @@ public class MileStone {
 	@Column(columnDefinition = "TEXT")
 	private String description;
 
-	private String status;
-
 	@Column(name = "created_at")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdAt = new Date();
@@ -57,6 +56,7 @@ public class MileStone {
 	@JoinColumn(name = "assigned_to")
 	private User assignedTo;
 
+
 	@ManyToOne
 	@JoinColumn(name = "assigned_by")
 	private User assignedBy;
@@ -73,6 +73,10 @@ public class MileStone {
 	private String criticality;
 
 	private String remark;
+
+	@ManyToOne
+	@JoinColumn(name = "status_id")
+	private Status status;
 
 	@ManyToOne
 	@JoinColumn(name = "business_unit_id", nullable = false)

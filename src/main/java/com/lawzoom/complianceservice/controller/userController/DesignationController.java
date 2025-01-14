@@ -4,6 +4,7 @@ import com.lawzoom.complianceservice.dto.designationDto.DesignationCreateRequest
 import com.lawzoom.complianceservice.dto.designationDto.DesignationResponse;
 import com.lawzoom.complianceservice.dto.designationDto.DesignationUpdateRequest;
 import com.lawzoom.complianceservice.service.DesignationService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,8 @@ public class DesignationController {
     private DesignationService designationService;
 
     @PostMapping("/create")
+    @Transactional
+
     public ResponseEntity<DesignationResponse> createDesignation(@RequestBody DesignationCreateRequest designationCreateRequest) {
         try {
             DesignationResponse designation = designationService.createDesignation(designationCreateRequest);

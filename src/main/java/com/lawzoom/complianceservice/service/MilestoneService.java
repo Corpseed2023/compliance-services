@@ -20,4 +20,7 @@ public interface MilestoneService {
 
     List<MilestoneResponse> fetchMilestonesByStatus(Long userId, Long subscriberId, String status);
 
+    MilestoneResponse updateMilestoneAssignment(Long milestoneId, Long assignedToId, Long taskReporterId);
+
+    MilestoneResponse updateMilestoneStatus(Long milestoneId, Long statusId);
 }

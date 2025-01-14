@@ -1,10 +1,11 @@
-package com.lawzoom.complianceservice.controller;
+package com.lawzoom.complianceservice.controller.userController;
 
 import com.lawzoom.complianceservice.dto.teamMemberDto.MemberRequest;
 import com.lawzoom.complianceservice.dto.teamMemberDto.MemberResponse;
 import com.lawzoom.complianceservice.dto.userDto.UserRequest;
 import com.lawzoom.complianceservice.dto.userDto.UserResponse;
 import com.lawzoom.complianceservice.service.UserService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/create")
+    @Transactional
     public ResponseEntity<?> createUser(@Valid @RequestBody UserRequest userRequest) {
         try {
             UserResponse createdUser = userService.createUser(userRequest);

@@ -28,6 +28,9 @@ public class User {
     @Column(nullable = false)
     private String userName;
 
+    private String mobile;
+
+
     @NotEmpty(message = "Email must not be empty")
     @Email(message = "Email should be valid")
     @Column(nullable = false, unique = true)

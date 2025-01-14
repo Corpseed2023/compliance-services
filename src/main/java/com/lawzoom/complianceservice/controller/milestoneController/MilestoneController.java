@@ -25,7 +25,6 @@ public class MilestoneController {
         return milestoneService.createMilestone(milestoneRequest);
     }
 
-
     @PostMapping("/fetch-all-milestone")
     public ResponseEntity<List<MilestoneResponse>> fetchAllMilestones(@RequestBody MilestoneRequestForFetch milestoneRequestForFetch) {
         List<MilestoneResponse> responseList = milestoneService.fetchAllMilestones(milestoneRequestForFetch);
@@ -51,6 +50,25 @@ public class MilestoneController {
             return ResponseEntity.status(500).body(null);
         }
     }
+
+    @PutMapping("/update-assignment")
+    public ResponseEntity<MilestoneResponse> updateMilestoneAssignment(
+            @RequestParam Long milestoneId,
+            @RequestParam Long assignedToId,
+            @RequestParam Long taskReporterId) {
+        MilestoneResponse updatedMilestone = milestoneService.updateMilestoneAssignment(milestoneId, assignedToId, taskReporterId);
+        return ResponseEntity.ok(updatedMilestone);
+    }
+
+
+    @PutMapping("/update-status")
+    public ResponseEntity<MilestoneResponse> updateMilestoneStatus(
+            @RequestParam Long milestoneId,
+            @RequestParam Long statusId) {
+        MilestoneResponse updatedMilestone = milestoneService.updateMilestoneStatus(milestoneId, statusId);
+        return ResponseEntity.ok(updatedMilestone);
+    }
+
 
 
 

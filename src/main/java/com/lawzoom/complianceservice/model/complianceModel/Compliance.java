@@ -1,9 +1,9 @@
 	package com.lawzoom.complianceservice.model.complianceModel;
 
+	import com.lawzoom.complianceservice.model.Status;
 	import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 	import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 	import com.lawzoom.complianceservice.model.documentModel.Document;
-	import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 	import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 	import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 	import com.lawzoom.complianceservice.model.user.Subscriber;
@@ -29,6 +29,8 @@
 		@Id
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
 		private Long id;
+
+		private String description;
 
 		private String issueAuthority;
 
@@ -63,11 +65,7 @@
 		@Comment(value = "0 : Not Deleted, 1 : Deleted")
 		private boolean isDeleted = false;
 
-		private LocalDate startDate;
-
-		private LocalDate dueDate;
-
-		private LocalDate completedDate;
+		private LocalDate issueDate;
 
 		@Comment(value = "0 : No Action ,1 : Apply Now, 2 : Already Done, 3 : Not Applicable")
 		private int workStatus;
@@ -94,6 +92,10 @@
 
 		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
 		private List<Document> documents = new ArrayList<>();
+
+		@ManyToOne
+		@JoinColumn(name = "status_id")
+		private Status status;
 
 
 		@PrePersist

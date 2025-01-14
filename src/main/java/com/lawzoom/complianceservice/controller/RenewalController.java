@@ -38,4 +38,15 @@ public class RenewalController {
         renewalService.deleteRenewal(complianceId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/create")
+    public ResponseEntity<RenewalResponse> createRenewal(
+            @RequestParam("complianceId") Long complianceId,
+            @Valid @RequestBody RenewalRequest renewalRequest) {
+
+        // Call the service to create a renewal
+        RenewalResponse response = renewalService.createRenewalForCompliance(complianceId, renewalRequest);
+        return ResponseEntity.status(201).body(response);
+    }
+
 }

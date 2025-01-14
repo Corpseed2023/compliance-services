@@ -29,4 +29,14 @@ public class TaskController {
         List<TaskResponse> taskResponses = taskService.fetchTasks(milestoneId);
         return ResponseEntity.ok(taskResponses);
     }
+
+    @PutMapping("/update-assignment")
+    public ResponseEntity<TaskResponse> updateTaskAssignment(
+            @RequestParam Long taskId,
+            @RequestParam Long assigneeUserId,
+            @RequestParam Long reporterUserId) {
+        TaskResponse updatedTask = taskService.updateTaskAssignment(taskId, assigneeUserId, reporterUserId);
+        return ResponseEntity.ok(updatedTask);
+    }
+
 }

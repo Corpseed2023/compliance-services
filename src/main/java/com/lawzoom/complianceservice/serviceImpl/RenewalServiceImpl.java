@@ -73,4 +73,28 @@ public class RenewalServiceImpl implements RenewalService {
         response.setRenewalNotes(renewal.getRenewalNotes());
         return response;
     }
+
+    @Override
+    public RenewalResponse createRenewalForCompliance(Long complianceId, RenewalRequest renewalRequest) {
+        // Step 1: Validate Compliance
+        Compliance compliance = complianceRepo.findById(complianceId)
+                .orElseThrow(() -> new NotFoundException("Compliance not found with ID: " + complianceId));
+
+        // Step 2: Create a new Renewal
+        Renewal renewal = new Renewal();
+        renewal.setCompliance(compliance);
+        renewal.setNextRenewalDate(renewalRequest.getNextRenewalDate());
+        renewal.setRenewalFrequency(renewalRequest.getRenewalFrequency());
+        renewal.setRenewalType(renewalRequest.getRenewalType());
+        renewal.setRenewalNotes(renewalRequest.getRenewalNotes());
+        renewal.setCreatedAt(LocalDate.now());
+        renewal.setUpdatedAt(LocalDate.now());
+
+        // Step 3: Save the Renewal
+        Renewal savedRenewal = renewalRepository.save(renewal);
+
+        // Step 4: Map to RenewalResponse
+        return mapToRenewalResponse(savedRenewal);
+    }
+
 }
