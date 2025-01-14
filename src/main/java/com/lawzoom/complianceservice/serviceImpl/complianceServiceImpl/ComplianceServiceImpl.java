@@ -100,32 +100,19 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setPriority(complianceRequest.getPriority());
         compliance.setCertificateType(complianceRequest.getCertificateType());
         compliance.setEnable(complianceRequest.isEnable());
-        compliance.setDurationMonth(complianceRequest.getDurationMonth());
-        compliance.setDurationYear(complianceRequest.getDurationYear());
         compliance.setIssueAuthority(complianceRequest.getIssueAuthority());
         compliance.setBusinessUnit(businessUnit);
         compliance.setSubscriber(subscriber);
         compliance.setCreatedAt(new Date());
         compliance.setUpdatedAt(new Date());
         compliance.setDeleted(false);
-        compliance.setIssueDate(complianceRequest.getIssueDate());
         Status status = statusRepository.findById(complianceRequest.getStatusId())
                 .orElseThrow(() -> new NotFoundException("No status found."));
         compliance.setStatus(status);
 
         Compliance savedCompliance = complianceRepository.save(compliance);
 
-
-                Renewal renewal = new Renewal();
-                renewal.setCompliance(savedCompliance);
-                renewal.setCreatedAt(LocalDate.now());
-                renewal.setUpdatedAt(LocalDate.now());
-                renewal.setNextRenewalDate(complianceRequest.getRenewalDate());
-
-                renewalRepository.save(renewal);
-
-
-        // Step 6: Save Documents if provided
+                // Step 6: Save Documents if provided
         if (complianceRequest.getDocuments() != null && !complianceRequest.getDocuments().isEmpty()) {
             List<Document> documents = complianceRequest.getDocuments().stream().map(docRequest -> {
                 Document document = new Document();
@@ -161,8 +148,6 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.setCreatedBy(user.getId());
         response.setIssueAuthority(savedCompliance.getIssueAuthority());
         response.setSubscriberId(savedCompliance.getSubscriber().getId());
-        response.setDurationYear(savedCompliance.getDurationYear());
-        response.setDurationMonth(savedCompliance.getDurationMonth());
         response.setCertificateType(savedCompliance.getCertificateType());
         response.setStatusName(savedCompliance.getStatus().getName());
 
@@ -291,18 +276,6 @@ public class ComplianceServiceImpl implements ComplianceService {
             }
             response.setDocuments(documentResponses);
 
-            // Fetch Renewal Details
-            Renewal renewal = compliance.getRenewal();
-            if (renewal != null) {
-                RenewalResponse renewalResponse = new RenewalResponse();
-                renewalResponse.setId(renewal.getId());
-                renewalResponse.setNextRenewalDate(renewal.getNextRenewalDate());
-                renewalResponse.setRenewalFrequency(renewal.getRenewalFrequency());
-                renewalResponse.setRenewalType(renewal.getRenewalType());
-                renewalResponse.setRenewalNotes(renewal.getRenewalNotes());
-                response.setRenewal(renewalResponse);
-            }
-
             responses.add(response);
         }
 
@@ -389,8 +362,6 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.put("priority", compliance.getPriority());
         response.put("businessUnitId", compliance.getBusinessUnit().getId());
         response.put("subscriberId", compliance.getSubscriber().getId());
-        response.put("durationMonth", compliance.getDurationMonth());
-        response.put("durationYear", compliance.getDurationYear());
         response.put("statusName", compliance.getStatus().getName());
 
         // Add Company and Business Details

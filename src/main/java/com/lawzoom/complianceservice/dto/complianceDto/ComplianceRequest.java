@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.util.List;
 @Data
 public class ComplianceRequest {
@@ -18,10 +17,6 @@ public class ComplianceRequest {
     private String description;
 
     private String issueAuthority;
-
-    private Long durationMonth;
-
-    private Long durationYear;
 
     private String approvalState;
 
@@ -37,14 +32,9 @@ public class ComplianceRequest {
 
     private Long subscriberId;
 
-    // New field for documents
     private List<DocumentRequest> documents;
 
     private Long statusId;
-
-    private LocalDate issueDate;
-
-    private LocalDate renewalDate;
 
 
 

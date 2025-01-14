@@ -36,10 +36,6 @@
 
 		private String certificateType;
 
-		private Long durationMonth;
-
-		private Long durationYear;
-
 		@Column(name = "compliance_name")
 		private String complianceName;
 
@@ -80,12 +76,6 @@
 		@ManyToOne
 		@JoinColumn(name = "subscriber_id", nullable = false)
 		private Subscriber subscriber;
-
-		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
-		private List<Reminder> reminders = new ArrayList<>();
-
-		@OneToOne(mappedBy = "compliance", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-		private Renewal renewal;
 
 		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
 		private List<MileStone> milestones = new ArrayList<>();
