@@ -16,7 +16,6 @@ import java.util.List;
 public class ComplianceResponse {
 
     private Long id; // Unique ID of the compliance
-    private String description;
     private String name; // Name of the compliance
     private String issueAuthority; // Authority issuing the compliance
     private String certificateType; // Type of certificate, if applicable
@@ -33,10 +32,9 @@ public class ComplianceResponse {
     private Long createdBy; // User ID of the compliance creator
     private Long subscriberId; // Subscriber ID to whom the compliance is linked
     private String statusName;
-
     private double progressPercentage; // Progress percentage of compliance
     private List<ComplianceMilestoneResponse> milestones; // List of milestones for compliance
 
-    // New Fields
-    private List<DocumentResponse> documents; // List of document details
+//    // New Fields
+//    private List<DocumentResponse> documents; // List of document details
 }

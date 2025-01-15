@@ -1,20 +1,19 @@
 package com.lawzoom.complianceservice.dto.complianceDto;
 
-import com.lawzoom.complianceservice.dto.DocumentRequest;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.*;
 
-import java.util.List;
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ComplianceRequest {
 
 
     @NotNull(message = "Compliance name is required.")
     @Size(max = 255, message = "Compliance name must not exceed 255 characters.")
     private String name;
-
-    private String description;
 
     private String issueAuthority;
 
@@ -31,8 +30,6 @@ public class ComplianceRequest {
     private boolean isEnable;
 
     private Long subscriberId;
-
-    private List<DocumentRequest> documents;
 
     private Long statusId;
 

@@ -1,32 +1,42 @@
 package com.lawzoom.complianceservice;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class Test {
 
-    public static void main(String[] args) {
-        int arr[] = {2, 5, 5, 9,8,9};
 
-        int n=6;
-
-        int m = 4;
-
-        int max = 0;
-
-        for (int i = 0; i <= n - m; i++) {
+    boolean sum () {
 
 
-            int temp = 0;
+        int[] arr = {3, 5, 3, 7, 1};
 
-            for (int j = 0; j < m; j++) {
+        int target = 10;
 
-                temp += arr[i + j];
+        Set<Integer> a = new HashSet<>();
+
+        for (int num : arr) {
+
+            if (a.contains(target - num)) {
+                return true;
             }
 
+            a.add(num);
 
-            if (max < temp) {
-                max = temp;
-            }
+
         }
+        return  false;
+    }
 
-        System.out.println(max);
+    public static void main(String[] args) {
+
+        Test test = new Test();
+
+        boolean result = test.sum();
+
+        System.out.println("Result: " + result); // Print the result
+
+
+
     }
 }

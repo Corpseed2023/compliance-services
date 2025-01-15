@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -36,6 +38,18 @@ public class MileStone {
 	@Column(columnDefinition = "TEXT")
 	private String description;
 
+	private LocalDate startedDate;
+
+	private LocalDate dueDate;
+
+	private LocalDate completedDate;
+
+	private LocalDate issueDate;
+
+	private int durationMonth;
+
+	private int durationYear;
+
 	@Column(name = "created_at")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdAt = new Date();
@@ -49,13 +63,12 @@ public class MileStone {
 	private boolean isEnable = true;
 
 	@ManyToOne
-	@JoinColumn(name = "reporter_id")
-	private User taskReporter;
+	@JoinColumn(name = "manager_id")
+	private User manager;
 
 	@ManyToOne
-	@JoinColumn(name = "assigned_to")
-	private User assignedTo;
-
+	@JoinColumn(name = "assigned")
+	private User assigned;
 
 	@ManyToOne
 	@JoinColumn(name = "assigned_by")

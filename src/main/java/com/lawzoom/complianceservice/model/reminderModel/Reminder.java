@@ -68,6 +68,9 @@ public class Reminder {
 	@Column(name = "repeat_timeline_type", nullable = false)
 	private String repeatTimelineType;
 
+	// 1 means active and 0 means stopped
+	private int stopFlag=1;
+
 	@Column(name = "created_at", updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdAt = new Date();

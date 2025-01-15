@@ -2,6 +2,7 @@ package com.lawzoom.complianceservice.model.renewalModel;
 
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
+import com.lawzoom.complianceservice.model.user.Subscriber;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -46,6 +47,11 @@ public class Renewal {
     @Comment(value = "Notes or additional details about the renewal")
     @Column(name = "renewal_notes", length = 500)
     private String renewalNotes;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subscriber_id", nullable = false)
+    private Subscriber subscriber;
+
 
     @PrePersist
     protected void onCreate() {

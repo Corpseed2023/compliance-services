@@ -3,13 +3,10 @@ package com.lawzoom.complianceservice.serviceImpl.complianceServiceImpl;
 
 
 
-import com.lawzoom.complianceservice.dto.DocumentRequest;
-import com.lawzoom.complianceservice.dto.RenewalResponse;
+
 import com.lawzoom.complianceservice.dto.complianceDto.CompanyComplianceDTO;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
-import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceMilestoneResponse;
-import com.lawzoom.complianceservice.dto.document.DocumentResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
@@ -17,11 +14,9 @@ import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.companyModel.Company;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
-import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.gstdetails.GstDetails;
 import com.lawzoom.complianceservice.model.region.City;
 import com.lawzoom.complianceservice.model.region.States;
-import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
@@ -32,10 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ComplianceServiceImpl implements ComplianceService {
@@ -92,7 +84,6 @@ public class ComplianceServiceImpl implements ComplianceService {
         // Step 4: Create and Save Compliance Entity
         Compliance compliance = new Compliance();
         compliance.setComplianceName(complianceRequest.getName());
-        compliance.setDescription(complianceRequest.getDescription());
         compliance.setApprovalState(complianceRequest.getApprovalState());
         compliance.setApplicableZone(complianceRequest.getApplicableZone());
 
@@ -112,30 +103,29 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         Compliance savedCompliance = complianceRepository.save(compliance);
 
-                // Step 6: Save Documents if provided
-        if (complianceRequest.getDocuments() != null && !complianceRequest.getDocuments().isEmpty()) {
-            List<Document> documents = complianceRequest.getDocuments().stream().map(docRequest -> {
-                Document document = new Document();
-                document.setDocumentName(docRequest.getDocumentName());
-                document.setFileName(docRequest.getFileName());
-                document.setIssueDate(docRequest.getIssueDate());
-                document.setReferenceNumber(docRequest.getReferenceNumber());
-                document.setRemarks(docRequest.getRemarks());
-                document.setUploadDate(new Date());
-                document.setCompliance(savedCompliance);
-                document.setAddedBy(user);
-                document.setSuperAdmin(subscriber.getSuperAdmin());
-                document.setSubscriber(subscriber);
-                return document;
-            }).collect(Collectors.toList());
-            documentRepository.saveAll(documents);
-        }
+//                // Step 6: Save Documents if provided
+//        if (complianceRequest.getDocuments() != null && !complianceRequest.getDocuments().isEmpty()) {
+//            List<Document> documents = complianceRequest.getDocuments().stream().map(docRequest -> {
+//                Document document = new Document();
+//                document.setDocumentName(docRequest.getDocumentName());
+//                document.setFileName(docRequest.getFileName());
+//                document.setIssueDate(docRequest.getIssueDate());
+//                document.setReferenceNumber(docRequest.getReferenceNumber());
+//                document.setRemarks(docRequest.getRemarks());
+//                document.setUploadDate(new Date());
+//                document.setCompliance(savedCompliance);
+//                document.setAddedBy(user);
+//                document.setSuperAdmin(subscriber.getSuperAdmin());
+//                document.setSubscriber(subscriber);
+//                return document;
+//            }).collect(Collectors.toList());
+//            documentRepository.saveAll(documents);
+//        }
 
         // Step 7: Map Saved Entity to Response
         ComplianceResponse response = new ComplianceResponse();
         response.setId(savedCompliance.getId());
         response.setName(savedCompliance.getComplianceName());
-        response.setDescription(savedCompliance.getDescription());
         response.setApprovalState(savedCompliance.getApprovalState());
         response.setApplicableZone(savedCompliance.getApplicableZone());
         response.setCreatedAt(savedCompliance.getCreatedAt());
@@ -174,29 +164,6 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setWorkStatus(complianceRequest.getWorkStatus());
         compliance.setPriority(complianceRequest.getPriority());
         compliance.setUpdatedAt(new Date()); // Update the updatedAt timestamp
-
-        // Handle documents
-        if (complianceRequest.getDocuments() != null) {
-            // Remove old documents linked to this compliance
-            documentRepository.deleteByComplianceId(complianceId);
-
-            // Add new documents
-            List<Document> documents = new ArrayList<>();
-            for (DocumentRequest docRequest : complianceRequest.getDocuments()) {
-                Document document = new Document();
-                document.setDocumentName(docRequest.getDocumentName());
-                document.setFileName(docRequest.getFileName());
-                document.setIssueDate(docRequest.getIssueDate());
-                document.setReferenceNumber(docRequest.getReferenceNumber());
-                document.setRemarks(docRequest.getRemarks());
-                document.setUploadDate(new Date());
-                document.setCompliance(compliance); // Link to compliance
-                document.setAddedBy(userRepository.findById(docRequest.getAddedById())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid addedById")));
-                documents.add(document);
-            }
-            documentRepository.saveAll(documents);
-        }
 
         // Save the updated Compliance entity
         Compliance updatedCompliance = complianceRepository.save(compliance);
@@ -259,22 +226,6 @@ public class ComplianceServiceImpl implements ComplianceService {
             response.setPriority(compliance.getPriority());
             response.setBusinessUnitId(compliance.getBusinessUnit().getId());
             response.setSubscriberId(compliance.getSubscriber().getId());
-
-            // Fetch Document Details
-            List<DocumentResponse> documentResponses = new ArrayList<>();
-            for (Document document : compliance.getDocuments()) {
-                DocumentResponse documentResponse = new DocumentResponse();
-                documentResponse.setId(document.getId());
-                documentResponse.setDocumentName(document.getDocumentName());
-                documentResponse.setFileName(document.getFileName());
-                documentResponse.setIssueDate(document.getIssueDate());
-                documentResponse.setReferenceNumber(document.getReferenceNumber());
-                documentResponse.setRemarks(document.getRemarks());
-                documentResponse.setUploadDate(document.getUploadDate());
-                documentResponse.setEnable(document.isEnable());
-                documentResponses.add(documentResponse);
-            }
-            response.setDocuments(documentResponses);
 
             responses.add(response);
         }
@@ -350,7 +301,6 @@ public class ComplianceServiceImpl implements ComplianceService {
         Map<String, Object> response = new HashMap<>();
         response.put("id", compliance.getId());
         response.put("name", compliance.getComplianceName());
-        response.put("description", compliance.getDescription());
         response.put("issueAuthority", compliance.getIssueAuthority());
         response.put("certificateType", compliance.getCertificateType());
         response.put("approvalState", compliance.getApprovalState());
@@ -383,16 +333,16 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         response.put("milestoneStatistics", milestoneStats);
 
-        // Document Details
-        List<Map<String, Object>> documentDetails = compliance.getDocuments().stream().map(doc -> {
-            Map<String, Object> docMap = new HashMap<>();
-            docMap.put("documentName", doc.getDocumentName());
-            docMap.put("referenceNumber", doc.getReferenceNumber());
-            docMap.put("issueDate", doc.getIssueDate());
-            docMap.put("remarks", doc.getRemarks());
-            return docMap;
-        }).toList();
-        response.put("documents", documentDetails);
+//        // Document Details
+//        List<Map<String, Object>> documentDetails = compliance.getDocuments().stream().map(doc -> {
+//            Map<String, Object> docMap = new HashMap<>();
+//            docMap.put("documentName", doc.getDocumentName());
+//            docMap.put("referenceNumber", doc.getReferenceNumber());
+//            docMap.put("issueDate", doc.getIssueDate());
+//            docMap.put("remarks", doc.getRemarks());
+//            return docMap;
+//        }).toList();
+//        response.put("documents", documentDetails);
 
 
         return response;
