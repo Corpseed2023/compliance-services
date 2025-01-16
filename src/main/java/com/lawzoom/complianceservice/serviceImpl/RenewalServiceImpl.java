@@ -122,10 +122,11 @@ public class RenewalServiceImpl implements RenewalService {
 
     @Override
     public MilestoneRenewalResponse createMilestoneRenewal(Long milestoneId, RenewalRequest request) {
-
+        // Validate Milestone
         MileStone milestone = milestoneRepository.findById(milestoneId)
                 .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
 
+        // Fetch existing Renewal or create a new one
         Renewal renewal = renewalRepository.findByMilestoneId(milestoneId);
         if (renewal == null) {
             renewal = new Renewal();
@@ -133,7 +134,18 @@ public class RenewalServiceImpl implements RenewalService {
             renewal.setCreatedAt(LocalDate.now());
         }
 
-        // Update Renewal details
+        // Validate Request Data
+        if (request.getNextRenewalDate() == null) {
+            throw new IllegalArgumentException("Next renewal date cannot be null.");
+        }
+        if (request.getRenewalFrequency() <= 0) {
+            throw new IllegalArgumentException("Renewal frequency must be greater than 0.");
+        }
+        if (request.getRenewalType() == null || request.getRenewalType().isEmpty()) {
+            throw new IllegalArgumentException("Renewal type is required.");
+        }
+
+        // Update Renewal Details
         renewal.setNextRenewalDate(request.getNextRenewalDate());
         renewal.setRenewalFrequency(request.getRenewalFrequency());
         renewal.setRenewalType(request.getRenewalType());
@@ -141,7 +153,20 @@ public class RenewalServiceImpl implements RenewalService {
         renewal.setStopFlag(request.isStopFlag());
         renewal.setUpdatedAt(LocalDate.now());
 
+        // Save Renewal
         Renewal savedRenewal = renewalRepository.save(renewal);
-        return null;
+
+        // Manually Set Response
+        MilestoneRenewalResponse response = new MilestoneRenewalResponse();
+        response.setId(savedRenewal.getId());
+        response.setMilestoneId(milestone.getId());
+        response.setNextRenewalDate(savedRenewal.getNextRenewalDate());
+        response.setRenewalFrequency(savedRenewal.getRenewalFrequency());
+        response.setRenewalType(savedRenewal.getRenewalType());
+        response.setRenewalNotes(savedRenewal.getRenewalNotes());
+        response.setStopFlag(savedRenewal.isStopFlag());
+
+        return response;
     }
+
 }
