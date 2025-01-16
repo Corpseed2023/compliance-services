@@ -23,7 +23,6 @@ public class MilestoneResponse {
     private String assignedName;
     private Long assignedBy;
     private String assignedByName;
-    private String assigneeMail;
     private LocalDate issuedDate;
     private String criticality;
     private Long businessUnitId;

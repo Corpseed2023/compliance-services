@@ -7,6 +7,7 @@ package com.lawzoom.complianceservice.serviceImpl.complianceServiceImpl;
 import com.lawzoom.complianceservice.dto.complianceDto.CompanyComplianceDTO;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
+import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceMilestoneResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
@@ -20,6 +21,7 @@ import com.lawzoom.complianceservice.model.region.States;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
+import com.lawzoom.complianceservice.repository.RenewalRepository.RenewalRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitRepository;
 import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
 import com.lawzoom.complianceservice.service.complianceService.ComplianceService;
@@ -103,24 +105,6 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         Compliance savedCompliance = complianceRepository.save(compliance);
 
-//                // Step 6: Save Documents if provided
-//        if (complianceRequest.getDocuments() != null && !complianceRequest.getDocuments().isEmpty()) {
-//            List<Document> documents = complianceRequest.getDocuments().stream().map(docRequest -> {
-//                Document document = new Document();
-//                document.setDocumentName(docRequest.getDocumentName());
-//                document.setFileName(docRequest.getFileName());
-//                document.setIssueDate(docRequest.getIssueDate());
-//                document.setReferenceNumber(docRequest.getReferenceNumber());
-//                document.setRemarks(docRequest.getRemarks());
-//                document.setUploadDate(new Date());
-//                document.setCompliance(savedCompliance);
-//                document.setAddedBy(user);
-//                document.setSuperAdmin(subscriber.getSuperAdmin());
-//                document.setSubscriber(subscriber);
-//                return document;
-//            }).collect(Collectors.toList());
-//            documentRepository.saveAll(documents);
-//        }
 
         // Step 7: Map Saved Entity to Response
         ComplianceResponse response = new ComplianceResponse();
@@ -135,11 +119,9 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.setWorkStatus(savedCompliance.getWorkStatus());
         response.setPriority(savedCompliance.getPriority());
         response.setBusinessUnitId(savedCompliance.getBusinessUnit().getId());
-        response.setCreatedBy(user.getId());
         response.setIssueAuthority(savedCompliance.getIssueAuthority());
         response.setSubscriberId(savedCompliance.getSubscriber().getId());
         response.setCertificateType(savedCompliance.getCertificateType());
-        response.setStatusName(savedCompliance.getStatus().getName());
 
         return response;
     }
@@ -191,7 +173,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
 
     @Override
-    public List<ComplianceResponse> fetchCompliancesByBusinessUnit(Long businessUnitId, Long userId, Long subscriberId) {
+    public List<ComplianceResponse> fetchComplianceByBusinessUnit(Long businessUnitId, Long userId, Long subscriberId) {
         // Step 1: Validate User
         User user = userRepository.findActiveUserById(userId);
         if (user == null) {
@@ -206,7 +188,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         List<Compliance> compliances = complianceRepository.findByBusinessUnitId(businessUnitId);
 
         if (compliances.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No compliances found for the given Business Unit ID");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No compliance found for the given Business Unit ID");
         }
 
         // Step 4: Map Compliances to Responses
@@ -226,13 +208,38 @@ public class ComplianceServiceImpl implements ComplianceService {
             response.setPriority(compliance.getPriority());
             response.setBusinessUnitId(compliance.getBusinessUnit().getId());
             response.setSubscriberId(compliance.getSubscriber().getId());
+            response.setCompanyId(compliance.getBusinessUnit().getGstDetails().getCompany().getId());
+
+            // Fetch milestones
+            List<MileStone> milestones = compliance.getMilestones();
+            int totalMilestones = milestones.size();
+            int completedMilestones = (int) milestones.stream()
+                    .filter(m -> m.getStatus() != null && "Completed".equalsIgnoreCase(m.getStatus().getName()))
+                    .count();
+
+            // Calculate progress percentage
+            double progressPercentage = (totalMilestones > 0) ? ((double) completedMilestones / totalMilestones) * 100 : 0;
+
+            // Set milestones and progress details
+            response.setMilestoneCount(totalMilestones);
+            response.setProgressPercentage(progressPercentage);
+
+            // Map milestones to ComplianceMilestoneResponse
+            List<ComplianceMilestoneResponse> milestoneResponses = new ArrayList<>();
+            for (MileStone milestone : milestones) {
+                ComplianceMilestoneResponse milestoneResponse = new ComplianceMilestoneResponse();
+                milestoneResponse.setId(milestone.getId());
+                milestoneResponse.setName(milestone.getMileStoneName());
+                milestoneResponse.setStatus(milestone.getStatus() != null ? milestone.getStatus().getName() : "Not Started");
+                milestoneResponses.add(milestoneResponse);
+            }
+            response.setMilestones(milestoneResponses);
 
             responses.add(response);
         }
 
         return responses;
     }
-
 
     @Override
     public List<CompanyComplianceDTO> getCompanyComplianceDetails(Long userId, Long subscriberId) {
@@ -261,9 +268,9 @@ public class ComplianceServiceImpl implements ComplianceService {
             for (GstDetails gstDetails : gstDetailsList) {
                 List<BusinessUnit> businessUnits = businessUnitRepository.findBusinessUnitsByGstDetails(gstDetails.getId(), true);
                 for (BusinessUnit businessUnit : businessUnits) {
-                    List<Compliance> compliances = complianceRepository.findCompliancesByBusinessUnitAndStatus(businessUnit.getId(), true);
+                    List<Compliance> compliance = complianceRepository.findCompliancesByBusinessUnitAndStatus(businessUnit.getId(), true);
 
-                    long complianceCount = compliances.size();
+                    long complianceCount = compliance.size();
                     // Add data even if complianceCount is 0
                     CompanyComplianceDTO complianceDTO = new CompanyComplianceDTO();
                     complianceDTO.setCompanyId(company.getId());
@@ -328,21 +335,9 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.put("state", state != null ? state.getStateName() : null);
         response.put("city", city != null ? city.getCityName() : null);
 
-        // Add Milestone Details
         Map<String, Object> milestoneStats = new HashMap<>();
 
         response.put("milestoneStatistics", milestoneStats);
-
-//        // Document Details
-//        List<Map<String, Object>> documentDetails = compliance.getDocuments().stream().map(doc -> {
-//            Map<String, Object> docMap = new HashMap<>();
-//            docMap.put("documentName", doc.getDocumentName());
-//            docMap.put("referenceNumber", doc.getReferenceNumber());
-//            docMap.put("issueDate", doc.getIssueDate());
-//            docMap.put("remarks", doc.getRemarks());
-//            return docMap;
-//        }).toList();
-//        response.put("documents", documentDetails);
 
 
         return response;

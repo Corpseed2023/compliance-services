@@ -55,7 +55,7 @@
 		@Comment(value = "0 : Not Deleted, 1 : Deleted")
 		private boolean isDeleted = false;
 
-		@Comment(value = "0 : No Action ,1 : Apply Now, 2 : Already Done, 3 : Not Applicable")
+		@Comment(value = "0 : No Action ,1 : Not Done, 2 : Already Done, 3 : Not Applicable")
 		private int workStatus;
 
 		@ManyToOne

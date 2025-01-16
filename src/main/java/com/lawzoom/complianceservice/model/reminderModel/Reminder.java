@@ -8,6 +8,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import  com.lawzoom.complianceservice.model.mileStoneTask.Task;
+
 
 import java.util.Date;
 
@@ -78,6 +80,11 @@ public class Reminder {
 	@Column(name = "updated_at")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updatedAt = new Date();
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "task_id", nullable = true)
+	private Task task;
+
 
 	@PrePersist
 	protected void onCreate() {

@@ -17,7 +17,7 @@ public interface ComplianceService {
 
     ComplianceResponse updateCompliance(@Valid ComplianceRequest complianceRequest, Long businessUnitId,Long complianceId);
 
-    List<ComplianceResponse> fetchCompliancesByBusinessUnit(Long businessUnitId, Long userId, Long subscriberId);
+    List<ComplianceResponse> fetchComplianceByBusinessUnit(Long businessUnitId, Long userId, Long subscriberId);
 
     List<CompanyComplianceDTO> getCompanyComplianceDetails(Long userId, Long subscriberId);
 

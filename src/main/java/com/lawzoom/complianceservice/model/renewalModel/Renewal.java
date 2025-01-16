@@ -11,7 +11,6 @@ import lombok.Setter;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDate;
-
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -48,10 +47,13 @@ public class Renewal {
     @Column(name = "renewal_notes", length = 500)
     private String renewalNotes;
 
+    @Comment(value = "Flag to enable or disable renewal notifications")
+    @Column(name = "stop_flag", columnDefinition = "boolean default false")
+    private boolean stopFlag = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscriber_id", nullable = false)
     private Subscriber subscriber;
-
 
     @PrePersist
     protected void onCreate() {

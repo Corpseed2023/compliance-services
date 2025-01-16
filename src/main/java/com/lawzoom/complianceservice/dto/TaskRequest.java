@@ -13,6 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskRequest {
+
     private String name;
     private String description;
     private Long statusId;
@@ -21,6 +22,6 @@ public class TaskRequest {
     private Date completedDate;
     private String criticality;
     private Long milestoneId;
-    private Long reporterUserId;
-    private Long assigneeUserId;
+    private Long managerId;
+    private Long assigneeId;
 }

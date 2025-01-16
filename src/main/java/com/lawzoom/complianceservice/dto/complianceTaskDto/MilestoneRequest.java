@@ -44,8 +44,6 @@ public class MilestoneRequest {
 
 	private Long assignedBy;
 
-	private String assigneeMail;
-
 	private String criticality;
 
 	private Long status;

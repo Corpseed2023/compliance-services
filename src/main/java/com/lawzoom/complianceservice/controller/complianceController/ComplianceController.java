@@ -69,8 +69,6 @@ public class ComplianceController {
         }
     }
 
-
-    //Fetching all complaince list here by using business unit id
     @GetMapping("/fetchByBusinessUnit")
     public ResponseEntity<List<ComplianceResponse>> fetchComplianceByBusinessUnit(
             @RequestParam("businessUnitId") Long businessUnitId,
@@ -82,7 +80,7 @@ public class ComplianceController {
         }
 
         try {
-            List<ComplianceResponse> responseList = complianceService.fetchCompliancesByBusinessUnit(businessUnitId, userId, subscriberId);
+            List<ComplianceResponse> responseList = complianceService.fetchComplianceByBusinessUnit(businessUnitId, userId, subscriberId);
             return ResponseEntity.ok(responseList);
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch compliance: " + e.getMessage(), e);

@@ -1,13 +1,16 @@
 package com.lawzoom.complianceservice.serviceImpl;
 
-
-import com.lawzoom.complianceservice.dto.RenewalRequest;
-import com.lawzoom.complianceservice.dto.RenewalResponse;
+import com.lawzoom.complianceservice.dto.renewalDto.MilestoneRenewalResponse;
+import com.lawzoom.complianceservice.dto.renewalDto.RenewalRequest;
+import com.lawzoom.complianceservice.dto.renewalDto.RenewalResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
+import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.repository.ComplianceRepo;
-import com.lawzoom.complianceservice.repository.RenewalRepository;
+import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
+import com.lawzoom.complianceservice.repository.RenewalRepository.RenewalRepository;
+import com.lawzoom.complianceservice.repository.TaskRepository;
 import com.lawzoom.complianceservice.service.RenewalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,9 +26,15 @@ public class RenewalServiceImpl implements RenewalService {
     @Autowired
     private ComplianceRepo complianceRepo;
 
+    @Autowired
+    private MilestoneRepository milestoneRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
+
     @Override
-    public RenewalResponse createOrUpdateRenewal(Long complianceId, RenewalRequest request) {
-        // Validate Compliance
+    public RenewalResponse generateComplianceRenewal(Long complianceId, RenewalRequest request) {
+
         Compliance compliance = complianceRepo.findById(complianceId)
                 .orElseThrow(() -> new NotFoundException("Compliance not found with ID: " + complianceId));
 
@@ -33,16 +42,29 @@ public class RenewalServiceImpl implements RenewalService {
         if (renewal == null) {
             renewal = new Renewal();
             renewal.setCompliance(compliance);
+            renewal.setCreatedAt(LocalDate.now());
         }
 
+        // Update Renewal details
         renewal.setNextRenewalDate(request.getNextRenewalDate());
         renewal.setRenewalFrequency(request.getRenewalFrequency());
         renewal.setRenewalType(request.getRenewalType());
         renewal.setRenewalNotes(request.getRenewalNotes());
+        renewal.setStopFlag(request.isStopFlag()); // Set stopFlag
         renewal.setUpdatedAt(LocalDate.now());
 
         Renewal savedRenewal = renewalRepository.save(renewal);
-        return mapToRenewalResponse(savedRenewal);
+
+        RenewalResponse response = new RenewalResponse();
+        response.setId(savedRenewal.getId());
+        response.setComplianceId(savedRenewal.getCompliance().getId());
+        response.setNextRenewalDate(savedRenewal.getNextRenewalDate());
+        response.setRenewalFrequency(savedRenewal.getRenewalFrequency());
+        response.setRenewalType(savedRenewal.getRenewalType());
+        response.setRenewalNotes(savedRenewal.getRenewalNotes());
+        response.setStopFlag(savedRenewal.isStopFlag());
+
+        return response;
     }
 
     @Override
@@ -97,4 +119,29 @@ public class RenewalServiceImpl implements RenewalService {
         return mapToRenewalResponse(savedRenewal);
     }
 
+
+    @Override
+    public MilestoneRenewalResponse createMilestoneRenewal(Long milestoneId, RenewalRequest request) {
+
+        MileStone milestone = milestoneRepository.findById(milestoneId)
+                .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
+
+        Renewal renewal = renewalRepository.findByMilestoneId(milestoneId);
+        if (renewal == null) {
+            renewal = new Renewal();
+            renewal.setMilestone(milestone);
+            renewal.setCreatedAt(LocalDate.now());
+        }
+
+        // Update Renewal details
+        renewal.setNextRenewalDate(request.getNextRenewalDate());
+        renewal.setRenewalFrequency(request.getRenewalFrequency());
+        renewal.setRenewalType(request.getRenewalType());
+        renewal.setRenewalNotes(request.getRenewalNotes());
+        renewal.setStopFlag(request.isStopFlag());
+        renewal.setUpdatedAt(LocalDate.now());
+
+        Renewal savedRenewal = renewalRepository.save(renewal);
+        return null;
+    }
 }

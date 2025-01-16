@@ -1,4 +1,4 @@
-package com.lawzoom.complianceservice.dto;
+package com.lawzoom.complianceservice.dto.renewalDto;
 
 
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 @Data
 public class RenewalRequest {
+
     @NotNull
     private LocalDate nextRenewalDate;
 
@@ -20,5 +21,5 @@ public class RenewalRequest {
 
     private String renewalNotes;
 
-    private boolean isActive;
+    private boolean stopFlag = false; // Default to false
 }

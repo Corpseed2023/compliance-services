@@ -11,10 +11,10 @@ import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
-import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
+import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitRepository;
 import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
 import com.lawzoom.complianceservice.service.MilestoneService;
@@ -101,7 +101,6 @@ public class MilestoneServiceImpl implements MilestoneService {
             milestone.setManager(reporter);
             milestone.setAssigned(assignedToUser);
             milestone.setAssignedBy(assignedByUser);
-            milestone.setAssigneeMail(milestoneRequest.getAssigneeMail());
             milestone.setCriticality(milestoneRequest.getCriticality());
             milestone.setStatus(status);
             milestone.setSubscriber(subscriber);
@@ -189,7 +188,6 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.setAssignedName(milestone.getAssigned() != null ? milestone.getAssigned().getUserName() : null);
         response.setAssignedBy(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getId() : null);
         response.setAssignedByName(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getUserName() : null);
-        response.setAssigneeMail(milestone.getAssigneeMail());
         response.setIssuedDate(milestone.getIssuedDate());
         response.setCriticality(milestone.getCriticality());
         response.setRemark(milestone.getRemark());
@@ -286,7 +284,6 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.setAssignedName(milestone.getAssigned() != null ? milestone.getAssigned().getUserName() : null);
         response.setAssignedBy(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getId() : null);
         response.setAssignedByName(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getUserName() : null);
-        response.setAssigneeMail(milestone.getAssigneeMail());
         response.setIssuedDate(milestone.getIssuedDate());
         response.setCriticality(milestone.getCriticality());
         response.setRemark(milestone.getRemark());
@@ -386,7 +383,7 @@ public class MilestoneServiceImpl implements MilestoneService {
             milestones = milestoneRepository.findBySubscriber(subscriber);
         } else {
             // If user is not SUPER ADMIN, fetch milestones assigned to the user with the given status
-            milestones = milestoneRepository.findBySubscriberAndAssignedToAndStatus(subscriber, user, status);
+            milestones = milestoneRepository.findBySubscriberAndAssignedAndStatus(subscriber, user, status);
         }
 
         // Step 5: Map milestones to response
@@ -407,7 +404,6 @@ public class MilestoneServiceImpl implements MilestoneService {
             response.setAssignedName(milestone.getAssigned() != null ? milestone.getAssigned().getUserName() : null);
             response.setAssignedBy(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getId() : null);
             response.setAssignedByName(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getUserName() : null);
-            response.setAssigneeMail(milestone.getAssigneeMail());
             response.setIssuedDate(milestone.getIssuedDate());
             response.setCriticality(milestone.getCriticality());
             response.setBusinessUnitId(milestone.getBusinessUnit().getId());

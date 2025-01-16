@@ -74,9 +74,6 @@ public class MileStone {
 	@JoinColumn(name = "assigned_by")
 	private User assignedBy;
 
-	@Column(name = "assignee_mail")
-	private String assigneeMail;
-
 	@ManyToOne
 	@JoinColumn(name = "task_created_by")
 	private User taskCreatedBy;

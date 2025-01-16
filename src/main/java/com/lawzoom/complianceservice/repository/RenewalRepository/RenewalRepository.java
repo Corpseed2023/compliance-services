@@ -1,4 +1,4 @@
-package com.lawzoom.complianceservice.repository;
+package com.lawzoom.complianceservice.repository.RenewalRepository;
 
 
 import com.lawzoom.complianceservice.model.renewalModel.Renewal;
@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RenewalRepository extends JpaRepository<Renewal, Long> {
     Renewal findByComplianceId(Long complianceId);
+
+    Renewal findByMilestoneId(Long milestoneId);
 }
