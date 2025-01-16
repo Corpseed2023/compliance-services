@@ -29,6 +29,12 @@ public class MilestoneResponse {
     private Long businessUnitId;
     private Long subscriberId;
     private String remark;
+    private LocalDate startedDate;
+    private LocalDate dueDate;
+    private LocalDate completedDate;
+    private int durationMonth;
+    private int durationYear;
+
 
     // List of reminders
     private List<ReminderDetails> reminders;
@@ -38,6 +44,7 @@ public class MilestoneResponse {
 
     // List of documents
     private List<DocumentDetails> documents;
+
 
     @Data
     public static class ReminderDetails {
