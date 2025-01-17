@@ -89,20 +89,15 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setApprovalState(complianceRequest.getApprovalState());
         compliance.setApplicableZone(complianceRequest.getApplicableZone());
 
-        compliance.setWorkStatus(complianceRequest.getWorkStatus());
         compliance.setPriority(complianceRequest.getPriority());
         compliance.setCertificateType(complianceRequest.getCertificateType());
-        compliance.setEnable(complianceRequest.isEnable());
+        compliance.setEnable(true);
         compliance.setIssueAuthority(complianceRequest.getIssueAuthority());
         compliance.setBusinessUnit(businessUnit);
         compliance.setSubscriber(subscriber);
         compliance.setCreatedAt(new Date());
         compliance.setUpdatedAt(new Date());
         compliance.setDeleted(false);
-        Status status = statusRepository.findById(complianceRequest.getStatusId())
-                .orElseThrow(() -> new NotFoundException("No status found."));
-        compliance.setStatus(status);
-
         Compliance savedCompliance = complianceRepository.save(compliance);
 
 
@@ -116,7 +111,6 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.setUpdatedAt(savedCompliance.getUpdatedAt());
         response.setEnable(savedCompliance.isEnable());
 
-        response.setWorkStatus(savedCompliance.getWorkStatus());
         response.setPriority(savedCompliance.getPriority());
         response.setBusinessUnitId(savedCompliance.getBusinessUnit().getId());
         response.setIssueAuthority(savedCompliance.getIssueAuthority());
@@ -143,7 +137,6 @@ public class ComplianceServiceImpl implements ComplianceService {
         compliance.setApprovalState(complianceRequest.getApprovalState());
         compliance.setApplicableZone(complianceRequest.getApplicableZone());
 
-        compliance.setWorkStatus(complianceRequest.getWorkStatus());
         compliance.setPriority(complianceRequest.getPriority());
         compliance.setUpdatedAt(new Date()); // Update the updatedAt timestamp
 
@@ -165,7 +158,6 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.setUpdatedAt(compliance.getUpdatedAt());
         response.setEnable(compliance.isEnable());
 
-        response.setWorkStatus(compliance.getWorkStatus());
         response.setPriority(compliance.getPriority());
         response.setBusinessUnitId(compliance.getBusinessUnit().getId());
         return response;
@@ -204,7 +196,6 @@ public class ComplianceServiceImpl implements ComplianceService {
             response.setCreatedAt(compliance.getCreatedAt());
             response.setUpdatedAt(compliance.getUpdatedAt());
             response.setEnable(compliance.isEnable());
-            response.setWorkStatus(compliance.getWorkStatus());
             response.setPriority(compliance.getPriority());
             response.setBusinessUnitId(compliance.getBusinessUnit().getId());
             response.setSubscriberId(compliance.getSubscriber().getId());
@@ -315,11 +306,9 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.put("createdAt", compliance.getCreatedAt());
         response.put("updatedAt", compliance.getUpdatedAt());
         response.put("isEnable", compliance.isEnable());
-        response.put("workStatus", compliance.getWorkStatus());
         response.put("priority", compliance.getPriority());
         response.put("businessUnitId", compliance.getBusinessUnit().getId());
         response.put("subscriberId", compliance.getSubscriber().getId());
-        response.put("statusName", compliance.getStatus().getName());
 
         // Add Company and Business Details
         BusinessUnit businessUnit = compliance.getBusinessUnit();

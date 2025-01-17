@@ -55,9 +55,6 @@
 		@Comment(value = "0 : Not Deleted, 1 : Deleted")
 		private boolean isDeleted = false;
 
-		@Comment(value = "0 : No Action ,1 : Not Done, 2 : Already Done, 3 : Not Applicable")
-		private int workStatus;
-
 		@ManyToOne
 		@JoinColumn(name = "business_unit_id", nullable = false)
 		private BusinessUnit businessUnit;
@@ -71,10 +68,6 @@
 
 		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
 		private List<MileStone> milestones = new ArrayList<>();
-
-		@ManyToOne
-		@JoinColumn(name = "status_id")
-		private Status status;
 
 
 		@PrePersist

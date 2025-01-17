@@ -21,17 +21,11 @@ public class ComplianceRequest {
 
     private String applicableZone;
 
-    private int workStatus;
-
     private int priority;
 
     private String certificateType;
 
-    private boolean isEnable;
-
     private Long subscriberId;
-
-    private Long statusId;
 
 
 

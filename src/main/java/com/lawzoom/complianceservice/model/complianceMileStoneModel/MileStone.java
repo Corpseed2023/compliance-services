@@ -44,11 +44,11 @@ public class MileStone {
 
 	private LocalDate completedDate;
 
-	private LocalDate issueDate;
+	private LocalDate issuedDate;
 
-	private int durationMonth;
+	private LocalDate expiryDate;
 
-	private int durationYear;
+	private String comment;
 
 	@Column(name = "created_at")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -77,8 +77,6 @@ public class MileStone {
 	@ManyToOne
 	@JoinColumn(name = "task_created_by")
 	private User taskCreatedBy;
-
-	private LocalDate issuedDate;
 
 	private String criticality;
 

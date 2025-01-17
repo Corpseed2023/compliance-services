@@ -292,8 +292,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.setStartedDate(milestone.getStartedDate());
         response.setDueDate(milestone.getDueDate());
         response.setCompletedDate(milestone.getCompletedDate());
-        response.setDurationMonth(milestone.getDurationMonth());
-        response.setDurationYear(milestone.getDurationYear());
+
 
         // Map Reminder details
         List<MilestoneResponse.ReminderDetails> reminderDetails = milestone.getReminders().stream()
