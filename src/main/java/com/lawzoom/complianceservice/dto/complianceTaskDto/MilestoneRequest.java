@@ -52,6 +52,11 @@ public class MilestoneRequest {
 
 	private String remark;
 
+	private LocalDate expiryDate;
+
+	private String comment;
+
+
 	private Date reminderDate;
 	private Date reminderEndDate;
 	private Integer notificationTimelineValue;
