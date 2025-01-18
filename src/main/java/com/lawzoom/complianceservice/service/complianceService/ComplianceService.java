@@ -15,12 +15,12 @@ public interface ComplianceService {
 
     ComplianceResponse saveCompliance(@Valid ComplianceRequest complianceRequest, Long businessUnitId, Long userId);
 
-    ComplianceResponse updateCompliance(@Valid ComplianceRequest complianceRequest, Long businessUnitId,Long complianceId);
 
-    List<ComplianceResponse> fetchCompliancesByBusinessUnit(Long businessUnitId, Long userId, Long subscriberId);
+    List<ComplianceResponse> fetchComplianceByBusinessUnit(Long businessUnitId, Long userId, Long subscriberId);
 
     List<CompanyComplianceDTO> getCompanyComplianceDetails(Long userId, Long subscriberId);
 
     Map<String, Object> fetchComplianceById(Long complianceId);
 
+    ComplianceResponse updateCompliance(ComplianceRequest complianceRequest, Long businessUnitId, Long complianceId, Long userId);
 }

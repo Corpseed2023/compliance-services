@@ -13,6 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskResponse {
+
     private Long id;
     private String name;
     private String description;
@@ -21,8 +22,10 @@ public class TaskResponse {
     private Date dueDate;
     private Date completedDate;
     private String criticality;
-    private Long reporterUserId;
-    private String reporterUserName;
+    private Long managerId;
+    private String managerName;
     private Long assigneeUserId;
     private String assigneeUserName;
+    private Long milestoneId;
+    private String milestoneName;
 }

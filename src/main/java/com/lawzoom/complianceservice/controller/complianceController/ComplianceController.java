@@ -6,7 +6,7 @@ import com.lawzoom.complianceservice.dto.complianceDto.CompanyComplianceDTO;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
-import com.lawzoom.complianceservice.repository.ComplianceRepo;
+import com.lawzoom.complianceservice.repository.complianceRepo.ComplianceRepo;
 import com.lawzoom.complianceservice.service.complianceService.ComplianceService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,14 +53,14 @@ public class ComplianceController {
     @PutMapping("/updateCompliance")
     public ResponseEntity<ComplianceResponse> updateCompliance(
             @Valid @RequestBody ComplianceRequest complianceRequest,
-            @RequestParam("businessUnitId") Long businessUnitId,@RequestParam Long complianceId) {
+            @RequestParam("businessUnitId") Long businessUnitId,@RequestParam Long complianceId,@RequestParam Long userId) {
 
         if (businessUnitId == null) {
             throw new IllegalArgumentException("Please provide a valid businessUnitId");
         }
 
         try {
-            ComplianceResponse response = complianceService.updateCompliance(complianceRequest, businessUnitId,complianceId);
+            ComplianceResponse response = complianceService.updateCompliance(complianceRequest, businessUnitId,complianceId,userId);
             return ResponseEntity.ok(response);
         } catch (ResponseStatusException e) {
             throw e; // Let Spring handle the HTTP status and message
@@ -69,8 +69,6 @@ public class ComplianceController {
         }
     }
 
-
-    //Fetching all complaince list here by using business unit id
     @GetMapping("/fetchByBusinessUnit")
     public ResponseEntity<List<ComplianceResponse>> fetchComplianceByBusinessUnit(
             @RequestParam("businessUnitId") Long businessUnitId,
@@ -82,7 +80,7 @@ public class ComplianceController {
         }
 
         try {
-            List<ComplianceResponse> responseList = complianceService.fetchCompliancesByBusinessUnit(businessUnitId, userId, subscriberId);
+            List<ComplianceResponse> responseList = complianceService.fetchComplianceByBusinessUnit(businessUnitId, userId, subscriberId);
             return ResponseEntity.ok(responseList);
         } catch (Exception e) {
             throw new RuntimeException("Failed to fetch compliance: " + e.getMessage(), e);

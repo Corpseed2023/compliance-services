@@ -8,7 +8,10 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import  com.lawzoom.complianceservice.model.mileStoneTask.Task;
 
+
+import java.time.LocalDate;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -49,11 +52,11 @@ public class Reminder {
 
 	@Column(name = "reminder_date", nullable = false)
 	@Temporal(TemporalType.DATE)
-	private Date reminderDate;
+	private LocalDate reminderDate;
 
 	@Column(name = "reminder_end_date", nullable = false)
 	@Temporal(TemporalType.DATE)
-	private Date reminderEndDate;
+	private LocalDate reminderEndDate;
 
 	@Comment("Notification trigger timeline in days before the due date")
 	@Column(name = "notification_timeline_value", nullable = false)
@@ -68,6 +71,9 @@ public class Reminder {
 	@Column(name = "repeat_timeline_type", nullable = false)
 	private String repeatTimelineType;
 
+	// 1 means active and 0 means stopped
+	private int stopFlag=1;
+
 	@Column(name = "created_at", updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdAt = new Date();
@@ -75,6 +81,11 @@ public class Reminder {
 	@Column(name = "updated_at")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updatedAt = new Date();
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "task_id", nullable = true)
+	private Task task;
+
 
 	@PrePersist
 	protected void onCreate() {

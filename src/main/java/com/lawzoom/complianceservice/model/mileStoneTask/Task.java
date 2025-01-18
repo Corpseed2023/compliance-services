@@ -3,11 +3,13 @@ package com.lawzoom.complianceservice.model.mileStoneTask;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.documentModel.Document;
+import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +31,8 @@ public class Task {
 
 	@Column(columnDefinition = "TEXT")
 	private String description;
+
+	private LocalDate date;
 
 	@ManyToOne
 	@JoinColumn(name = "status_id")
@@ -59,12 +63,12 @@ public class Task {
 	private Date completedDate;
 
 	@ManyToOne
-	@JoinColumn(name = "reporter_id")
-	private User reporterUserId;
+	@JoinColumn(name = "manager_id")
+	private User managerId;
 
 	@ManyToOne
 	@JoinColumn(name = "assignee_id")
-	private User assigneeUserId;
+	private User assigneeId;
 
 	private String criticality;
 
@@ -74,5 +78,9 @@ public class Task {
 
 	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Document> documents = new ArrayList<>();
+
+	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Reminder> reminders = new ArrayList<>();
+
 
 }

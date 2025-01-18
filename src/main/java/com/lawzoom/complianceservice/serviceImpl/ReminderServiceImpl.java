@@ -8,8 +8,8 @@ import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
-import com.lawzoom.complianceservice.repository.ComplianceRepo;
-import com.lawzoom.complianceservice.repository.ReminderRepository;
+import com.lawzoom.complianceservice.repository.complianceRepo.ComplianceRepo;
+import com.lawzoom.complianceservice.repository.ReminderRepositroy.ReminderRepository;
 import com.lawzoom.complianceservice.repository.SubscriberRepository;
 import com.lawzoom.complianceservice.repository.UserRepository;
 import com.lawzoom.complianceservice.service.ReminderService;
@@ -62,7 +62,6 @@ public class ReminderServiceImpl implements ReminderService {
         // Create Reminder
         Reminder reminder = new Reminder();
         reminder.setCompliance(compliance);
-        reminder.setSubscriber(subscriber);
         reminder.setSuperAdmin(superAdmin);
         reminder.setCreatedBy(createdBy);
         reminder.setWhomToSend(whomToSend);

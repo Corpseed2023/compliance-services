@@ -3,39 +3,35 @@ package com.lawzoom.complianceservice.serviceImpl.complianceServiceImpl;
 
 
 
-import com.lawzoom.complianceservice.dto.DocumentRequest;
-import com.lawzoom.complianceservice.dto.RenewalResponse;
+
 import com.lawzoom.complianceservice.dto.complianceDto.CompanyComplianceDTO;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceMilestoneResponse;
-import com.lawzoom.complianceservice.dto.document.DocumentResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
-import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.companyModel.Company;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
-import com.lawzoom.complianceservice.model.documentModel.Document;
+import com.lawzoom.complianceservice.model.complianceModel.ComplianceHistory;
 import com.lawzoom.complianceservice.model.gstdetails.GstDetails;
 import com.lawzoom.complianceservice.model.region.City;
 import com.lawzoom.complianceservice.model.region.States;
-import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
+import com.lawzoom.complianceservice.repository.RenewalRepository.RenewalRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitRepository;
 import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
+import com.lawzoom.complianceservice.repository.complianceRepo.ComplianceHistoryRepository;
+import com.lawzoom.complianceservice.repository.complianceRepo.ComplianceRepo;
 import com.lawzoom.complianceservice.service.complianceService.ComplianceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ComplianceServiceImpl implements ComplianceService {
@@ -68,6 +64,9 @@ public class ComplianceServiceImpl implements ComplianceService {
     @Autowired
     private RenewalRepository renewalRepository;
 
+    @Autowired
+    private ComplianceHistoryRepository complianceHistoryRepository;
+
     @Override
     public ComplianceResponse saveCompliance(ComplianceRequest complianceRequest, Long businessUnitId, Long userId) {
         // Step 1: Validate User
@@ -81,97 +80,69 @@ public class ComplianceServiceImpl implements ComplianceService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid businessUnitId: " + businessUnitId));
 
         // Step 3: Validate Subscriber
-        Long subscriberId = complianceRequest.getSubscriberId();
-        Subscriber subscriber = subscriberRepository.findById(subscriberId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + subscriberId));
-
-        if (!businessUnit.getGstDetails().getCompany().getSubscriber().getId().equals(subscriberId)) {
-            throw new IllegalArgumentException("Business Unit does not belong to the provided Subscriber.");
-        }
+        Subscriber subscriber = subscriberRepository.findById(complianceRequest.getSubscriberId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + complianceRequest.getSubscriberId()));
 
         // Step 4: Create and Save Compliance Entity
         Compliance compliance = new Compliance();
         compliance.setComplianceName(complianceRequest.getName());
-        compliance.setDescription(complianceRequest.getDescription());
         compliance.setApprovalState(complianceRequest.getApprovalState());
         compliance.setApplicableZone(complianceRequest.getApplicableZone());
-
-        compliance.setWorkStatus(complianceRequest.getWorkStatus());
         compliance.setPriority(complianceRequest.getPriority());
         compliance.setCertificateType(complianceRequest.getCertificateType());
-        compliance.setEnable(complianceRequest.isEnable());
-        compliance.setDurationMonth(complianceRequest.getDurationMonth());
-        compliance.setDurationYear(complianceRequest.getDurationYear());
         compliance.setIssueAuthority(complianceRequest.getIssueAuthority());
         compliance.setBusinessUnit(businessUnit);
         compliance.setSubscriber(subscriber);
+        compliance.setEnable(true);
+        compliance.setDeleted(false);
         compliance.setCreatedAt(new Date());
         compliance.setUpdatedAt(new Date());
-        compliance.setDeleted(false);
-        compliance.setIssueDate(complianceRequest.getIssueDate());
-        Status status = statusRepository.findById(complianceRequest.getStatusId())
-                .orElseThrow(() -> new NotFoundException("No status found."));
-        compliance.setStatus(status);
-
         Compliance savedCompliance = complianceRepository.save(compliance);
 
+        // Step 5: Log Compliance History
+        logComplianceHistory(savedCompliance, user, "CREATE", "Compliance created successfully.");
 
-                Renewal renewal = new Renewal();
-                renewal.setCompliance(savedCompliance);
-                renewal.setCreatedAt(LocalDate.now());
-                renewal.setUpdatedAt(LocalDate.now());
-                renewal.setNextRenewalDate(complianceRequest.getRenewalDate());
-
-                renewalRepository.save(renewal);
-
-
-        // Step 6: Save Documents if provided
-        if (complianceRequest.getDocuments() != null && !complianceRequest.getDocuments().isEmpty()) {
-            List<Document> documents = complianceRequest.getDocuments().stream().map(docRequest -> {
-                Document document = new Document();
-                document.setDocumentName(docRequest.getDocumentName());
-                document.setFileName(docRequest.getFileName());
-                document.setIssueDate(docRequest.getIssueDate());
-                document.setReferenceNumber(docRequest.getReferenceNumber());
-                document.setRemarks(docRequest.getRemarks());
-                document.setUploadDate(new Date());
-                document.setCompliance(savedCompliance);
-                document.setAddedBy(user);
-                document.setSuperAdmin(subscriber.getSuperAdmin());
-                document.setSubscriber(subscriber);
-                return document;
-            }).collect(Collectors.toList());
-            documentRepository.saveAll(documents);
-        }
-
-        // Step 7: Map Saved Entity to Response
+        // Step 6: Create and Manually Set Response
         ComplianceResponse response = new ComplianceResponse();
         response.setId(savedCompliance.getId());
         response.setName(savedCompliance.getComplianceName());
-        response.setDescription(savedCompliance.getDescription());
+        response.setIssueAuthority(savedCompliance.getIssueAuthority());
+        response.setCertificateType(savedCompliance.getCertificateType());
         response.setApprovalState(savedCompliance.getApprovalState());
         response.setApplicableZone(savedCompliance.getApplicableZone());
         response.setCreatedAt(savedCompliance.getCreatedAt());
         response.setUpdatedAt(savedCompliance.getUpdatedAt());
         response.setEnable(savedCompliance.isEnable());
-
-        response.setWorkStatus(savedCompliance.getWorkStatus());
         response.setPriority(savedCompliance.getPriority());
         response.setBusinessUnitId(savedCompliance.getBusinessUnit().getId());
-        response.setCreatedBy(user.getId());
-        response.setIssueAuthority(savedCompliance.getIssueAuthority());
         response.setSubscriberId(savedCompliance.getSubscriber().getId());
-        response.setDurationYear(savedCompliance.getDurationYear());
-        response.setDurationMonth(savedCompliance.getDurationMonth());
-        response.setCertificateType(savedCompliance.getCertificateType());
-        response.setStatusName(savedCompliance.getStatus().getName());
+        response.setCompanyId(savedCompliance.getBusinessUnit().getGstDetails().getCompany().getId());
+
+        response.setProgressPercentage(0.0);
+        response.setMilestoneCount(0);
+        response.setMilestones(Collections.emptyList());
 
         return response;
     }
 
+    private void logComplianceHistory(Compliance compliance, User user, String action, String details) {
+        ComplianceHistory history = new ComplianceHistory();
+        history.setCompliance(compliance);
+        history.setUser(user);
+        history.setAction(action);
+        history.setActionDetails(details);
+        history.setTimestamp(new Date());
+        complianceHistoryRepository.save(history);
+    }
 
     @Override
-    public ComplianceResponse updateCompliance(ComplianceRequest complianceRequest, Long businessUnitId, Long complianceId) {
+    public ComplianceResponse updateCompliance(ComplianceRequest complianceRequest, Long businessUnitId, Long complianceId, Long userId) {
+        // Validate User
+        User user = userRepository.findActiveUserById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("Error: User not found!");
+        }
+
         // Retrieve the existing Compliance entity
         Compliance compliance = complianceRepository.findById(complianceId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No compliance found with the provided ID"));
@@ -181,65 +152,83 @@ public class ComplianceServiceImpl implements ComplianceService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Compliance does not belong to the specified BusinessUnit");
         }
 
+        // Save previous state for history
+        String previousState = String.format(
+                "ComplianceName: %s, ApprovalState: %s, ApplicableZone: %s, Priority: %d",
+                compliance.getComplianceName(),
+                compliance.getApprovalState(),
+                compliance.getApplicableZone(),
+                compliance.getPriority()
+        );
+
         // Update the Compliance entity with new values from the request
         compliance.setComplianceName(complianceRequest.getName());
         compliance.setApprovalState(complianceRequest.getApprovalState());
         compliance.setApplicableZone(complianceRequest.getApplicableZone());
-
-        compliance.setWorkStatus(complianceRequest.getWorkStatus());
         compliance.setPriority(complianceRequest.getPriority());
         compliance.setUpdatedAt(new Date()); // Update the updatedAt timestamp
-
-        // Handle documents
-        if (complianceRequest.getDocuments() != null) {
-            // Remove old documents linked to this compliance
-            documentRepository.deleteByComplianceId(complianceId);
-
-            // Add new documents
-            List<Document> documents = new ArrayList<>();
-            for (DocumentRequest docRequest : complianceRequest.getDocuments()) {
-                Document document = new Document();
-                document.setDocumentName(docRequest.getDocumentName());
-                document.setFileName(docRequest.getFileName());
-                document.setIssueDate(docRequest.getIssueDate());
-                document.setReferenceNumber(docRequest.getReferenceNumber());
-                document.setRemarks(docRequest.getRemarks());
-                document.setUploadDate(new Date());
-                document.setCompliance(compliance); // Link to compliance
-                document.setAddedBy(userRepository.findById(docRequest.getAddedById())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid addedById")));
-                documents.add(document);
-            }
-            documentRepository.saveAll(documents);
-        }
 
         // Save the updated Compliance entity
         Compliance updatedCompliance = complianceRepository.save(compliance);
 
-        // Create and return the response
-        return createComplianceResponse(updatedCompliance);
+        // Log Compliance History
+        String actionDetails = String.format(
+                "Updated fields - PreviousState: [%s], UpdatedState: [ComplianceName: %s, ApprovalState: %s, ApplicableZone: %s, Priority: %d]",
+                previousState,
+                complianceRequest.getName(),
+                complianceRequest.getApprovalState(),
+                complianceRequest.getApplicableZone(),
+                complianceRequest.getPriority()
+        );
+        logComplianceHistory(updatedCompliance, user, "UPDATE", actionDetails);
+
+        return mapToComplianceResponse(updatedCompliance);
     }
 
 
-    private ComplianceResponse createComplianceResponse(Compliance compliance) {
+    private ComplianceResponse mapToComplianceResponse(Compliance compliance) {
         ComplianceResponse response = new ComplianceResponse();
         response.setId(compliance.getId());
         response.setName(compliance.getComplianceName());
+        response.setIssueAuthority(compliance.getIssueAuthority());
+        response.setCertificateType(compliance.getCertificateType());
         response.setApprovalState(compliance.getApprovalState());
         response.setApplicableZone(compliance.getApplicableZone());
         response.setCreatedAt(compliance.getCreatedAt());
         response.setUpdatedAt(compliance.getUpdatedAt());
         response.setEnable(compliance.isEnable());
-
-        response.setWorkStatus(compliance.getWorkStatus());
         response.setPriority(compliance.getPriority());
         response.setBusinessUnitId(compliance.getBusinessUnit().getId());
+        response.setSubscriberId(compliance.getSubscriber().getId());
+
+        // Calculate and set milestones progress
+        List<MileStone> milestones = compliance.getMilestones();
+        int totalMilestones = milestones.size();
+        int completedMilestones = (int) milestones.stream()
+                .filter(m -> m.getStatus() != null && "Completed".equalsIgnoreCase(m.getStatus().getName()))
+                .count();
+        double progressPercentage = (totalMilestones > 0) ? ((double) completedMilestones / totalMilestones) * 100 : 0;
+
+        response.setProgressPercentage(progressPercentage);
+        response.setMilestoneCount(totalMilestones);
+
+        // Map Milestones
+        List<ComplianceMilestoneResponse> milestoneResponses = new ArrayList<>();
+        for (MileStone milestone : milestones) {
+            ComplianceMilestoneResponse milestoneResponse = new ComplianceMilestoneResponse();
+            milestoneResponse.setId(milestone.getId());
+            milestoneResponse.setName(milestone.getMileStoneName());
+            milestoneResponse.setStatus(milestone.getStatus() != null ? milestone.getStatus().getName() : "Not Started");
+            milestoneResponses.add(milestoneResponse);
+        }
+        response.setMilestones(milestoneResponses);
+
         return response;
     }
 
 
     @Override
-    public List<ComplianceResponse> fetchCompliancesByBusinessUnit(Long businessUnitId, Long userId, Long subscriberId) {
+    public List<ComplianceResponse> fetchComplianceByBusinessUnit(Long businessUnitId, Long userId, Long subscriberId) {
         // Step 1: Validate User
         User user = userRepository.findActiveUserById(userId);
         if (user == null) {
@@ -254,7 +243,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         List<Compliance> compliances = complianceRepository.findByBusinessUnitId(businessUnitId);
 
         if (compliances.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No compliances found for the given Business Unit ID");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No compliance found for the given Business Unit ID");
         }
 
         // Step 4: Map Compliances to Responses
@@ -270,45 +259,41 @@ public class ComplianceServiceImpl implements ComplianceService {
             response.setCreatedAt(compliance.getCreatedAt());
             response.setUpdatedAt(compliance.getUpdatedAt());
             response.setEnable(compliance.isEnable());
-            response.setWorkStatus(compliance.getWorkStatus());
             response.setPriority(compliance.getPriority());
             response.setBusinessUnitId(compliance.getBusinessUnit().getId());
             response.setSubscriberId(compliance.getSubscriber().getId());
+            response.setCompanyId(compliance.getBusinessUnit().getGstDetails().getCompany().getId());
 
-            // Fetch Document Details
-            List<DocumentResponse> documentResponses = new ArrayList<>();
-            for (Document document : compliance.getDocuments()) {
-                DocumentResponse documentResponse = new DocumentResponse();
-                documentResponse.setId(document.getId());
-                documentResponse.setDocumentName(document.getDocumentName());
-                documentResponse.setFileName(document.getFileName());
-                documentResponse.setIssueDate(document.getIssueDate());
-                documentResponse.setReferenceNumber(document.getReferenceNumber());
-                documentResponse.setRemarks(document.getRemarks());
-                documentResponse.setUploadDate(document.getUploadDate());
-                documentResponse.setEnable(document.isEnable());
-                documentResponses.add(documentResponse);
-            }
-            response.setDocuments(documentResponses);
+            // Fetch milestones
+            List<MileStone> milestones = compliance.getMilestones();
+            int totalMilestones = milestones.size();
+            int completedMilestones = (int) milestones.stream()
+                    .filter(m -> m.getStatus() != null && "Completed".equalsIgnoreCase(m.getStatus().getName()))
+                    .count();
 
-            // Fetch Renewal Details
-            Renewal renewal = compliance.getRenewal();
-            if (renewal != null) {
-                RenewalResponse renewalResponse = new RenewalResponse();
-                renewalResponse.setId(renewal.getId());
-                renewalResponse.setNextRenewalDate(renewal.getNextRenewalDate());
-                renewalResponse.setRenewalFrequency(renewal.getRenewalFrequency());
-                renewalResponse.setRenewalType(renewal.getRenewalType());
-                renewalResponse.setRenewalNotes(renewal.getRenewalNotes());
-                response.setRenewal(renewalResponse);
+            // Calculate progress percentage
+            double progressPercentage = (totalMilestones > 0) ? ((double) completedMilestones / totalMilestones) * 100 : 0;
+
+            // Set milestones and progress details
+            response.setMilestoneCount(totalMilestones);
+            response.setProgressPercentage(progressPercentage);
+
+            // Map milestones to ComplianceMilestoneResponse
+            List<ComplianceMilestoneResponse> milestoneResponses = new ArrayList<>();
+            for (MileStone milestone : milestones) {
+                ComplianceMilestoneResponse milestoneResponse = new ComplianceMilestoneResponse();
+                milestoneResponse.setId(milestone.getId());
+                milestoneResponse.setName(milestone.getMileStoneName());
+                milestoneResponse.setStatus(milestone.getStatus() != null ? milestone.getStatus().getName() : "Not Started");
+                milestoneResponses.add(milestoneResponse);
             }
+            response.setMilestones(milestoneResponses);
 
             responses.add(response);
         }
 
         return responses;
     }
-
 
     @Override
     public List<CompanyComplianceDTO> getCompanyComplianceDetails(Long userId, Long subscriberId) {
@@ -337,9 +322,9 @@ public class ComplianceServiceImpl implements ComplianceService {
             for (GstDetails gstDetails : gstDetailsList) {
                 List<BusinessUnit> businessUnits = businessUnitRepository.findBusinessUnitsByGstDetails(gstDetails.getId(), true);
                 for (BusinessUnit businessUnit : businessUnits) {
-                    List<Compliance> compliances = complianceRepository.findCompliancesByBusinessUnitAndStatus(businessUnit.getId(), true);
+                    List<Compliance> compliance = complianceRepository.findCompliancesByBusinessUnitAndStatus(businessUnit.getId(), true);
 
-                    long complianceCount = compliances.size();
+                    long complianceCount = compliance.size();
                     // Add data even if complianceCount is 0
                     CompanyComplianceDTO complianceDTO = new CompanyComplianceDTO();
                     complianceDTO.setCompanyId(company.getId());
@@ -377,7 +362,6 @@ public class ComplianceServiceImpl implements ComplianceService {
         Map<String, Object> response = new HashMap<>();
         response.put("id", compliance.getId());
         response.put("name", compliance.getComplianceName());
-        response.put("description", compliance.getDescription());
         response.put("issueAuthority", compliance.getIssueAuthority());
         response.put("certificateType", compliance.getCertificateType());
         response.put("approvalState", compliance.getApprovalState());
@@ -385,13 +369,9 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.put("createdAt", compliance.getCreatedAt());
         response.put("updatedAt", compliance.getUpdatedAt());
         response.put("isEnable", compliance.isEnable());
-        response.put("workStatus", compliance.getWorkStatus());
         response.put("priority", compliance.getPriority());
         response.put("businessUnitId", compliance.getBusinessUnit().getId());
         response.put("subscriberId", compliance.getSubscriber().getId());
-        response.put("durationMonth", compliance.getDurationMonth());
-        response.put("durationYear", compliance.getDurationYear());
-        response.put("statusName", compliance.getStatus().getName());
 
         // Add Company and Business Details
         BusinessUnit businessUnit = compliance.getBusinessUnit();
@@ -407,21 +387,9 @@ public class ComplianceServiceImpl implements ComplianceService {
         response.put("state", state != null ? state.getStateName() : null);
         response.put("city", city != null ? city.getCityName() : null);
 
-        // Add Milestone Details
         Map<String, Object> milestoneStats = new HashMap<>();
 
         response.put("milestoneStatistics", milestoneStats);
-
-        // Document Details
-        List<Map<String, Object>> documentDetails = compliance.getDocuments().stream().map(doc -> {
-            Map<String, Object> docMap = new HashMap<>();
-            docMap.put("documentName", doc.getDocumentName());
-            docMap.put("referenceNumber", doc.getReferenceNumber());
-            docMap.put("issueDate", doc.getIssueDate());
-            docMap.put("remarks", doc.getRemarks());
-            return docMap;
-        }).toList();
-        response.put("documents", documentDetails);
 
 
         return response;

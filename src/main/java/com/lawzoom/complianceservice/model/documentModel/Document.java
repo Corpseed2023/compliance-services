@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;
 
+import java.time.LocalDate;
 import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,7 +31,7 @@ public class Document {
 
     @Temporal(TemporalType.DATE)
     @Column(name = "issue_date")
-    private Date issueDate;
+    private LocalDate issueDate;
 
     @Column(name = "reference_number")
     private String referenceNumber;

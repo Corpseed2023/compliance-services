@@ -1,13 +1,13 @@
 package com.lawzoom.complianceservice.dto.complianceDto;
 
-import com.lawzoom.complianceservice.dto.DocumentRequest;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.*;
 
-import java.time.LocalDate;
-import java.util.List;
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ComplianceRequest {
 
 
@@ -15,36 +15,17 @@ public class ComplianceRequest {
     @Size(max = 255, message = "Compliance name must not exceed 255 characters.")
     private String name;
 
-    private String description;
-
     private String issueAuthority;
-
-    private Long durationMonth;
-
-    private Long durationYear;
 
     private String approvalState;
 
     private String applicableZone;
 
-    private int workStatus;
-
     private int priority;
 
     private String certificateType;
 
-    private boolean isEnable;
-
     private Long subscriberId;
-
-    // New field for documents
-    private List<DocumentRequest> documents;
-
-    private Long statusId;
-
-    private LocalDate issueDate;
-
-    private LocalDate renewalDate;
 
 
 

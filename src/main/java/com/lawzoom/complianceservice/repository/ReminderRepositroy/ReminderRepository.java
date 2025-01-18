@@ -1,4 +1,4 @@
-package com.lawzoom.complianceservice.repository;
+package com.lawzoom.complianceservice.repository.ReminderRepositroy;
 
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 

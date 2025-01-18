@@ -1,13 +1,21 @@
 package com.lawzoom.complianceservice.dto.complianceTaskDto;
 
-import lombok.Data;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
-
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class MilestoneResponse {
+
     private Long id;
     private String mileStoneName;
     private String description;
@@ -17,56 +25,67 @@ public class MilestoneResponse {
     private Date updatedAt;
     private boolean isEnable;
     private Long complianceId;
-    private Long reporterId;
-    private String reporterName;
-    private Long assignedTo;
+    private Long managerId;
+    private String managerName;
+    private Long assignedId;
     private String assignedName;
     private Long assignedBy;
     private String assignedByName;
-    private String assigneeMail;
     private LocalDate issuedDate;
+    private LocalDate startedDate;
+    private LocalDate dueDate;
+    private LocalDate completedDate;
     private String criticality;
+    private String remark;
     private Long businessUnitId;
     private Long subscriberId;
-    private String remark;
 
-    // List of reminders
     private List<ReminderDetails> reminders;
-
-    // List of renewals
     private List<RenewalDetails> renewals;
-
-    // List of documents
     private List<DocumentDetails> documents;
 
-    @Data
+    private List<TaskMileStoneResponse> tasks;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class ReminderDetails {
         private Long id;
-        private Date reminderDate;
-        private Date reminderEndDate;
-        private int notificationTimelineValue;
-        private int repeatTimelineValue;
+        private LocalDate reminderDate;
+        private LocalDate reminderEndDate;
+        private Integer notificationTimelineValue;
+        private Integer repeatTimelineValue;
         private String repeatTimelineType;
         private Long whomToSendId;
         private String whomToSendName;
     }
 
-    @Data
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class RenewalDetails {
         private Long id;
-        private LocalDate nextRenewalDate;
-        private int renewalFrequency;
-        private String renewalType;
+        private LocalDate issuedDate;
+        private LocalDate expiryDate;
+        private String reminderDurationType;
+        private Integer reminderDurationValue;
+        private LocalDate nextReminderDate;
         private String renewalNotes;
+        private boolean stopFlag;
+        private int reminderFrequency;
     }
 
-    @Data
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class DocumentDetails {
-
         private Long id;
         private String documentName;
         private String fileName;
-        private Date issueDate;
+        private LocalDate issueDate;
         private String referenceNumber;
         private String remarks;
         private Date uploadDate;

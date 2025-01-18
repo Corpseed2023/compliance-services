@@ -1,5 +1,6 @@
 package com.lawzoom.complianceservice.model.complianceMileStoneModel;
 
+import com.lawzoom.complianceservice.model.Comments;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -36,6 +39,19 @@ public class MileStone {
 	@Column(columnDefinition = "TEXT")
 	private String description;
 
+	private LocalDate startedDate;
+
+	private LocalDate dueDate;
+
+	private LocalDate completedDate;
+
+	private LocalDate issuedDate;
+
+	private LocalDate expiryDate;
+
+	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Comments> comments = new ArrayList<>();
+
 	@Column(name = "created_at")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdAt = new Date();
@@ -49,26 +65,20 @@ public class MileStone {
 	private boolean isEnable = true;
 
 	@ManyToOne
-	@JoinColumn(name = "reporter_id")
-	private User taskReporter;
+	@JoinColumn(name = "manager_id")
+	private User manager;
 
 	@ManyToOne
-	@JoinColumn(name = "assigned_to")
-	private User assignedTo;
-
+	@JoinColumn(name = "assigned")
+	private User assigned;
 
 	@ManyToOne
 	@JoinColumn(name = "assigned_by")
 	private User assignedBy;
 
-	@Column(name = "assignee_mail")
-	private String assigneeMail;
-
 	@ManyToOne
 	@JoinColumn(name = "task_created_by")
 	private User taskCreatedBy;
-
-	private LocalDate issuedDate;
 
 	private String criticality;
 

@@ -3,9 +3,6 @@
 	import com.lawzoom.complianceservice.model.Status;
 	import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 	import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
-	import com.lawzoom.complianceservice.model.documentModel.Document;
-	import com.lawzoom.complianceservice.model.reminderModel.Reminder;
-	import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 	import com.lawzoom.complianceservice.model.user.Subscriber;
 	import jakarta.persistence.*;
 	import lombok.AllArgsConstructor;
@@ -14,7 +11,6 @@
 	import lombok.Setter;
 	import org.hibernate.annotations.Comment;
 
-	import java.time.LocalDate;
 	import java.util.ArrayList;
 	import java.util.Date;
 	import java.util.List;
@@ -30,15 +26,9 @@
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
 		private Long id;
 
-		private String description;
-
 		private String issueAuthority;
 
 		private String certificateType;
-
-		private Long durationMonth;
-
-		private Long durationYear;
 
 		@Column(name = "compliance_name")
 		private String complianceName;
@@ -65,11 +55,6 @@
 		@Comment(value = "0 : Not Deleted, 1 : Deleted")
 		private boolean isDeleted = false;
 
-		private LocalDate issueDate;
-
-		@Comment(value = "0 : No Action ,1 : Apply Now, 2 : Already Done, 3 : Not Applicable")
-		private int workStatus;
-
 		@ManyToOne
 		@JoinColumn(name = "business_unit_id", nullable = false)
 		private BusinessUnit businessUnit;
@@ -82,20 +67,7 @@
 		private Subscriber subscriber;
 
 		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
-		private List<Reminder> reminders = new ArrayList<>();
-
-		@OneToOne(mappedBy = "compliance", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-		private Renewal renewal;
-
-		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
 		private List<MileStone> milestones = new ArrayList<>();
-
-		@OneToMany(mappedBy = "compliance", cascade = CascadeType.ALL, orphanRemoval = true)
-		private List<Document> documents = new ArrayList<>();
-
-		@ManyToOne
-		@JoinColumn(name = "status_id")
-		private Status status;
 
 
 		@PrePersist

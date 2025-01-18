@@ -1,4 +1,4 @@
-package com.lawzoom.complianceservice.controller;
+package com.lawzoom.complianceservice.controller.statusController;
 
 
 import com.lawzoom.complianceservice.model.Status;
