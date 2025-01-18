@@ -60,12 +60,15 @@ public class MilestoneResponse {
     @Data
     public static class RenewalDetails {
         private Long id;
-        private LocalDate nextRenewalDate;
-        private int renewalFrequency;
-        private String renewalType;
+        private LocalDate issuedDate;
+        private LocalDate expiryDate;
+        private String reminderDurationType;
+        private int reminderDurationValue;
+        private LocalDate nextReminderDate;
         private String renewalNotes;
+        private boolean stopFlag;
+        private int reminderFrequency;
     }
-
     @Data
     public static class DocumentDetails {
 

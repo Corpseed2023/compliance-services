@@ -1,6 +1,5 @@
 package com.lawzoom.complianceservice.dto.renewalDto;
 
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -11,13 +10,16 @@ import java.time.LocalDate;
 public class RenewalRequest {
 
     @NotNull
-    private LocalDate nextRenewalDate;
+    private LocalDate issuedDate;
 
     @NotNull
-    private int renewalFrequency;
+    private LocalDate expiryDate;
 
     @NotBlank
-    private String renewalType;
+    private String reminderDurationType;
+
+    @NotNull
+    private int reminderDurationValue;
 
     private String renewalNotes;
 

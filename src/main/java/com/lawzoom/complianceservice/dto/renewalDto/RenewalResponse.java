@@ -1,6 +1,5 @@
 package com.lawzoom.complianceservice.dto.renewalDto;
 
-
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -9,10 +8,22 @@ import java.time.LocalDate;
 public class RenewalResponse {
 
     private Long id;
-    private Long complianceId;
-    private LocalDate nextRenewalDate;
-    private int renewalFrequency;
-    private String renewalType;
+
+    private Long milestoneId; // Optional, for milestone-related renewals
+
+    private LocalDate issuedDate;
+
+    private LocalDate expiryDate;
+
+    private String reminderDurationType;
+
+    private int reminderDurationValue;
+
+    private LocalDate nextReminderDate;
+
     private String renewalNotes;
+
     private boolean stopFlag;
+
+    private int reminderFrequency;
 }

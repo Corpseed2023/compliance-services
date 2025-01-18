@@ -8,7 +8,7 @@ import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
-import com.lawzoom.complianceservice.repository.ComplianceRepo;
+import com.lawzoom.complianceservice.repository.complianceRepo.ComplianceRepo;
 import com.lawzoom.complianceservice.repository.ReminderRepositroy.ReminderRepository;
 import com.lawzoom.complianceservice.repository.SubscriberRepository;
 import com.lawzoom.complianceservice.repository.UserRepository;

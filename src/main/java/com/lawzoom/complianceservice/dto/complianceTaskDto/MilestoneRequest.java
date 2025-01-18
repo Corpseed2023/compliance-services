@@ -34,10 +34,6 @@ public class MilestoneRequest {
 
 	private LocalDate issuedDate;
 
-	private int durationMonth;
-
-	private int durationYear;
-
 	private Long managerId;
 
 	private Long assignee;
@@ -56,18 +52,6 @@ public class MilestoneRequest {
 
 	private String comment;
 
-
-	private Date reminderDate;
-	private Date reminderEndDate;
-	private Integer notificationTimelineValue;
-	private Integer repeatTimelineValue;
-	private String repeatTimelineType;
-	private Long whomToSend;
-
-	private LocalDate nextRenewalDate;
-	private int renewalFrequency;
-	private String renewalType;
-	private String renewalNotes;
 
 	private List<DocumentRequest> documents;
 

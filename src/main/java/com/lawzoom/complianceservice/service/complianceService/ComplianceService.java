@@ -15,7 +15,6 @@ public interface ComplianceService {
 
     ComplianceResponse saveCompliance(@Valid ComplianceRequest complianceRequest, Long businessUnitId, Long userId);
 
-    ComplianceResponse updateCompliance(@Valid ComplianceRequest complianceRequest, Long businessUnitId,Long complianceId);
 
     List<ComplianceResponse> fetchComplianceByBusinessUnit(Long businessUnitId, Long userId, Long subscriberId);
 
@@ -23,4 +22,5 @@ public interface ComplianceService {
 
     Map<String, Object> fetchComplianceById(Long complianceId);
 
+    ComplianceResponse updateCompliance(ComplianceRequest complianceRequest, Long businessUnitId, Long complianceId, Long userId);
 }

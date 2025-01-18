@@ -1,7 +1,6 @@
 package com.lawzoom.complianceservice.model.renewalModel;
 
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
-import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,6 +10,7 @@ import lombok.Setter;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDate;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,36 +24,53 @@ public class Renewal {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "compliance_id", nullable = true)
-    private Compliance compliance;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "milestone_id", nullable = true)
     private MileStone milestone;
 
-    @Comment(value = "Next renewal date for the compliance or milestone")
-    @Column(name = "next_renewal_date", nullable = false)
-    private LocalDate nextRenewalDate;
+    @Comment(value = "Date when the certificate was issued")
+    private LocalDate issuedDate;
 
-    @Comment(value = "Renewal frequency in months (e.g., 3, 6, 12)")
-    @Column(name = "renewal_frequency", nullable = false)
-    private int renewalFrequency;
+    @Comment(value = "Date when the certificate expires")
+    private LocalDate expiryDate;
 
-    @Comment(value = "Renewal type (e.g., Half-Yearly, Yearly)")
-    @Column(name = "renewal_type", nullable = false)
-    private String renewalType;
+    @Comment(value = "Type of duration for reminder (DAYS, WEEKS, MONTHS, YEARS)")
+    private String reminderDurationType;
+
+    @Column(name = "reminder_duration_value", nullable = true)
+    @Comment("Value of the duration (e.g., 10 for 10 days before expiry)")
+    private Integer reminderDurationValue;
+
+    @Comment(value = "Start date for sending reminders")
+    private LocalDate reminderStartDate;
+
+    @Comment(value = "Calculated next reminder date based on duration")
+    private LocalDate nextReminderDate;
 
     @Comment(value = "Notes or additional details about the renewal")
     @Column(name = "renewal_notes", length = 500)
     private String renewalNotes;
 
     @Comment(value = "Flag to enable or disable renewal notifications")
-    @Column(name = "stop_flag", columnDefinition = "boolean default false")
     private boolean stopFlag = false;
+
+    @Comment(value = "Frequency of reminders sent")
+    @Column(name = "reminder_frequency", columnDefinition = "integer default 0")
+    private int reminderFrequency = 0;
+
+    @Comment(value = "Indicator if the reminder has been sent")
+    private boolean reminderSent = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscriber_id", nullable = false)
     private Subscriber subscriber;
+
+    @Comment(value = "Created timestamp")
+    @Column(name = "created_at", updatable = false)
+    private LocalDate createdAt;
+
+    @Comment(value = "Updated timestamp")
+    @Column(name = "updated_at")
+    private LocalDate updatedAt;
 
     @PrePersist
     protected void onCreate() {
@@ -66,11 +83,32 @@ public class Renewal {
         this.updatedAt = LocalDate.now();
     }
 
-    @Comment(value = "Created timestamp")
-    @Column(name = "created_at", updatable = false)
-    private LocalDate createdAt;
-
-    @Comment(value = "Updated timestamp")
-    @Column(name = "updated_at")
-    private LocalDate updatedAt;
+    /**
+     * Updates the next reminder date and sets the reminder start date based on the expiry date and reminder duration.
+     */
+    public void calculateNextReminderDate() {
+        if (this.reminderDurationValue != null && this.reminderDurationType != null) {
+            // Calculate the start date for sending reminders
+            switch (this.reminderDurationType.toUpperCase()) {
+                case "DAYS":
+                    this.reminderStartDate = this.expiryDate.minusDays(this.reminderDurationValue);
+                    break;
+                case "WEEKS":
+                    this.reminderStartDate = this.expiryDate.minusWeeks(this.reminderDurationValue);
+                    break;
+                case "MONTHS":
+                    this.reminderStartDate = this.expiryDate.minusMonths(this.reminderDurationValue);
+                    break;
+                case "YEARS":
+                    this.reminderStartDate = this.expiryDate.minusYears(this.reminderDurationValue);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid reminder duration type: " + this.reminderDurationType);
+            }
+            // Set the next reminder date to the reminder start date initially
+            this.nextReminderDate = this.reminderStartDate;
+        } else {
+            throw new IllegalArgumentException("Reminder duration type and value must not be null.");
+        }
+    }
 }

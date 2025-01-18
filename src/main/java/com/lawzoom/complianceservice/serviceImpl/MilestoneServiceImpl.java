@@ -10,13 +10,13 @@ import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.documentModel.Document;
-import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
 import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitRepository;
 import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
+import com.lawzoom.complianceservice.repository.complianceRepo.ComplianceRepo;
 import com.lawzoom.complianceservice.service.MilestoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -106,23 +106,7 @@ public class MilestoneServiceImpl implements MilestoneService {
             milestone.setSubscriber(subscriber);
             milestone.setRemark(milestoneRequest.getRemark());
 
-            // Add Reminder (Optional)
-            if (milestoneRequest.getReminderDate() != null) {
-                Reminder reminder = new Reminder();
-                reminder.setMilestone(milestone);
-                reminder.setCompliance(compliance);
-                reminder.setSubscriber(subscriber);
-                reminder.setCreatedBy(reporter);
-                reminder.setWhomToSend(reporter); // Assuming whomToSend is reporter by default
-                reminder.setReminderDate(milestoneRequest.getReminderDate());
-                reminder.setReminderEndDate(milestoneRequest.getReminderEndDate());
-                reminder.setNotificationTimelineValue(milestoneRequest.getNotificationTimelineValue());
-                reminder.setRepeatTimelineValue(milestoneRequest.getRepeatTimelineValue());
-                reminder.setRepeatTimelineType(milestoneRequest.getRepeatTimelineType());
-                milestone.getReminders().add(reminder);
-            }
 
-            // Add Documents (Optional)
             if (milestoneRequest.getDocuments() != null && !milestoneRequest.getDocuments().isEmpty()) {
                 for (DocumentRequest documentRequest : milestoneRequest.getDocuments()) {
                     Document document = new Document();
@@ -209,17 +193,21 @@ public class MilestoneServiceImpl implements MilestoneService {
         }).toList();
         response.setReminders(reminderDetails);
 
-        // Step 4: Map Renewal Details to RenewalDetails DTO
         List<MilestoneResponse.RenewalDetails> renewalDetails = milestone.getRenewals().stream().map(renewal -> {
             MilestoneResponse.RenewalDetails renDetails = new MilestoneResponse.RenewalDetails();
             renDetails.setId(renewal.getId());
-            renDetails.setNextRenewalDate(renewal.getNextRenewalDate());
-            renDetails.setRenewalFrequency(renewal.getRenewalFrequency());
-            renDetails.setRenewalType(renewal.getRenewalType());
+            renDetails.setIssuedDate(renewal.getIssuedDate());
+            renDetails.setExpiryDate(renewal.getExpiryDate());
+            renDetails.setReminderDurationType(renewal.getReminderDurationType());
+            renDetails.setReminderDurationValue(renewal.getReminderDurationValue());
+            renDetails.setNextReminderDate(renewal.getNextReminderDate());
             renDetails.setRenewalNotes(renewal.getRenewalNotes());
+            renDetails.setStopFlag(renewal.isStopFlag());
+            renDetails.setReminderFrequency(renewal.getReminderFrequency());
             return renDetails;
         }).toList();
         response.setRenewals(renewalDetails);
+
 
         // Step 5: Map Document Details to DocumentDetails DTO
         List<MilestoneResponse.DocumentDetails> documentDetails = milestone.getDocuments().stream().map(document -> {
@@ -293,7 +281,6 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.setDueDate(milestone.getDueDate());
         response.setCompletedDate(milestone.getCompletedDate());
 
-
         // Map Reminder details
         List<MilestoneResponse.ReminderDetails> reminderDetails = milestone.getReminders().stream()
                 .map(reminder -> {
@@ -316,10 +303,14 @@ public class MilestoneServiceImpl implements MilestoneService {
                 .map(renewal -> {
                     MilestoneResponse.RenewalDetails rd = new MilestoneResponse.RenewalDetails();
                     rd.setId(renewal.getId());
-                    rd.setNextRenewalDate(renewal.getNextRenewalDate());
-                    rd.setRenewalFrequency(renewal.getRenewalFrequency());
-                    rd.setRenewalType(renewal.getRenewalType());
+                    rd.setIssuedDate(renewal.getIssuedDate());
+                    rd.setExpiryDate(renewal.getExpiryDate());
+                    rd.setReminderDurationType(renewal.getReminderDurationType());
+                    rd.setReminderDurationValue(renewal.getReminderDurationValue());
+                    rd.setNextReminderDate(renewal.getNextReminderDate());
                     rd.setRenewalNotes(renewal.getRenewalNotes());
+                    rd.setStopFlag(renewal.isStopFlag());
+                    rd.setReminderFrequency(renewal.getReminderFrequency());
                     return rd;
                 })
                 .toList();
@@ -345,8 +336,6 @@ public class MilestoneServiceImpl implements MilestoneService {
     }
 
 
-
-    // Utility method to determine if a user is a SUPER_ADMIN
     private boolean isSuperAdmin(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));

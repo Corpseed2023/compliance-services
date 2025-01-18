@@ -7,7 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RenewalRepository extends JpaRepository<Renewal, Long> {
-    Renewal findByComplianceId(Long complianceId);
-
     Renewal findByMilestoneId(Long milestoneId);
 }
