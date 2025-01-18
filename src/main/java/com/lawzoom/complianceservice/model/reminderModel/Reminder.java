@@ -11,6 +11,7 @@ import org.hibernate.annotations.Comment;
 import  com.lawzoom.complianceservice.model.mileStoneTask.Task;
 
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -51,11 +52,11 @@ public class Reminder {
 
 	@Column(name = "reminder_date", nullable = false)
 	@Temporal(TemporalType.DATE)
-	private Date reminderDate;
+	private LocalDate reminderDate;
 
 	@Column(name = "reminder_end_date", nullable = false)
 	@Temporal(TemporalType.DATE)
-	private Date reminderEndDate;
+	private LocalDate reminderEndDate;
 
 	@Comment("Notification trigger timeline in days before the due date")
 	@Column(name = "notification_timeline_value", nullable = false)

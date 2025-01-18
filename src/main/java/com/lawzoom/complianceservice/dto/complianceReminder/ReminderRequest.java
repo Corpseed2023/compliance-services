@@ -5,16 +5,17 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
 public class ReminderRequest {
 
     @NotNull(message = "Reminder date is required")
-    private Date reminderDate;
+    private LocalDate reminderDate;
 
     @NotNull(message = "Reminder end date is required")
-    private Date reminderEndDate;
+    private LocalDate reminderEndDate;
 
     @Min(value = 1, message = "Notification timeline value must be at least 1")
     private int notificationTimelineValue;

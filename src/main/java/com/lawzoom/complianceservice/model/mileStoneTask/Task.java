@@ -4,7 +4,6 @@ import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
-import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
 import lombok.*;

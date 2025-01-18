@@ -3,6 +3,7 @@ package com.lawzoom.complianceservice.dto;
 
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -10,7 +11,7 @@ public class DocumentRequest {
 
     private String documentName;
     private String fileName;
-    private Date issueDate;
+    private LocalDate issueDate;
     private String referenceNumber;
     private String remarks;
     private Long addedById; 

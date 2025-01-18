@@ -4,7 +4,9 @@ import com.lawzoom.complianceservice.dto.DocumentRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequestForFetch;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneResponse;
+import com.lawzoom.complianceservice.dto.complianceTaskDto.TaskMileStoneResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
+import com.lawzoom.complianceservice.model.Comments;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
@@ -83,7 +85,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         Status status = statusRepository.findById(milestoneRequest.getStatus())
                 .orElseThrow(() -> new NotFoundException("Status not found with ID: " + milestoneRequest.getStatus()));
 
-        // Step 8: Check WorkStatus
+        // Step 8: Validate Milestone Details
         if (milestoneRequest.getWorkStatus() == 1) { // Not Done Yet
             if (milestoneRequest.getMileStoneName() == null || milestoneRequest.getDescription() == null ||
                     milestoneRequest.getStartedDate() == null || milestoneRequest.getDueDate() == null) {
@@ -106,7 +108,15 @@ public class MilestoneServiceImpl implements MilestoneService {
             milestone.setSubscriber(subscriber);
             milestone.setRemark(milestoneRequest.getRemark());
 
+            if (milestoneRequest.getComment() != null && !milestoneRequest.getComment().isEmpty()) {
+                Comments comment = new Comments();
+                comment.setCommentText(milestoneRequest.getComment());
+                comment.setUser(reporter);
+                comment.setMilestone(milestone);
+                milestone.getComments().add(comment);
+            }
 
+            // Step 10: Save Documents if provided
             if (milestoneRequest.getDocuments() != null && !milestoneRequest.getDocuments().isEmpty()) {
                 for (DocumentRequest documentRequest : milestoneRequest.getDocuments()) {
                     Document document = new Document();
@@ -139,6 +149,7 @@ public class MilestoneServiceImpl implements MilestoneService {
             response.put("complianceId", milestone.getCompliance().getId());
             response.put("reporterId", reporter.getId());
             response.put("remark", milestone.getRemark());
+            response.put("comment", milestoneRequest.getComment()); // Include the comment in the response
 
             return ResponseEntity.status(201).body(response);
         }
@@ -146,7 +157,6 @@ public class MilestoneServiceImpl implements MilestoneService {
         // Handle other work statuses (e.g., Completed, Not Applicable)
         throw new IllegalArgumentException("Invalid or unsupported work status for this operation.");
     }
-
 
 
     @Override
@@ -167,8 +177,8 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.setEnable(milestone.isEnable());
         response.setComplianceId(milestone.getCompliance() != null ? milestone.getCompliance().getId() : null);
         response.setManagerId(milestone.getManager() != null ? milestone.getManager().getId() : null);
-        response.setReporterName(milestone.getManager() != null ? milestone.getManager().getUserName() : null);
-        response.setAssigned(milestone.getAssigned() != null ? milestone.getAssigned().getId() : null);
+        response.setManagerName(milestone.getManager() != null ? milestone.getManager().getUserName() : null);
+        response.setAssignedId(milestone.getAssigned() != null ? milestone.getAssigned().getId() : null);
         response.setAssignedName(milestone.getAssigned() != null ? milestone.getAssigned().getUserName() : null);
         response.setAssignedBy(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getId() : null);
         response.setAssignedByName(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getUserName() : null);
@@ -182,8 +192,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         List<MilestoneResponse.ReminderDetails> reminderDetails = milestone.getReminders().stream().map(reminder -> {
             MilestoneResponse.ReminderDetails remDetails = new MilestoneResponse.ReminderDetails();
             remDetails.setId(reminder.getId());
-            remDetails.setReminderDate(reminder.getReminderDate());
-            remDetails.setReminderEndDate(reminder.getReminderEndDate());
+
             remDetails.setNotificationTimelineValue(reminder.getNotificationTimelineValue());
             remDetails.setRepeatTimelineValue(reminder.getRepeatTimelineValue());
             remDetails.setRepeatTimelineType(reminder.getRepeatTimelineType());
@@ -215,7 +224,6 @@ public class MilestoneServiceImpl implements MilestoneService {
             docDetails.setId(document.getId());
             docDetails.setDocumentName(document.getDocumentName());
             docDetails.setFileName(document.getFileName());
-            docDetails.setIssueDate(document.getIssueDate());
             docDetails.setReferenceNumber(document.getReferenceNumber());
             docDetails.setRemarks(document.getRemarks());
             docDetails.setUploadDate(document.getUploadDate());
@@ -256,7 +264,7 @@ public class MilestoneServiceImpl implements MilestoneService {
     private MilestoneResponse mapToMilestoneResponseWithDetails(MileStone milestone) {
         MilestoneResponse response = new MilestoneResponse();
 
-        // Set basic details
+        // Set basic milestone details
         response.setId(milestone.getId());
         response.setMileStoneName(milestone.getMileStoneName());
         response.setDescription(milestone.getDescription());
@@ -267,21 +275,21 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.setEnable(milestone.isEnable());
         response.setComplianceId(milestone.getCompliance() != null ? milestone.getCompliance().getId() : null);
         response.setManagerId(milestone.getManager() != null ? milestone.getManager().getId() : null);
-        response.setReporterName(milestone.getManager() != null ? milestone.getManager().getUserName() : null);
-        response.setAssigned(milestone.getAssigned() != null ? milestone.getAssigned().getId() : null);
+        response.setManagerName(milestone.getManager() != null ? milestone.getManager().getUserName() : null);
+        response.setAssignedId(milestone.getAssigned() != null ? milestone.getAssigned().getId() : null);
         response.setAssignedName(milestone.getAssigned() != null ? milestone.getAssigned().getUserName() : null);
         response.setAssignedBy(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getId() : null);
         response.setAssignedByName(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getUserName() : null);
         response.setIssuedDate(milestone.getIssuedDate());
+        response.setStartedDate(milestone.getStartedDate());
+        response.setDueDate(milestone.getDueDate());
+        response.setCompletedDate(milestone.getCompletedDate());
         response.setCriticality(milestone.getCriticality());
         response.setRemark(milestone.getRemark());
         response.setBusinessUnitId(milestone.getBusinessUnit() != null ? milestone.getBusinessUnit().getId() : null);
         response.setSubscriberId(milestone.getSubscriber() != null ? milestone.getSubscriber().getId() : null);
-        response.setStartedDate(milestone.getStartedDate());
-        response.setDueDate(milestone.getDueDate());
-        response.setCompletedDate(milestone.getCompletedDate());
 
-        // Map Reminder details
+        // Map reminders
         List<MilestoneResponse.ReminderDetails> reminderDetails = milestone.getReminders().stream()
                 .map(reminder -> {
                     MilestoneResponse.ReminderDetails rd = new MilestoneResponse.ReminderDetails();
@@ -298,7 +306,7 @@ public class MilestoneServiceImpl implements MilestoneService {
                 .toList();
         response.setReminders(reminderDetails);
 
-        // Map Renewal details
+        // Map renewals
         List<MilestoneResponse.RenewalDetails> renewalDetails = milestone.getRenewals().stream()
                 .map(renewal -> {
                     MilestoneResponse.RenewalDetails rd = new MilestoneResponse.RenewalDetails();
@@ -316,7 +324,7 @@ public class MilestoneServiceImpl implements MilestoneService {
                 .toList();
         response.setRenewals(renewalDetails);
 
-        // Map Document details
+        // Map documents
         List<MilestoneResponse.DocumentDetails> documentDetails = milestone.getDocuments().stream()
                 .map(document -> {
                     MilestoneResponse.DocumentDetails dd = new MilestoneResponse.DocumentDetails();
@@ -331,6 +339,32 @@ public class MilestoneServiceImpl implements MilestoneService {
                 })
                 .toList();
         response.setDocuments(documentDetails);
+
+        // Map tasks
+        List<TaskMileStoneResponse> taskResponses = milestone.getTasks().stream()
+                .map(task -> {
+                    TaskMileStoneResponse taskResponse = new TaskMileStoneResponse();
+                    taskResponse.setId(task.getId());
+                    taskResponse.setName(task.getName());
+                    taskResponse.setDescription(task.getDescription());
+                    taskResponse.setDate(task.getDate());
+                    taskResponse.setStatusId(task.getStatus() != null ? task.getStatus().getId() : null);
+                    taskResponse.setStatusName(task.getStatus() != null ? task.getStatus().getName() : null);
+                    taskResponse.setCreatedAt(task.getCreatedAt());
+                    taskResponse.setUpdatedAt(task.getUpdatedAt());
+                    taskResponse.setEnable(task.isEnable());
+                    taskResponse.setStartDate(task.getStartDate());
+                    taskResponse.setDueDate(task.getDueDate());
+                    taskResponse.setCompletedDate(task.getCompletedDate());
+                    taskResponse.setManagerId(task.getManagerId() != null ? task.getManagerId().getId() : null);
+                    taskResponse.setManagerName(task.getManagerId() != null ? task.getManagerId().getUserName() : null);
+                    taskResponse.setAssigneeId(task.getAssigneeId() != null ? task.getAssigneeId().getId() : null);
+                    taskResponse.setAssigneeName(task.getAssigneeId() != null ? task.getAssigneeId().getUserName() : null);
+                    taskResponse.setCriticality(task.getCriticality());
+                    return taskResponse;
+                })
+                .toList();
+        response.setTasks(taskResponses);
 
         return response;
     }
@@ -387,8 +421,8 @@ public class MilestoneServiceImpl implements MilestoneService {
             response.setEnable(milestone.isEnable());
             response.setComplianceId(milestone.getCompliance().getId());
             response.setManagerId(milestone.getManager() != null ? milestone.getManager().getId() : null);
-            response.setReporterName(milestone.getManager() != null ? milestone.getManager().getUserName() : null);
-            response.setAssigned(milestone.getAssigned() != null ? milestone.getAssigned().getId() : null);
+            response.setManagerName(milestone.getManager() != null ? milestone.getManager().getUserName() : null);
+            response.setAssignedId(milestone.getAssigned() != null ? milestone.getAssigned().getId() : null);
             response.setAssignedName(milestone.getAssigned() != null ? milestone.getAssigned().getUserName() : null);
             response.setAssignedBy(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getId() : null);
             response.setAssignedByName(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getUserName() : null);
