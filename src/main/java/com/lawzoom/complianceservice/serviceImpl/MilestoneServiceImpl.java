@@ -1,10 +1,8 @@
 package com.lawzoom.complianceservice.serviceImpl;
 
 import com.lawzoom.complianceservice.dto.DocumentRequest;
-import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequest;
-import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequestForFetch;
-import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneResponse;
-import com.lawzoom.complianceservice.dto.complianceTaskDto.TaskMileStoneResponse;
+import com.lawzoom.complianceservice.dto.commentDto.CommentDetails;
+import com.lawzoom.complianceservice.dto.complianceTaskDto.*;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.Comments;
 import com.lawzoom.complianceservice.model.Status;
@@ -158,7 +156,6 @@ public class MilestoneServiceImpl implements MilestoneService {
         throw new IllegalArgumentException("Invalid or unsupported work status for this operation.");
     }
 
-
     @Override
     public MilestoneResponse fetchMilestoneById(Long milestoneId) {
         // Step 1: Validate Milestone ID
@@ -183,6 +180,9 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.setAssignedBy(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getId() : null);
         response.setAssignedByName(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getUserName() : null);
         response.setIssuedDate(milestone.getIssuedDate());
+        response.setStartedDate(milestone.getStartedDate());
+        response.setDueDate(milestone.getDueDate());
+        response.setCompletedDate(milestone.getCompletedDate());
         response.setCriticality(milestone.getCriticality());
         response.setRemark(milestone.getRemark());
         response.setBusinessUnitId(milestone.getBusinessUnit() != null ? milestone.getBusinessUnit().getId() : null);
@@ -192,7 +192,8 @@ public class MilestoneServiceImpl implements MilestoneService {
         List<MilestoneResponse.ReminderDetails> reminderDetails = milestone.getReminders().stream().map(reminder -> {
             MilestoneResponse.ReminderDetails remDetails = new MilestoneResponse.ReminderDetails();
             remDetails.setId(reminder.getId());
-
+            remDetails.setReminderDate(reminder.getReminderDate());
+            remDetails.setReminderEndDate(reminder.getReminderEndDate());
             remDetails.setNotificationTimelineValue(reminder.getNotificationTimelineValue());
             remDetails.setRepeatTimelineValue(reminder.getRepeatTimelineValue());
             remDetails.setRepeatTimelineType(reminder.getRepeatTimelineType());
@@ -202,6 +203,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         }).toList();
         response.setReminders(reminderDetails);
 
+        // Step 4: Map Renewal Details to RenewalDetails DTO
         List<MilestoneResponse.RenewalDetails> renewalDetails = milestone.getRenewals().stream().map(renewal -> {
             MilestoneResponse.RenewalDetails renDetails = new MilestoneResponse.RenewalDetails();
             renDetails.setId(renewal.getId());
@@ -217,13 +219,13 @@ public class MilestoneServiceImpl implements MilestoneService {
         }).toList();
         response.setRenewals(renewalDetails);
 
-
         // Step 5: Map Document Details to DocumentDetails DTO
         List<MilestoneResponse.DocumentDetails> documentDetails = milestone.getDocuments().stream().map(document -> {
             MilestoneResponse.DocumentDetails docDetails = new MilestoneResponse.DocumentDetails();
             docDetails.setId(document.getId());
             docDetails.setDocumentName(document.getDocumentName());
             docDetails.setFileName(document.getFileName());
+            docDetails.setIssueDate(document.getIssueDate());
             docDetails.setReferenceNumber(document.getReferenceNumber());
             docDetails.setRemarks(document.getRemarks());
             docDetails.setUploadDate(document.getUploadDate());
@@ -231,13 +233,25 @@ public class MilestoneServiceImpl implements MilestoneService {
         }).toList();
         response.setDocuments(documentDetails);
 
+        // Step 6: Map Comments to CommentDetails DTO
+        List<CommentDetails> commentDetails = milestone.getComments().stream().map(comment -> {
+            CommentDetails commDetails = new CommentDetails();
+            commDetails.setId(comment.getId());
+            commDetails.setCommentText(comment.getCommentText());
+            commDetails.setUserId(comment.getUser() != null ? comment.getUser().getId() : null);
+            commDetails.setUserName(comment.getUser() != null ? comment.getUser().getUserName() : null);
+            commDetails.setCreatedAt(comment.getCreatedAt());
+            return commDetails;
+        }).toList();
+        response.setComments(commentDetails);
+
         return response;
     }
 
 
 
     @Override
-    public List<MilestoneResponse> fetchAllMilestones(MilestoneRequestForFetch request) {
+    public List<MilestoneListResponse> fetchAllMilestones(MilestoneRequestForFetch request) {
         // Step 1: Validate Subscriber
         Subscriber subscriber = subscriberRepository.findById(request.getSubscriberId())
                 .orElseThrow(() -> new NotFoundException("Subscriber not found with ID: " + request.getSubscriberId()));
@@ -255,11 +269,56 @@ public class MilestoneServiceImpl implements MilestoneService {
             milestones = milestoneRepository.findMilestonesBySubscriberAndAssignedTo(subscriber.getId(), user.getId());
         }
 
-        // Step 3: Map milestones to response DTOs
-        return milestones.stream()
-                .map(this::mapToMilestoneResponseWithDetails)
-                .toList();
+        // Step 3: Map milestones to response DTOs manually
+        List<MilestoneListResponse> milestoneResponses = new ArrayList<>();
+
+        for (MileStone milestone : milestones) {
+            MilestoneListResponse response = new MilestoneListResponse();
+
+            response.setId(milestone.getId());
+            response.setMileStoneName(milestone.getMileStoneName());
+            response.setDescription(milestone.getDescription());
+            response.setStatusId(milestone.getStatus().getId());
+            response.setStatus(milestone.getStatus().getName());
+            response.setCreatedAt(milestone.getCreatedAt());
+            response.setUpdatedAt(milestone.getUpdatedAt());
+            response.setEnable(milestone.isEnable());
+            response.setComplianceId(milestone.getCompliance().getId());
+            response.setBusinessUnitId(milestone.getBusinessUnit().getId());
+            response.setSubscriberId(subscriber.getId());
+
+            // Manually set manager details
+            if (milestone.getManager() != null) {
+                response.setManagerId(milestone.getManager().getId());
+                response.setManagerName(milestone.getManager().getUserName());
+            }
+
+            // Manually set assigned user details
+            if (milestone.getAssigned() != null) {
+                response.setAssignedId(milestone.getAssigned().getId());
+                response.setAssignedName(milestone.getAssigned().getUserName());
+            }
+
+            // Manually set the user who assigned the task
+            if (milestone.getAssignedBy() != null) {
+                response.setAssignedBy(milestone.getAssignedBy().getId());
+                response.setAssignedByName(milestone.getAssignedBy().getUserName());
+            }
+
+            response.setIssuedDate(milestone.getIssuedDate());
+            response.setStartedDate(milestone.getStartedDate());
+            response.setDueDate(milestone.getDueDate());
+            response.setCompletedDate(milestone.getCompletedDate());
+            response.setCriticality(milestone.getCriticality());
+            response.setRemark(milestone.getRemark());
+
+            // Add to the list
+            milestoneResponses.add(response);
+        }
+
+        return milestoneResponses;
     }
+
 
     private MilestoneResponse mapToMilestoneResponseWithDetails(MileStone milestone) {
         MilestoneResponse response = new MilestoneResponse();

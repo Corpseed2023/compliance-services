@@ -2,6 +2,7 @@ package com.lawzoom.complianceservice.dto.complianceTaskDto;
 
 
 
+import com.lawzoom.complianceservice.dto.commentDto.CommentDetails;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -43,8 +44,8 @@ public class MilestoneResponse {
     private List<ReminderDetails> reminders;
     private List<RenewalDetails> renewals;
     private List<DocumentDetails> documents;
-
     private List<TaskMileStoneResponse> tasks;
+    private List<CommentDetails> comments;
 
     @Getter
     @Setter

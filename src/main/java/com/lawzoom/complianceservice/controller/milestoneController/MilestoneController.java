@@ -1,6 +1,7 @@
 package com.lawzoom.complianceservice.controller.milestoneController;
 
 
+import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneListResponse;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequestForFetch;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneResponse;
@@ -27,8 +28,8 @@ public class MilestoneController {
     }
 
     @PostMapping("/fetch-all-milestone")
-    public ResponseEntity<List<MilestoneResponse>> fetchAllMilestones(@RequestBody MilestoneRequestForFetch milestoneRequestForFetch) {
-        List<MilestoneResponse> responseList = milestoneService.fetchAllMilestones(milestoneRequestForFetch);
+    public ResponseEntity<List<MilestoneListResponse>> fetchAllMilestones(@RequestBody MilestoneRequestForFetch milestoneRequestForFetch) {
+        List<MilestoneListResponse> responseList = milestoneService.fetchAllMilestones(milestoneRequestForFetch);
         return ResponseEntity.ok(responseList);
     }
 

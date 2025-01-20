@@ -1,5 +1,6 @@
 package com.lawzoom.complianceservice.service;
 
+import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneListResponse;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequestForFetch;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneResponse;
@@ -14,7 +15,7 @@ public interface MilestoneService {
 
     ResponseEntity<Map<String, Object>> createMilestone(MilestoneRequest milestoneRequest);
 
-    List<MilestoneResponse> fetchAllMilestones(@Valid MilestoneRequestForFetch request);
+    List<MilestoneListResponse> fetchAllMilestones(@Valid MilestoneRequestForFetch request);
 
     MilestoneResponse fetchMilestoneById(Long milestoneId);
 
