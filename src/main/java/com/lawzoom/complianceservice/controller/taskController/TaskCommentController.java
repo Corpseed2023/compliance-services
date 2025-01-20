@@ -1,7 +1,8 @@
-package com.lawzoom.complianceservice.controller;
+package com.lawzoom.complianceservice.controller.taskController;
 
-import com.lawzoom.complianceservice.model.Comments;
-import com.lawzoom.complianceservice.service.CommentsService;
+
+import com.lawzoom.complianceservice.model.comments.TaskComments;
+import com.lawzoom.complianceservice.service.taskService.TaskCommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,38 +10,38 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/compliance/comments")
+@RequestMapping("/api/tasks/comments")
 @CrossOrigin(origins = "*", maxAge = 3600)
-public class CommentsController {
+public class TaskCommentController {
 
     @Autowired
-    private CommentsService commentsService;
+    private TaskCommentService taskCommentService;
 
     /**
-     * Add a new comment to a milestone.
+     * Add a new comment to a task.
      *
-     * @param milestoneId ID of the milestone
+     * @param taskId      ID of the task
      * @param userId      ID of the user adding the comment
      * @param commentText The comment text
      * @return ResponseEntity with a success message
      */
     @PostMapping("/add")
-    public ResponseEntity<String> addComment(@RequestParam Long milestoneId,
+    public ResponseEntity<String> addComment(@RequestParam Long taskId,
                                              @RequestParam Long userId,
                                              @RequestParam String commentText) {
-        commentsService.addComment(milestoneId, userId, commentText);
+        taskCommentService.addComment(taskId, userId, commentText);
         return ResponseEntity.ok("Comment added successfully.");
     }
 
     /**
-     * Get all comments for a specific milestone.
+     * Get all comments for a specific task.
      *
-     * @param milestoneId ID of the milestone
+     * @param taskId ID of the task
      * @return ResponseEntity with a list of comments
      */
-    @GetMapping("/milestone/")
-    public ResponseEntity<List<Comments>> getCommentsByMilestone(@RequestParam Long milestoneId) {
-        List<Comments> comments = commentsService.getCommentsByMilestone(milestoneId);
+    @GetMapping("/task")
+    public ResponseEntity<List<TaskComments>> getCommentsByTask(@RequestParam Long taskId) {
+        List<TaskComments> comments = taskCommentService.getCommentsByTask(taskId);
         return ResponseEntity.ok(comments);
     }
 
@@ -50,9 +51,9 @@ public class CommentsController {
      * @param commentId ID of the comment to delete
      * @return ResponseEntity with a success message
      */
-    @DeleteMapping("/delete/")
+    @DeleteMapping("/delete")
     public ResponseEntity<String> deleteComment(@RequestParam Long commentId) {
-        commentsService.deleteComment(commentId);
+        taskCommentService.deleteComment(commentId);
         return ResponseEntity.ok("Comment deleted successfully.");
     }
 }

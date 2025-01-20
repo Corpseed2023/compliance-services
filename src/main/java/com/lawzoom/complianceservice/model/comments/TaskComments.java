@@ -1,7 +1,6 @@
-package com.lawzoom.complianceservice.model;
+package com.lawzoom.complianceservice.model.comments;
 
-
-import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
+import com.lawzoom.complianceservice.model.mileStoneTask.Task;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,14 +10,13 @@ import lombok.Setter;
 import org.hibernate.annotations.Comment;
 
 import java.util.Date;
-
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "comments")
-public class Comments {
+@Table(name = "task_comments")
+public class TaskComments {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,10 +26,10 @@ public class Comments {
     @Comment("The actual comment text provided by the user")
     private String commentText;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     @Comment("Timestamp of when the comment was created")
-    private Date createdAt = new Date();
+    private Date createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -39,9 +37,9 @@ public class Comments {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "milestone_id", nullable = false)
-    @Comment("The milestone associated with the comment")
-    private MileStone milestone;
+    @JoinColumn(name = "task_id", nullable = false)
+    @Comment("The task associated with the comment")
+    private Task task;
 
     @PrePersist
     protected void onCreate() {

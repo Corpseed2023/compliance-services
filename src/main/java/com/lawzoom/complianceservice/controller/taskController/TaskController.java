@@ -1,9 +1,9 @@
 package com.lawzoom.complianceservice.controller.taskController;
 
 
-import com.lawzoom.complianceservice.dto.TaskRequest;
-import com.lawzoom.complianceservice.dto.TaskResponse;
-import com.lawzoom.complianceservice.service.TaskService;
+import com.lawzoom.complianceservice.dto.taskDto.TaskListResponse;
+import com.lawzoom.complianceservice.dto.taskDto.TaskRequest;
+import com.lawzoom.complianceservice.service.taskService.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,23 +19,23 @@ public class TaskController {
     private TaskService taskService;
 
     @PostMapping("/create")
-    public ResponseEntity<TaskResponse> createTask(@RequestBody TaskRequest taskRequest) {
-        TaskResponse taskResponse = taskService.createTask(taskRequest);
+    public ResponseEntity<TaskListResponse> createTask(@RequestBody TaskRequest taskRequest) {
+        TaskListResponse taskResponse = taskService.createTask(taskRequest);
         return ResponseEntity.status(201).body(taskResponse);
     }
 
     @GetMapping("/fetch")
-    public ResponseEntity<List<TaskResponse>> fetchTasks(@RequestParam Long milestoneId) {
-        List<TaskResponse> taskResponses = taskService.fetchTasks(milestoneId);
+    public ResponseEntity<List<TaskListResponse>> fetchTasks(@RequestParam Long milestoneId) {
+        List<TaskListResponse> taskResponses = taskService.fetchTasks(milestoneId);
         return ResponseEntity.ok(taskResponses);
     }
 
     @PutMapping("/update-assignment")
-    public ResponseEntity<TaskResponse> updateTaskAssignment(
+    public ResponseEntity<TaskListResponse> updateTaskAssignment(
             @RequestParam Long taskId,
             @RequestParam Long assigneeUserId,
             @RequestParam Long reporterUserId) {
-        TaskResponse updatedTask = taskService.updateTaskAssignment(taskId, assigneeUserId, reporterUserId);
+        TaskListResponse updatedTask = taskService.updateTaskAssignment(taskId, assigneeUserId, reporterUserId);
         return ResponseEntity.ok(updatedTask);
     }
 

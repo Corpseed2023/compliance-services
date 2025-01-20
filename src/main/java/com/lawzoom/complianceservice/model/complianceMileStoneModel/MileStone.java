@@ -1,6 +1,6 @@
 package com.lawzoom.complianceservice.model.complianceMileStoneModel;
 
-import com.lawzoom.complianceservice.model.Comments;
+import com.lawzoom.complianceservice.model.comments.MileStoneComments;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
@@ -50,7 +50,7 @@ public class MileStone {
 	private LocalDate expiryDate;
 
 	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Comments> comments = new ArrayList<>();
+	private List<MileStoneComments> mileStoneComments = new ArrayList<>();
 
 	@Column(name = "created_at")
 	@Temporal(TemporalType.TIMESTAMP)

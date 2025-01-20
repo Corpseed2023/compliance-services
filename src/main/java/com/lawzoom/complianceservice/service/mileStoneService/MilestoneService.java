@@ -1,4 +1,4 @@
-package com.lawzoom.complianceservice.service;
+package com.lawzoom.complianceservice.service.mileStoneService;
 
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneListResponse;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequest;

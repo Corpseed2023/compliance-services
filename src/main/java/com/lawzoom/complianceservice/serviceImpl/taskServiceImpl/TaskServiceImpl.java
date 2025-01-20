@@ -1,8 +1,8 @@
-package com.lawzoom.complianceservice.serviceImpl;
+package com.lawzoom.complianceservice.serviceImpl.taskServiceImpl;
 
 
-import com.lawzoom.complianceservice.dto.TaskRequest;
-import com.lawzoom.complianceservice.dto.TaskResponse;
+import com.lawzoom.complianceservice.dto.taskDto.TaskListResponse;
+import com.lawzoom.complianceservice.dto.taskDto.TaskRequest;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
@@ -10,16 +10,15 @@ import com.lawzoom.complianceservice.model.mileStoneTask.Task;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
 import com.lawzoom.complianceservice.repository.StatusRepository;
-import com.lawzoom.complianceservice.repository.TaskRepository;
+import com.lawzoom.complianceservice.repository.taskRepo.TaskRepository;
 import com.lawzoom.complianceservice.repository.UserRepository;
-import com.lawzoom.complianceservice.service.TaskService;
+import com.lawzoom.complianceservice.service.taskService.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -37,7 +36,7 @@ public class TaskServiceImpl implements TaskService {
     private StatusRepository statusRepository;
 
     @Override
-    public TaskResponse createTask(TaskRequest taskRequest) {
+    public TaskListResponse createTask(TaskRequest taskRequest) {
         // Validate Milestone
         MileStone milestone = milestoneRepository.findById(taskRequest.getMilestoneId())
                 .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + taskRequest.getMilestoneId()));
@@ -73,7 +72,7 @@ public class TaskServiceImpl implements TaskService {
         Task savedTask = taskRepository.save(task);
 
         // Create TaskResponse and populate fields manually
-        TaskResponse response = new TaskResponse();
+        TaskListResponse response = new TaskListResponse();
         response.setId(savedTask.getId());
         response.setName(savedTask.getName());
         response.setDescription(savedTask.getDescription());
@@ -95,7 +94,7 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
-    public List<TaskResponse> fetchTasks(Long milestoneId) {
+    public List<TaskListResponse> fetchTasks(Long milestoneId) {
         // Validate Milestone
         MileStone milestone = milestoneRepository.findById(milestoneId)
                 .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
@@ -104,9 +103,9 @@ public class TaskServiceImpl implements TaskService {
         List<Task> tasks = taskRepository.findByMilestone(milestone);
 
         // Map Tasks to Response DTOs manually
-        List<TaskResponse> responses = new ArrayList<>();
+        List<TaskListResponse> responses = new ArrayList<>();
         for (Task task : tasks) {
-            TaskResponse response = new TaskResponse();
+            TaskListResponse response = new TaskListResponse();
             response.setId(task.getId());
             response.setName(task.getName());
             response.setDescription(task.getDescription());
@@ -131,7 +130,7 @@ public class TaskServiceImpl implements TaskService {
 
 
     @Override
-    public TaskResponse updateTaskAssignment(Long taskId, Long assigneeUserId, Long reporterUserId) {
+    public TaskListResponse updateTaskAssignment(Long taskId, Long assigneeUserId, Long reporterUserId) {
         // Validate Task
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new NotFoundException("Task not found with ID: " + taskId));
@@ -153,7 +152,7 @@ public class TaskServiceImpl implements TaskService {
         Task updatedTask = taskRepository.save(task);
 
         // Create and populate TaskResponse manually
-        TaskResponse response = new TaskResponse();
+        TaskListResponse response = new TaskListResponse();
         response.setId(updatedTask.getId());
         response.setName(updatedTask.getName());
         response.setDescription(updatedTask.getDescription());

@@ -1,6 +1,7 @@
 package com.lawzoom.complianceservice.model.mileStoneTask;
 
 import com.lawzoom.complianceservice.model.Status;
+import com.lawzoom.complianceservice.model.comments.TaskComments;
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
@@ -13,7 +14,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -26,7 +26,7 @@ public class Task {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "name")
+	@Column(name = "name", nullable = false)
 	private String name;
 
 	@Column(columnDefinition = "TEXT")
@@ -35,10 +35,10 @@ public class Task {
 	private LocalDate date;
 
 	@ManyToOne
-	@JoinColumn(name = "status_id")
+	@JoinColumn(name = "status_id", nullable = false)
 	private Status status;
 
-	@Column(name = "created_at")
+	@Column(name = "created_at", updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createdAt;
 
@@ -48,7 +48,7 @@ public class Task {
 
 	@Column(length = 1, name = "is_enable", columnDefinition = "tinyint(1) default 1")
 	@Comment(value = "1 : Active, 0 : Inactive")
-	private boolean isEnable;
+	private boolean isEnable = true;
 
 	@Column(name = "start_date")
 	@Temporal(TemporalType.DATE)
@@ -62,12 +62,12 @@ public class Task {
 	@Temporal(TemporalType.DATE)
 	private Date completedDate;
 
-	@ManyToOne
-	@JoinColumn(name = "manager_id")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "manager_id", nullable = true)
 	private User managerId;
 
-	@ManyToOne
-	@JoinColumn(name = "assignee_id")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "assignee_id", nullable = true)
 	private User assigneeId;
 
 	private String criticality;
@@ -82,5 +82,16 @@ public class Task {
 	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Reminder> reminders = new ArrayList<>();
 
+	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<TaskComments> comments = new ArrayList<>();
 
+	@PrePersist
+	protected void onCreate() {
+		this.createdAt = new Date();
+	}
+
+	@PreUpdate
+	protected void onUpdate() {
+		this.updatedAt = new Date();
+	}
 }

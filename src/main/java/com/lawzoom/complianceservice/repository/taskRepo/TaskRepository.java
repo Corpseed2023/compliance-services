@@ -1,4 +1,4 @@
-package com.lawzoom.complianceservice.repository;
+package com.lawzoom.complianceservice.repository.taskRepo;
 
 
 import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;

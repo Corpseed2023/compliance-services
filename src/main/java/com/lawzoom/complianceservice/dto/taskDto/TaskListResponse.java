@@ -1,4 +1,4 @@
-package com.lawzoom.complianceservice.dto;
+package com.lawzoom.complianceservice.dto.taskDto;
 
 
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskResponse {
+public class TaskListResponse {
 
     private Long id;
     private String name;

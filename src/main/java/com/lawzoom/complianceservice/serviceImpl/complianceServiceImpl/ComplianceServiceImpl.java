@@ -217,7 +217,7 @@ public class ComplianceServiceImpl implements ComplianceService {
         for (MileStone milestone : milestones) {
             ComplianceMilestoneResponse milestoneResponse = new ComplianceMilestoneResponse();
             milestoneResponse.setId(milestone.getId());
-            milestoneResponse.setName(milestone.getMileStoneName());
+            milestoneResponse.setMileStoneName(milestone.getMileStoneName());
             milestoneResponse.setStatus(milestone.getStatus() != null ? milestone.getStatus().getName() : "Not Started");
             milestoneResponses.add(milestoneResponse);
         }
@@ -283,12 +283,36 @@ public class ComplianceServiceImpl implements ComplianceService {
             for (MileStone milestone : milestones) {
                 ComplianceMilestoneResponse milestoneResponse = new ComplianceMilestoneResponse();
                 milestoneResponse.setId(milestone.getId());
-                milestoneResponse.setName(milestone.getMileStoneName());
+                milestoneResponse.setMileStoneName(milestone.getMileStoneName());
+                milestoneResponse.setDescription(milestone.getDescription());
+                milestoneResponse.setStatusId(milestone.getStatus() != null ? milestone.getStatus().getId() : null);
                 milestoneResponse.setStatus(milestone.getStatus() != null ? milestone.getStatus().getName() : "Not Started");
+                milestoneResponse.setCreatedAt(milestone.getCreatedAt());
+                milestoneResponse.setUpdatedAt(milestone.getUpdatedAt());
+                milestoneResponse.setEnable(milestone.isEnable());
+                milestoneResponse.setComplianceId(compliance.getId());
+                milestoneResponse.setManagerId(milestone.getManager() != null ? milestone.getManager().getId() : null);
+                milestoneResponse.setManagerName(milestone.getManager() != null ? milestone.getManager().getUserName() : null);
+                milestoneResponse.setAssignedId(milestone.getAssigned() != null ? milestone.getAssigned().getId() : null);
+                milestoneResponse.setAssignedName(milestone.getAssigned() != null ? milestone.getAssigned().getUserName() : null);
+                milestoneResponse.setAssignedBy(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getId() : null);
+                milestoneResponse.setAssignedByName(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getUserName() : null);
+                milestoneResponse.setIssuedDate(milestone.getIssuedDate());
+                milestoneResponse.setStartedDate(milestone.getStartedDate());
+                milestoneResponse.setDueDate(milestone.getDueDate());
+                milestoneResponse.setCompletedDate(milestone.getCompletedDate());
+                milestoneResponse.setCriticality(milestone.getCriticality());
+                milestoneResponse.setRemark(milestone.getRemark());
+                milestoneResponse.setBusinessUnitId(milestone.getBusinessUnit() != null ? milestone.getBusinessUnit().getId() : null);
+                milestoneResponse.setSubscriberId(milestone.getSubscriber() != null ? milestone.getSubscriber().getId() : null);
+
                 milestoneResponses.add(milestoneResponse);
             }
+
+            // Add milestone responses to the compliance response
             response.setMilestones(milestoneResponses);
 
+            // Add compliance response to the final list
             responses.add(response);
         }
 

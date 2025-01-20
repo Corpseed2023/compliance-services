@@ -1,10 +1,10 @@
-package com.lawzoom.complianceservice.serviceImpl;
+package com.lawzoom.complianceservice.serviceImpl.mileStoneServiceImpl;
 
 import com.lawzoom.complianceservice.dto.DocumentRequest;
 import com.lawzoom.complianceservice.dto.commentDto.CommentDetails;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.*;
 import com.lawzoom.complianceservice.exception.NotFoundException;
-import com.lawzoom.complianceservice.model.Comments;
+import com.lawzoom.complianceservice.model.comments.MileStoneComments;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
@@ -17,7 +17,7 @@ import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRep
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitRepository;
 import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
 import com.lawzoom.complianceservice.repository.complianceRepo.ComplianceRepo;
-import com.lawzoom.complianceservice.service.MilestoneService;
+import com.lawzoom.complianceservice.service.mileStoneService.MilestoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -107,11 +107,11 @@ public class MilestoneServiceImpl implements MilestoneService {
             milestone.setRemark(milestoneRequest.getRemark());
 
             if (milestoneRequest.getComment() != null && !milestoneRequest.getComment().isEmpty()) {
-                Comments comment = new Comments();
+                MileStoneComments comment = new MileStoneComments();
                 comment.setCommentText(milestoneRequest.getComment());
                 comment.setUser(reporter);
                 comment.setMilestone(milestone);
-                milestone.getComments().add(comment);
+                milestone.getMileStoneComments().add(comment);
             }
 
             // Step 10: Save Documents if provided
@@ -234,7 +234,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.setDocuments(documentDetails);
 
         // Step 6: Map Comments to CommentDetails DTO
-        List<CommentDetails> commentDetails = milestone.getComments().stream().map(comment -> {
+        List<CommentDetails> commentDetails = milestone.getMileStoneComments().stream().map(comment -> {
             CommentDetails commDetails = new CommentDetails();
             commDetails.setId(comment.getId());
             commDetails.setCommentText(comment.getCommentText());

@@ -5,7 +5,7 @@ import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneListResponse
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequestForFetch;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneResponse;
-import com.lawzoom.complianceservice.service.MilestoneService;
+import com.lawzoom.complianceservice.service.mileStoneService.MilestoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,4 +1,4 @@
-package com.lawzoom.complianceservice.dto;
+package com.lawzoom.complianceservice.dto.taskDto;
 
 
 import lombok.AllArgsConstructor;
