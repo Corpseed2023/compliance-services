@@ -545,6 +545,54 @@ public class MilestoneServiceImpl implements MilestoneService {
         return mapToMilestoneResponseWithDetails(updatedMilestone);
     }
 
+    // i want progress in response
+
+    @Override
+    public List<MilestoneDetailsResponse> allMileStones(Long userId, Long subscriberId) {
+        // Step 1: Validate User
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Error: User not found!"));
+
+        // Step 2: Validate Subscriber
+        Subscriber subscriber = subscriberRepository.findById(subscriberId)
+                .orElseThrow(() -> new IllegalArgumentException("Error: Subscriber not found!"));
+
+        // Step 3: Fetch milestones for the subscriber
+        List<MileStone> milestones = milestoneRepository.findBySubscriber(subscriber);
+
+        // Step 4: Map milestones to MilestoneDetailsResponse
+        List<MilestoneDetailsResponse> milestoneDetailsResponses = new ArrayList<>();
+
+        for (MileStone milestone : milestones) {
+            MilestoneDetailsResponse response = new MilestoneDetailsResponse();
+            response.setCompanyId(milestone.getBusinessUnit().getGstDetails().getCompany().getId());
+            response.setCompanyName(milestone.getBusinessUnit().getGstDetails().getCompany().getCompanyName());
+            response.setBusinessUnit(milestone.getBusinessUnit().getId());
+            response.setBusinessName(milestone.getBusinessUnit().getAddress());
+            response.setBusinessActivityId(milestone.getBusinessUnit().getBusinessActivity() != null
+                    ? milestone.getBusinessUnit().getBusinessActivity().getId()
+                    : null);
+            response.setBusinessActivityName(milestone.getBusinessUnit().getBusinessActivity() != null
+                    ? milestone.getBusinessUnit().getBusinessActivity().getBusinessActivityName()
+                    : null);
+            response.setComplianceId(milestone.getCompliance().getId());
+            response.setComplianceName(milestone.getCompliance().getComplianceName());
+            response.setMileStoneId(milestone.getId());
+            response.setMileStoneName(milestone.getMileStoneName());
+            response.setCriticality(milestone.getCriticality());
+            response.setStartedDate(milestone.getStartedDate());
+            response.setDueDate(milestone.getDueDate());
+            response.setStatusName(milestone.getStatus() != null ? milestone.getStatus().getName() : "Not Started");
+            response.setManagerId(milestone.getManager() != null ? milestone.getManager().getId() : null);
+            response.setManagerName(milestone.getManager() != null ? milestone.getManager().getUserName() : null);
+
+            milestoneDetailsResponses.add(response);
+        }
+
+        return milestoneDetailsResponses;
+    }
+
+
 
 }
 

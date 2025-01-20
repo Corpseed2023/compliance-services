@@ -1,10 +1,7 @@
 package com.lawzoom.complianceservice.controller.milestoneController;
 
 
-import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneListResponse;
-import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequest;
-import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequestForFetch;
-import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneResponse;
+import com.lawzoom.complianceservice.dto.complianceTaskDto.*;
 import com.lawzoom.complianceservice.service.mileStoneService.MilestoneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -69,6 +66,20 @@ public class MilestoneController {
             @RequestParam Long statusId) {
         MilestoneResponse updatedMilestone = milestoneService.updateMilestoneStatus(milestoneId, statusId);
         return ResponseEntity.ok(updatedMilestone);
+    }
+
+
+    @GetMapping("/all-milestones/")
+    public ResponseEntity<List<MilestoneDetailsResponse>> allMileStones(
+            @RequestParam Long userId,
+            @RequestParam Long subscriberId) {
+        try {
+            // Fetch milestones based on status
+            List<MilestoneDetailsResponse> milestoneDetailsResponses = milestoneService.allMileStones(userId, subscriberId);
+            return ResponseEntity.ok(milestoneDetailsResponses);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
     }
 
 

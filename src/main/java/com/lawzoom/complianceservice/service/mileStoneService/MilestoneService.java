@@ -1,9 +1,6 @@
 package com.lawzoom.complianceservice.service.mileStoneService;
 
-import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneListResponse;
-import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequest;
-import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequestForFetch;
-import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneResponse;
+import com.lawzoom.complianceservice.dto.complianceTaskDto.*;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 
@@ -24,4 +21,6 @@ public interface MilestoneService {
     MilestoneResponse updateMilestoneAssignment(Long milestoneId, Long assignedToId, Long taskReporterId);
 
     MilestoneResponse updateMilestoneStatus(Long milestoneId, Long statusId);
+
+    List<MilestoneDetailsResponse> allMileStones(Long userId, Long subscriberId);
 }
