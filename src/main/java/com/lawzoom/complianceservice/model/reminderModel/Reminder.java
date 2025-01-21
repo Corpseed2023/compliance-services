@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.*;
 import org.hibernate.annotations.Comment;
-import  com.lawzoom.complianceservice.model.taskModel.Task;
+import  com.lawzoom.complianceservice.model.mileStoneTask.Task;
 
 
 import java.time.LocalDate;

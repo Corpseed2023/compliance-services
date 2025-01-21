@@ -263,6 +263,21 @@ public class ComplianceServiceImpl implements ComplianceService {
             response.setBusinessUnitId(compliance.getBusinessUnit().getId());
             response.setSubscriberId(compliance.getSubscriber().getId());
             response.setCompanyId(compliance.getBusinessUnit().getGstDetails().getCompany().getId());
+            response.setCompanyName(compliance.getBusinessUnit().getGstDetails().getCompany().getCompanyName());
+
+            // City and State
+            response.setCityId(compliance.getBusinessUnit().getCity() != null ? compliance.getBusinessUnit().getCity().getId() : null);
+            response.setCity(compliance.getBusinessUnit().getCity() != null ? compliance.getBusinessUnit().getCity().getCityName() : null);
+            response.setStateId(compliance.getBusinessUnit().getState() != null ? compliance.getBusinessUnit().getState().getId() : null);
+            response.setState(compliance.getBusinessUnit().getState() != null ? compliance.getBusinessUnit().getState().getStateName() : null);
+
+            response.setBusinessActivityId(compliance.getBusinessUnit().getBusinessActivity() != null
+                    ? compliance.getBusinessUnit().getBusinessActivity().getId()
+                    : null);
+            response.setBusinessActivityName(compliance.getBusinessUnit().getBusinessActivity() != null
+                    ? compliance.getBusinessUnit().getBusinessActivity().getBusinessActivityName()
+                    : null);
+
 
             // Fetch milestones
             List<MileStone> milestones = compliance.getMilestones();
@@ -305,16 +320,6 @@ public class ComplianceServiceImpl implements ComplianceService {
                 milestoneResponse.setRemark(milestone.getRemark());
                 milestoneResponse.setBusinessUnitId(milestone.getBusinessUnit() != null ? milestone.getBusinessUnit().getId() : null);
                 milestoneResponse.setSubscriberId(milestone.getSubscriber() != null ? milestone.getSubscriber().getId() : null);
-
-                // Additional Fields for ComplianceMilestoneResponse
-                milestoneResponse.setCompanyId(milestone.getBusinessUnit().getGstDetails().getCompany().getId());
-                milestoneResponse.setCompanyName(milestone.getBusinessUnit().getGstDetails().getCompany().getCompanyName());
-                milestoneResponse.setBusinessActivityId(milestone.getBusinessActivity() != null ? milestone.getBusinessActivity().getId() : null);
-                milestoneResponse.setBusinessActivityName(milestone.getBusinessActivity() != null ? milestone.getBusinessActivity().getBusinessActivityName() : null);
-                milestoneResponse.setCityId(milestone.getBusinessUnit().getCity() != null ? milestone.getBusinessUnit().getCity().getId() : null);
-                milestoneResponse.setCity(milestone.getBusinessUnit().getCity() != null ? milestone.getBusinessUnit().getCity().getCityName() : null);
-                milestoneResponse.setStateId(milestone.getBusinessUnit().getState() != null ? milestone.getBusinessUnit().getState().getId() : null);
-                milestoneResponse.setState(milestone.getBusinessUnit().getState() != null ? milestone.getBusinessUnit().getState().getStateName() : null);
 
                 milestoneResponses.add(milestoneResponse);
             }

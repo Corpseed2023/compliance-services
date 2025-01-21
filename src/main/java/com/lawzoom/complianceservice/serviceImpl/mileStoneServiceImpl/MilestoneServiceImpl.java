@@ -546,7 +546,6 @@ public class MilestoneServiceImpl implements MilestoneService {
         return mapToMilestoneResponseWithDetails(updatedMilestone);
     }
 
-    // i want progress in response
 
     @Override
     public List<MilestoneDetailsResponse> allMileStones(Long userId, Long subscriberId) {

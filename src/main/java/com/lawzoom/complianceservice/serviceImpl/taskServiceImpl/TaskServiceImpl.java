@@ -6,7 +6,7 @@ import com.lawzoom.complianceservice.dto.taskDto.TaskRequest;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
-import com.lawzoom.complianceservice.model.taskModel.Task;
+import com.lawzoom.complianceservice.model.mileStoneTask.Task;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
 import com.lawzoom.complianceservice.repository.StatusRepository;

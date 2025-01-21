@@ -2,7 +2,7 @@ package com.lawzoom.complianceservice.serviceImpl.taskServiceImpl;
 
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.comments.TaskComments;
-import com.lawzoom.complianceservice.model.taskModel.Task;
+import com.lawzoom.complianceservice.model.mileStoneTask.Task;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.taskRepo.TaskCommentRepository;
 import com.lawzoom.complianceservice.repository.taskRepo.TaskRepository;

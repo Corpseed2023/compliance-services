@@ -2,7 +2,7 @@ package com.lawzoom.complianceservice.model.documentModel;
 
 import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
-import com.lawzoom.complianceservice.model.taskModel.Task;
+import com.lawzoom.complianceservice.model.mileStoneTask.Task;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;

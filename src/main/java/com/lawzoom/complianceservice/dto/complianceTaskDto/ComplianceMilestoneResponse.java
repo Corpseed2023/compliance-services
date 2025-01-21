@@ -37,12 +37,5 @@ public class ComplianceMilestoneResponse {
     private String remark;
     private Long businessUnitId;
     private Long subscriberId;
-    private Long companyId;
-    private String companyName;
-    private Long businessActivityId;
-    private String businessActivityName;
-    private Long cityId;
-    private String city;
-    private Long stateId;
-    private String state;
+
 }
