@@ -8,7 +8,7 @@ import com.lawzoom.complianceservice.model.comments.MileStoneComments;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
-import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
+import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
@@ -155,6 +155,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         // Handle other work statuses (e.g., Completed, Not Applicable)
         throw new IllegalArgumentException("Invalid or unsupported work status for this operation.");
     }
+
 
     @Override
     public MilestoneResponse fetchMilestoneById(Long milestoneId) {

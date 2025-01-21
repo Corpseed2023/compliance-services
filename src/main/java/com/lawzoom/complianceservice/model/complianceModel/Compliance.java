@@ -1,8 +1,7 @@
 	package com.lawzoom.complianceservice.model.complianceModel;
 
-	import com.lawzoom.complianceservice.model.Status;
 	import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
-	import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
+	import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 	import com.lawzoom.complianceservice.model.user.Subscriber;
 	import jakarta.persistence.*;
 	import lombok.AllArgsConstructor;

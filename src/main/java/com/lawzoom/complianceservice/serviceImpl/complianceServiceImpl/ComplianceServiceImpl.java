@@ -12,7 +12,7 @@ import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.companyModel.Company;
-import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
+import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.complianceModel.ComplianceHistory;
 import com.lawzoom.complianceservice.model.gstdetails.GstDetails;
@@ -305,6 +305,16 @@ public class ComplianceServiceImpl implements ComplianceService {
                 milestoneResponse.setRemark(milestone.getRemark());
                 milestoneResponse.setBusinessUnitId(milestone.getBusinessUnit() != null ? milestone.getBusinessUnit().getId() : null);
                 milestoneResponse.setSubscriberId(milestone.getSubscriber() != null ? milestone.getSubscriber().getId() : null);
+
+                // Additional Fields for ComplianceMilestoneResponse
+                milestoneResponse.setCompanyId(milestone.getBusinessUnit().getGstDetails().getCompany().getId());
+                milestoneResponse.setCompanyName(milestone.getBusinessUnit().getGstDetails().getCompany().getCompanyName());
+                milestoneResponse.setBusinessActivityId(milestone.getBusinessActivity() != null ? milestone.getBusinessActivity().getId() : null);
+                milestoneResponse.setBusinessActivityName(milestone.getBusinessActivity() != null ? milestone.getBusinessActivity().getBusinessActivityName() : null);
+                milestoneResponse.setCityId(milestone.getBusinessUnit().getCity() != null ? milestone.getBusinessUnit().getCity().getId() : null);
+                milestoneResponse.setCity(milestone.getBusinessUnit().getCity() != null ? milestone.getBusinessUnit().getCity().getCityName() : null);
+                milestoneResponse.setStateId(milestone.getBusinessUnit().getState() != null ? milestone.getBusinessUnit().getState().getId() : null);
+                milestoneResponse.setState(milestone.getBusinessUnit().getState() != null ? milestone.getBusinessUnit().getState().getStateName() : null);
 
                 milestoneResponses.add(milestoneResponse);
             }

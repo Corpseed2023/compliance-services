@@ -1,4 +1,4 @@
-package com.lawzoom.complianceservice.model.complianceMileStoneModel;
+package com.lawzoom.complianceservice.model.mileStoneModel;
 
 
 import jakarta.persistence.*;

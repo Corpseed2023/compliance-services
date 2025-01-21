@@ -24,9 +24,11 @@ public class ComplianceResponse {
     private int priority;
     private Long companyId;
     private Long businessUnitId;
+    private Long businessActivityId;
     private Long subscriberId;
     private double progressPercentage;
     private List<ComplianceMilestoneResponse> milestones;
     private int MilestoneCount;
+
 
 }

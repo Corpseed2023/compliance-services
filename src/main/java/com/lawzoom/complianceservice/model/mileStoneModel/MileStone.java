@@ -1,4 +1,4 @@
-package com.lawzoom.complianceservice.model.complianceMileStoneModel;
+package com.lawzoom.complianceservice.model.mileStoneModel;
 
 import com.lawzoom.complianceservice.model.comments.MileStoneComments;
 import com.lawzoom.complianceservice.model.Status;
@@ -10,7 +10,7 @@ import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
-import com.lawzoom.complianceservice.model.mileStoneTask.Task;
+import com.lawzoom.complianceservice.model.taskModel.Task;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Comment;

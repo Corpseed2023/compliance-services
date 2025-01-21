@@ -23,5 +23,5 @@ public class RenewalRequest {
 
     private String renewalNotes;
 
-    private boolean stopFlag = false; // Default to false
+    private boolean stopFlag = false;
 }

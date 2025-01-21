@@ -2,7 +2,7 @@ package com.lawzoom.complianceservice.serviceImpl.mileStoneServiceImpl;
 
 
 import com.lawzoom.complianceservice.model.comments.MileStoneComments;
-import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
+import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.CommentsRepository;
 import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;

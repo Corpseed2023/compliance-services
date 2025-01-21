@@ -1,7 +1,7 @@
 package com.lawzoom.complianceservice.model.comments;
 
 
-import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
+import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

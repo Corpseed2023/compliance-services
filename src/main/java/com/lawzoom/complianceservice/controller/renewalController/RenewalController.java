@@ -18,37 +18,6 @@ public class RenewalController {
     @Autowired
     private RenewalService renewalService;
 
-    // Endpoint for creating a new renewal
-    @PostMapping("/create-compliance-renewal")
-    public ResponseEntity<RenewalResponse> createRenewal(
-            @RequestParam("complianceId") Long complianceId,
-            @Valid @RequestBody RenewalRequest renewalRequest) {
-
-        RenewalResponse response = renewalService.createRenewalForCompliance(complianceId, renewalRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    // Endpoint for updating an existing renewal
-    @PostMapping("/update")
-    public ResponseEntity<RenewalResponse> createOrUpdateRenewal(
-            @RequestParam("complianceId") Long complianceId,
-            @Valid @RequestBody RenewalRequest renewalRequest) {
-
-        RenewalResponse response = renewalService.generateComplianceRenewal(complianceId, renewalRequest);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{complianceId}")
-    public ResponseEntity<RenewalResponse> getRenewalByComplianceId(@PathVariable Long complianceId) {
-        RenewalResponse response = renewalService.getRenewalByComplianceId(complianceId);
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/{complianceId}")
-    public ResponseEntity<Void> deleteRenewal(@PathVariable Long complianceId) {
-        renewalService.deleteRenewal(complianceId);
-        return ResponseEntity.noContent().build();
-    }
 
     @PostMapping("/create-milestone-renewal")
     public ResponseEntity<MilestoneRenewalResponse> createMilestoneRenewal(
@@ -57,6 +26,15 @@ public class RenewalController {
 
         MilestoneRenewalResponse response = renewalService.createMilestoneRenewal(milestoneId, renewalRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PutMapping("/update-milestone-renewal/")
+    public ResponseEntity<MilestoneRenewalResponse> updateMilestoneRenewal(
+            @RequestParam("renewalId") Long renewalId,
+            @Valid @RequestBody RenewalRequest renewalRequest) {
+
+        MilestoneRenewalResponse response = renewalService.updateMilestoneRenewal(renewalId, renewalRequest);
+        return ResponseEntity.ok(response);
     }
 
 

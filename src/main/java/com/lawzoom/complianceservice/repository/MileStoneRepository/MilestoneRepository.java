@@ -1,7 +1,7 @@
 package com.lawzoom.complianceservice.repository.MileStoneRepository;
 
 import com.lawzoom.complianceservice.model.Status;
-import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
+import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;

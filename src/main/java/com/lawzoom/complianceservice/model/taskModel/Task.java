@@ -1,8 +1,8 @@
-package com.lawzoom.complianceservice.model.mileStoneTask;
+package com.lawzoom.complianceservice.model.taskModel;
 
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.comments.TaskComments;
-import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
+import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.model.user.User;
