@@ -43,9 +43,6 @@ public class Renewal {
     @Comment(value = "Start date for sending reminders")
     private LocalDate reminderStartDate;
 
-    @Comment(value = "Calculated next reminder date based on duration")
-    private LocalDate nextReminderDate;
-
     @Comment(value = "Notes or additional details about the renewal")
     @Column(name = "renewal_notes", length = 500)
     private String renewalNotes;
@@ -105,8 +102,7 @@ public class Renewal {
                 default:
                     throw new IllegalArgumentException("Invalid reminder duration type: " + this.reminderDurationType);
             }
-            // Set the next reminder date to the reminder start date initially
-            this.nextReminderDate = this.reminderStartDate;
+
         } else {
             throw new IllegalArgumentException("Reminder duration type and value must not be null.");
         }

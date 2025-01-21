@@ -40,6 +40,7 @@ public class MilestoneResponse {
     private String remark;
     private Long businessUnitId;
     private Long subscriberId;
+    private LocalDate expiryDate;
 
     private List<ReminderDetails> reminders;
     private List<RenewalDetails> renewals;
@@ -72,7 +73,6 @@ public class MilestoneResponse {
         private LocalDate expiryDate;
         private String reminderDurationType;
         private Integer reminderDurationValue;
-        private LocalDate nextReminderDate;
         private String renewalNotes;
         private boolean stopFlag;
         private int reminderFrequency;

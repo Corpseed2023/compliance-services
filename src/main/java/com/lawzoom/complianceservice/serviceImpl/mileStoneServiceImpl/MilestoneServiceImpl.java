@@ -105,6 +105,7 @@ public class MilestoneServiceImpl implements MilestoneService {
             milestone.setStatus(status);
             milestone.setSubscriber(subscriber);
             milestone.setRemark(milestoneRequest.getRemark());
+            milestone.setExpiryDate(milestoneRequest.getExpiryDate());
 
             if (milestoneRequest.getComment() != null && !milestoneRequest.getComment().isEmpty()) {
                 MileStoneComments comment = new MileStoneComments();
@@ -188,6 +189,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.setRemark(milestone.getRemark());
         response.setBusinessUnitId(milestone.getBusinessUnit() != null ? milestone.getBusinessUnit().getId() : null);
         response.setSubscriberId(milestone.getSubscriber() != null ? milestone.getSubscriber().getId() : null);
+        response.setExpiryDate(milestone.getExpiryDate());
 
         // Step 3: Map Reminder Details to ReminderDetails DTO
         List<MilestoneResponse.ReminderDetails> reminderDetails = milestone.getReminders().stream().map(reminder -> {
@@ -212,7 +214,6 @@ public class MilestoneServiceImpl implements MilestoneService {
             renDetails.setExpiryDate(renewal.getExpiryDate());
             renDetails.setReminderDurationType(renewal.getReminderDurationType());
             renDetails.setReminderDurationValue(renewal.getReminderDurationValue());
-            renDetails.setNextReminderDate(renewal.getNextReminderDate());
             renDetails.setRenewalNotes(renewal.getRenewalNotes());
             renDetails.setStopFlag(renewal.isStopFlag());
             renDetails.setReminderFrequency(renewal.getReminderFrequency());
@@ -375,7 +376,6 @@ public class MilestoneServiceImpl implements MilestoneService {
                     rd.setExpiryDate(renewal.getExpiryDate());
                     rd.setReminderDurationType(renewal.getReminderDurationType());
                     rd.setReminderDurationValue(renewal.getReminderDurationValue());
-                    rd.setNextReminderDate(renewal.getNextReminderDate());
                     rd.setRenewalNotes(renewal.getRenewalNotes());
                     rd.setStopFlag(renewal.isStopFlag());
                     rd.setReminderFrequency(renewal.getReminderFrequency());

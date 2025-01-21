@@ -282,16 +282,9 @@ public class ComplianceServiceImpl implements ComplianceService {
             // Fetch milestones
             List<MileStone> milestones = compliance.getMilestones();
             int totalMilestones = milestones.size();
-            int completedMilestones = (int) milestones.stream()
-                    .filter(m -> m.getStatus() != null && "Completed".equalsIgnoreCase(m.getStatus().getName()))
-                    .count();
-
-            // Calculate progress percentage
-            double progressPercentage = (totalMilestones > 0) ? ((double) completedMilestones / totalMilestones) * 100 : 0;
 
             // Set milestones and progress details
             response.setMilestoneCount(totalMilestones);
-            response.setProgressPercentage(progressPercentage);
 
             // Map milestones to ComplianceMilestoneResponse
             List<ComplianceMilestoneResponse> milestoneResponses = new ArrayList<>();

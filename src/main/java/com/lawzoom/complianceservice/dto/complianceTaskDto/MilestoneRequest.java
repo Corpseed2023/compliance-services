@@ -34,6 +34,8 @@ public class MilestoneRequest {
 
 	private LocalDate issuedDate;
 
+	private LocalDate expiryDate;
+
 	private Long managerId;
 
 	private Long assignee;
@@ -48,10 +50,7 @@ public class MilestoneRequest {
 
 	private String remark;
 
-	private LocalDate expiryDate;
-
 	private String comment;
-
 
 	private List<DocumentRequest> documents;
 
