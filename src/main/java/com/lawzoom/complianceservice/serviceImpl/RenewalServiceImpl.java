@@ -71,7 +71,6 @@ public class RenewalServiceImpl implements RenewalService {
         response.setExpiryDate(savedRenewal.getExpiryDate());
         response.setReminderDurationType(savedRenewal.getReminderDurationType());
         response.setReminderDurationValue(savedRenewal.getReminderDurationValue());
-        response.setNextReminderDate(savedRenewal.getNextReminderDate());
         response.setRenewalNotes(savedRenewal.getRenewalNotes());
         response.setStopFlag(savedRenewal.isStopFlag());
         response.setReminderFrequency(savedRenewal.getReminderFrequency());
@@ -86,7 +85,6 @@ public class RenewalServiceImpl implements RenewalService {
         response.setExpiryDate(renewal.getExpiryDate());
         response.setReminderDurationType(renewal.getReminderDurationType());
         response.setReminderDurationValue(renewal.getReminderDurationValue());
-        response.setNextReminderDate(renewal.getNextReminderDate());
         response.setRenewalNotes(renewal.getRenewalNotes());
         response.setStopFlag(renewal.isStopFlag());
         response.setReminderFrequency(renewal.getReminderFrequency());
@@ -122,7 +120,6 @@ public class RenewalServiceImpl implements RenewalService {
         response.setExpiryDate(updatedRenewal.getExpiryDate());
         response.setReminderDurationType(updatedRenewal.getReminderDurationType());
         response.setReminderDurationValue(updatedRenewal.getReminderDurationValue());
-        response.setNextReminderDate(updatedRenewal.getNextReminderDate());
         response.setRenewalNotes(updatedRenewal.getRenewalNotes());
         response.setStopFlag(updatedRenewal.isStopFlag());
         response.setReminderFrequency(updatedRenewal.getReminderFrequency());
