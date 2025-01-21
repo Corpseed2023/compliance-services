@@ -30,6 +30,7 @@ public class ComplianceMilestoneResponse {
     private Long assignedBy;
     private String assignedByName;
     private LocalDate issuedDate;
+    private LocalDate expiryDate;
     private LocalDate startedDate;
     private LocalDate dueDate;
     private LocalDate completedDate;

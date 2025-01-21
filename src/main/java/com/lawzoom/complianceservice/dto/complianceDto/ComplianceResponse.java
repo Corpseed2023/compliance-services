@@ -3,6 +3,7 @@ package com.lawzoom.complianceservice.dto.complianceDto;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceMilestoneResponse;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -35,6 +36,7 @@ public class ComplianceResponse {
     private double progressPercentage;
     private List<ComplianceMilestoneResponse> milestones;
     private int MilestoneCount;
+
 
 
 }

@@ -33,6 +33,7 @@ public class MilestoneListResponse {
     private LocalDate issuedDate;
     private LocalDate startedDate;
     private LocalDate dueDate;
+    private LocalDate expiryDate;
     private LocalDate completedDate;
     private String criticality;
     private String remark;

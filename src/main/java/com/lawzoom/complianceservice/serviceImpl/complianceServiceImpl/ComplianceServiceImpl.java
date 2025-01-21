@@ -313,6 +313,7 @@ public class ComplianceServiceImpl implements ComplianceService {
                 milestoneResponse.setRemark(milestone.getRemark());
                 milestoneResponse.setBusinessUnitId(milestone.getBusinessUnit() != null ? milestone.getBusinessUnit().getId() : null);
                 milestoneResponse.setSubscriberId(milestone.getSubscriber() != null ? milestone.getSubscriber().getId() : null);
+                milestoneResponse.setExpiryDate(milestone.getExpiryDate());
 
                 milestoneResponses.add(milestoneResponse);
             }
