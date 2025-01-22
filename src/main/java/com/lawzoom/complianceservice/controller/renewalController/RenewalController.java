@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/compliance/renewal")
 public class RenewalController {
@@ -35,6 +38,21 @@ public class RenewalController {
 
         MilestoneRenewalResponse response = renewalService.updateMilestoneRenewal(renewalId, renewalRequest);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{renewalId}")
+    public ResponseEntity<RenewalResponse> getRenewalById(@PathVariable Long renewalId) {
+        RenewalResponse response = renewalService.getRenewalById(renewalId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/milestone")
+    public ResponseEntity<List<RenewalResponse>> getRenewalsByMilestoneId(
+            @RequestParam Long userid,
+            @RequestParam Long milestoneId) {
+
+        List<RenewalResponse> responses = renewalService.getRenewalsByMilestoneId(userid, milestoneId);
+        return ResponseEntity.ok(responses);
     }
 
 

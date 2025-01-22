@@ -3,7 +3,7 @@ package com.lawzoom.complianceservice.serviceImpl.companyLogic;
 import com.lawzoom.complianceservice.dto.regionDTO.locatedAt.LocatedAtResponse;
 import com.lawzoom.complianceservice.model.region.LocatedAt;
 import com.lawzoom.complianceservice.model.user.User;
-import com.lawzoom.complianceservice.repository.UserRepository;
+import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.repository.companyRepo.LocatedAtRepository;
 import com.lawzoom.complianceservice.service.companyService.LocatedAtService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -51,8 +51,10 @@ public class MilestoneRequest {
 	private String remark;
 
 	private String comment;
-
-	private List<DocumentRequest> documents;
+	private String documentName;
+	private String file;
+	private String referenceNumber;
+	private String remarks;
 
 
 

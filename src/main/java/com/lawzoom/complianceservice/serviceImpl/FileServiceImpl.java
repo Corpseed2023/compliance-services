@@ -3,15 +3,13 @@ package com.lawzoom.complianceservice.serviceImpl;
 
 import com.lawzoom.complianceservice.model.documentModel.File;
 import com.lawzoom.complianceservice.repository.FileRepository;
-import com.lawzoom.complianceservice.repository.UserRepository;
+import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.core.sync.RequestBody;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

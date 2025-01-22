@@ -1,7 +1,6 @@
 package com.lawzoom.complianceservice.model.reminderModel;
 
 import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
-import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
@@ -77,8 +76,6 @@ public class Reminder {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "task_id", nullable = true)
 	private Task task;
-
-
 
 
 	@PrePersist

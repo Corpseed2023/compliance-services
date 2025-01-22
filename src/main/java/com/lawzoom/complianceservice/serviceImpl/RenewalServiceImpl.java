@@ -6,6 +6,8 @@ import com.lawzoom.complianceservice.dto.renewalDto.RenewalResponse;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.renewalModel.Renewal;
+import com.lawzoom.complianceservice.model.user.User;
+import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.repository.complianceRepo.ComplianceRepo;
 import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
 import com.lawzoom.complianceservice.repository.RenewalRepository.RenewalRepository;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class RenewalServiceImpl implements RenewalService {
@@ -31,17 +34,26 @@ public class RenewalServiceImpl implements RenewalService {
     @Autowired
     private TaskRepository taskRepository;
 
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public MilestoneRenewalResponse createMilestoneRenewal(Long milestoneId, RenewalRequest request) {
+        // Validate Milestone
         MileStone milestone = milestoneRepository.findById(milestoneId)
                 .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
 
+        // Validate User
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + request.getUserId()));
+
+        // Check if a renewal already exists for the milestone
         Renewal renewal = renewalRepository.findByMilestoneId(milestoneId);
         if (renewal == null) {
             renewal = new Renewal();
             renewal.setMilestone(milestone);
             renewal.setSubscriber(milestone.getSubscriber());
+            renewal.setUser(user); // Set the creator
             renewal.setCreatedAt(LocalDate.now());
         }
 
@@ -50,6 +62,7 @@ public class RenewalServiceImpl implements RenewalService {
         }
 
         // Update Renewal details
+        renewal.setUser(user); // Associate user
         renewal.setIssuedDate(request.getIssuedDate());
         renewal.setExpiryDate(request.getExpiryDate());
         renewal.setReminderDurationType(request.getReminderDurationType());
@@ -57,6 +70,7 @@ public class RenewalServiceImpl implements RenewalService {
         renewal.setRenewalNotes(request.getRenewalNotes());
         renewal.setStopFlag(request.isStopFlag());
 
+        // Calculate reminder start date
         renewal.calculateNextReminderDate();
 
         renewal.setUpdatedAt(LocalDate.now());
@@ -77,6 +91,7 @@ public class RenewalServiceImpl implements RenewalService {
 
         return response;
     }
+
     private RenewalResponse mapToRenewalResponse(Renewal renewal) {
         RenewalResponse response = new RenewalResponse();
         response.setId(renewal.getId());
@@ -127,8 +142,23 @@ public class RenewalServiceImpl implements RenewalService {
         return response;
     }
 
+    @Override
+    public List<RenewalResponse> getRenewalsByMilestoneId(Long userId, Long milestoneId) {
+        // Fetch renewals for the given milestone ID and user
+        List<Renewal> renewals = renewalRepository.findByMilestoneIdAndUserId(milestoneId, userId);
 
+        if (renewals.isEmpty()) {
+            throw new NotFoundException("No renewals found for milestone ID: " + milestoneId + " and user ID: " + userId);
+        }
 
+        // Map renewals to responses
+        return renewals.stream()
+                .map(this::mapToRenewalResponse)
+                .toList();
+    }
 
-
+    @Override
+    public RenewalResponse getRenewalById(Long renewalId) {
+        return null;
+    }
 }

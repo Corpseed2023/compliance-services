@@ -14,6 +14,7 @@ import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
 import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
+import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitRepository;
 import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
 import com.lawzoom.complianceservice.repository.complianceRepo.ComplianceRepo;
@@ -46,6 +47,8 @@ public class MilestoneServiceImpl implements MilestoneService {
 
     @Autowired
     private StatusRepository statusRepository;
+    @Autowired
+    private DocumentRepository documentRepository;
 
     @Override
     public ResponseEntity<Map<String, Object>> createMilestone(MilestoneRequest milestoneRequest) {
@@ -115,22 +118,29 @@ public class MilestoneServiceImpl implements MilestoneService {
                 milestone.getMileStoneComments().add(comment);
             }
 
-            // Step 10: Save Documents if provided
-            if (milestoneRequest.getDocuments() != null && !milestoneRequest.getDocuments().isEmpty()) {
-                for (DocumentRequest documentRequest : milestoneRequest.getDocuments()) {
-                    Document document = new Document();
-                    document.setDocumentName(documentRequest.getDocumentName());
-                    document.setFileName(documentRequest.getFileName());
-                    document.setIssueDate(documentRequest.getIssueDate());
-                    document.setReferenceNumber(documentRequest.getReferenceNumber());
-                    document.setRemarks(documentRequest.getRemarks());
-                    User addedBy = userRepository.findById(documentRequest.getAddedById())
-                            .orElseThrow(() -> new NotFoundException("Added By user not found with ID: " + documentRequest.getAddedById()));
-                    document.setAddedBy(addedBy);
-                    document.setMilestone(milestone);
-                    document.setSubscriber(subscriber);
-                    milestone.getDocuments().add(document);
-                }
+            if (milestoneRequest.getFile() != null && !milestoneRequest.getFile().isEmpty()) {
+                // Create a new Document object
+                Document document = new Document();
+                document.setDocumentName(milestoneRequest.getDocumentName());
+                document.setFile(milestoneRequest.getFile());
+                document.setReferenceNumber(milestoneRequest.getReferenceNumber());
+                document.setRemarks(milestoneRequest.getRemarks());
+
+                // Validate and set the addedBy user (assuming `managerId` is the "added by" user)
+                User addedBy = userRepository.findById(milestoneRequest.getManagerId())
+                        .orElseThrow(() -> new NotFoundException("Added By user not found with ID: " + milestoneRequest.getManagerId()));
+                document.setAddedBy(addedBy);
+
+                // Set associations
+                document.setMilestone(milestone);
+                document.setSubscriber(subscriber);
+                document.setCompliance(compliance);
+
+                // Save the document to the database
+                documentRepository.save(document);
+
+                // Add to milestone's document list
+                milestone.getDocuments().add(document);
             }
 
             // Save Milestone
@@ -225,7 +235,7 @@ public class MilestoneServiceImpl implements MilestoneService {
             MilestoneResponse.DocumentDetails docDetails = new MilestoneResponse.DocumentDetails();
             docDetails.setId(document.getId());
             docDetails.setDocumentName(document.getDocumentName());
-            docDetails.setFileName(document.getFileName());
+            docDetails.setFileName(document.getFile());
             docDetails.setIssueDate(document.getIssueDate());
             docDetails.setReferenceNumber(document.getReferenceNumber());
             docDetails.setRemarks(document.getRemarks());
@@ -387,7 +397,7 @@ public class MilestoneServiceImpl implements MilestoneService {
                     MilestoneResponse.DocumentDetails dd = new MilestoneResponse.DocumentDetails();
                     dd.setId(document.getId());
                     dd.setDocumentName(document.getDocumentName());
-                    dd.setFileName(document.getFileName());
+                    dd.setFileName(document.getFile());
                     dd.setIssueDate(document.getIssueDate());
                     dd.setReferenceNumber(document.getReferenceNumber());
                     dd.setRemarks(document.getRemarks());

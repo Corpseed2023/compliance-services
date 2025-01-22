@@ -6,7 +6,7 @@ import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.CommentsRepository;
 import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
-import com.lawzoom.complianceservice.repository.UserRepository;
+import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.service.mileStoneService.MileStoneCommentsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

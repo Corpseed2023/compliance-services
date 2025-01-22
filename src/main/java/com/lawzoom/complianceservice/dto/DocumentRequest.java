@@ -10,8 +10,7 @@ import java.util.Date;
 public class DocumentRequest {
 
     private String documentName;
-    private String fileName;
-    private LocalDate issueDate;
+    private String file;
     private String referenceNumber;
     private String remarks;
     private Long addedById; 

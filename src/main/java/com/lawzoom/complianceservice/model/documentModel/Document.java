@@ -26,8 +26,10 @@ public class Document {
     @Column(name = "doc_name")
     private String documentName;
 
-    @Column(name = "file_name")
-    private String fileName;
+    @Column(name = "file")
+    private String file;
+
+    private String fileURL;
 
     @Temporal(TemporalType.DATE)
     @Column(name = "issue_date")
