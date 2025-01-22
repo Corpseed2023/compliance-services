@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -64,11 +65,15 @@ public class Task {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "manager_id", nullable = true)
-	private User managerId;
+	private User manager;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "assignee_id", nullable = true)
-	private User assigneeId;
+	private User assignee;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "created_by_user_id", nullable = true)
+	private User createdByUser;
 
 	private String criticality;
 

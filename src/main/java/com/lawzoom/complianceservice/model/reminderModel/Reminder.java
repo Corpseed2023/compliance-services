@@ -27,10 +27,6 @@ public class Reminder {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "compliance_id", nullable = true)
-	private Compliance compliance;
-
-	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "milestone_id", nullable = true)
 	private MileStone milestone;
 
@@ -45,10 +41,6 @@ public class Reminder {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "created_by", nullable = false)
 	private User createdBy;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "whom_to_send", nullable = false)
-	private User whomToSend;
 
 	@Column(name = "reminder_date", nullable = false)
 	@Temporal(TemporalType.DATE)
@@ -85,6 +77,8 @@ public class Reminder {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "task_id", nullable = true)
 	private Task task;
+
+
 
 
 	@PrePersist

@@ -15,6 +15,7 @@ import com.lawzoom.complianceservice.repository.UserRepository;
 import com.lawzoom.complianceservice.service.taskService.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,59 +36,66 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private StatusRepository statusRepository;
 
+
     @Override
-    public TaskListResponse createTask(TaskRequest taskRequest) {
-        // Validate Milestone
+    public TaskListResponse createTask(TaskRequest taskRequest, Long userId) {
+
         MileStone milestone = milestoneRepository.findById(taskRequest.getMilestoneId())
                 .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + taskRequest.getMilestoneId()));
 
-        // Validate Reporter User
-        User reporter = userRepository.findById(taskRequest.getManagerId())
-                .orElseThrow(() -> new NotFoundException("Reporter not found with ID: " + taskRequest.getManagerId()));
+        User manager = userRepository.findActiveUserById(taskRequest.getManagerId());
+        if (manager == null) {
+            throw new NotFoundException("Active manager not found with ID: " + taskRequest.getManagerId());
+        }
 
-        // Validate Assignee User
-        User assignee = userRepository.findById(taskRequest.getAssigneeId())
-                .orElseThrow(() -> new NotFoundException("Assignee not found with ID: " + taskRequest.getAssigneeId()));
+        User assignee = userRepository.findActiveUserById(taskRequest.getAssigneeId());
+        if (assignee == null) {
+            throw new NotFoundException("Active assignee not found with ID: " + taskRequest.getAssigneeId());
+        }
 
-        // Validate Status
+        User createdBy = userRepository.findActiveUserById(userId);
+        if (createdBy == null) {
+            throw new NotFoundException("Active user not found with ID: " + userId);
+        }
+
         Status status = statusRepository.findById(taskRequest.getStatusId())
                 .orElseThrow(() -> new NotFoundException("Status not found with ID: " + taskRequest.getStatusId()));
 
-        // Create Task Entity
         Task task = new Task();
         task.setName(taskRequest.getName());
         task.setDescription(taskRequest.getDescription());
-        task.setCreatedAt(new Date());
-        task.setUpdatedAt(new Date());
         task.setStatus(status);
         task.setStartDate(taskRequest.getStartDate());
         task.setDueDate(taskRequest.getDueDate());
-        task.setCompletedDate(taskRequest.getCompletedDate());
         task.setCriticality(taskRequest.getCriticality());
         task.setMilestone(milestone);
-        task.setManagerId(reporter);
-        task.setAssigneeId(assignee);
+        task.setManager(manager);
+        task.setAssignee(assignee);
+        task.setCreatedByUser(createdBy);
 
         // Save Task
         Task savedTask = taskRepository.save(task);
 
-        // Create TaskResponse and populate fields manually
-        TaskListResponse response = new TaskListResponse();
-        response.setId(savedTask.getId());
-        response.setName(savedTask.getName());
-        response.setDescription(savedTask.getDescription());
-        response.setStatus(savedTask.getStatus().getName());
-        response.setStartDate(savedTask.getStartDate());
-        response.setDueDate(savedTask.getDueDate());
-        response.setCompletedDate(savedTask.getCompletedDate());
-        response.setCriticality(savedTask.getCriticality());
-        response.setManagerId(savedTask.getManagerId().getId());
-        response.setManagerName(savedTask.getManagerId().getUserName());
-        response.setAssigneeUserId(savedTask.getAssigneeId().getId());
-        response.setAssigneeUserName(savedTask.getAssigneeId().getUserName());
-        response.setMilestoneId(savedTask.getMilestone().getId());
-        response.setMilestoneName(savedTask.getMilestone().getMileStoneName());
+        // Map to Response
+        return mapTaskToResponse(savedTask);
+    }
 
+    // Helper Method
+    private TaskListResponse mapTaskToResponse(Task task) {
+        TaskListResponse response = new TaskListResponse();
+        response.setId(task.getId());
+        response.setName(task.getName());
+        response.setDescription(task.getDescription());
+        response.setStatus(task.getStatus().getName());
+        response.setStartDate(task.getStartDate());
+        response.setDueDate(task.getDueDate());
+        response.setCriticality(task.getCriticality());
+        response.setManagerId(task.getManager().getId());
+        response.setManagerName(task.getManager().getUserName());
+        response.setAssigneeUserId(task.getAssignee().getId());
+        response.setAssigneeUserName(task.getAssignee().getUserName());
+        response.setMilestoneId(task.getMilestone().getId());
+        response.setMilestoneName(task.getMilestone().getMileStoneName());
         return response;
     }
 
@@ -114,10 +122,10 @@ public class TaskServiceImpl implements TaskService {
             response.setDueDate(task.getDueDate());
             response.setCompletedDate(task.getCompletedDate());
             response.setCriticality(task.getCriticality());
-            response.setManagerId(task.getManagerId().getId());
-            response.setManagerName(task.getManagerId().getUserName());
-            response.setAssigneeUserId(task.getAssigneeId().getId());
-            response.setAssigneeUserName(task.getAssigneeId().getUserName());
+            response.setManagerId(task.getManager().getId());
+            response.setManagerName(task.getManager().getUserName());
+            response.setAssigneeUserId(task.getAssignee().getId());
+            response.setAssigneeUserName(task.getAssignee().getUserName());
             response.setMilestoneId(task.getMilestone().getId());
             response.setMilestoneName(task.getMilestone().getMileStoneName());
             responses.add(response);
@@ -144,8 +152,8 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new NotFoundException("Reporter not found with ID: " + reporterUserId));
 
         // Update Task with new Assignee and Reporter
-        task.setAssigneeId(assignee);
-        task.setManagerId(reporter);
+        task.setAssignee(assignee);
+        task.setManager(reporter);
         task.setUpdatedAt(new Date());
 
         // Save Updated Task
@@ -161,10 +169,10 @@ public class TaskServiceImpl implements TaskService {
         response.setDueDate(updatedTask.getDueDate());
         response.setCompletedDate(updatedTask.getCompletedDate());
         response.setCriticality(updatedTask.getCriticality());
-        response.setManagerId(updatedTask.getManagerId().getId());
-        response.setManagerName(updatedTask.getManagerId().getUserName());
-        response.setAssigneeUserId(updatedTask.getAssigneeId().getId());
-        response.setAssigneeUserName(updatedTask.getAssigneeId().getUserName());
+        response.setManagerId(task.getManager().getId());
+        response.setManagerName(task.getManager().getUserName());
+        response.setAssigneeUserId(task.getAssignee().getId());
+        response.setAssigneeUserName(task.getAssignee().getUserName());
         response.setMilestoneId(updatedTask.getMilestone().getId());
         response.setMilestoneName(updatedTask.getMilestone().getMileStoneName());
 

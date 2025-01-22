@@ -19,8 +19,8 @@ public class TaskController {
     private TaskService taskService;
 
     @PostMapping("/create")
-    public ResponseEntity<TaskListResponse> createTask(@RequestBody TaskRequest taskRequest) {
-        TaskListResponse taskResponse = taskService.createTask(taskRequest);
+    public ResponseEntity<TaskListResponse> createTask(@RequestParam Long userid,@RequestBody TaskRequest taskRequest) {
+        TaskListResponse taskResponse = taskService.createTask(taskRequest,userid);
         return ResponseEntity.status(201).body(taskResponse);
     }
 

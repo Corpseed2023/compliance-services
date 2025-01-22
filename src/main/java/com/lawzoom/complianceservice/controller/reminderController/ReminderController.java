@@ -33,13 +33,13 @@ public class ReminderController {
     }
 
 
-    @GetMapping("/fetch-compliance-reminder")
-    public ResponseEntity<List<ReminderResponse>> fetchReminders(@RequestParam Long userId,
-            @RequestParam("complianceId") Long complianceId,
-            @RequestParam("subscriberId") Long subscriberId) {
-
-        // Correctly use the instance of reminderService
-        List<ReminderResponse> responseList = reminderService.fetchReminders(complianceId, subscriberId);
-        return ResponseEntity.ok(responseList);
-    }
+//    @GetMapping("/fetch-compliance-reminder")
+//    public ResponseEntity<List<ReminderResponse>> fetchReminders(@RequestParam Long userId,
+//            @RequestParam("complianceId") Long complianceId,
+//            @RequestParam("subscriberId") Long subscriberId) {
+//
+//        // Correctly use the instance of reminderService
+//        List<ReminderResponse> responseList = reminderService.fetchReminders(complianceId, subscriberId);
+//        return ResponseEntity.ok(responseList);
+//    }
 }

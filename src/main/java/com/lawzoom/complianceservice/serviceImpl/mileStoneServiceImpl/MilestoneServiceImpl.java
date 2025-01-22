@@ -200,8 +200,7 @@ public class MilestoneServiceImpl implements MilestoneService {
             remDetails.setNotificationTimelineValue(reminder.getNotificationTimelineValue());
             remDetails.setRepeatTimelineValue(reminder.getRepeatTimelineValue());
             remDetails.setRepeatTimelineType(reminder.getRepeatTimelineType());
-            remDetails.setWhomToSendId(reminder.getWhomToSend() != null ? reminder.getWhomToSend().getId() : null);
-            remDetails.setWhomToSendName(reminder.getWhomToSend() != null ? reminder.getWhomToSend().getUserName() : null);
+
             return remDetails;
         }).toList();
         response.setReminders(reminderDetails);
@@ -360,8 +359,6 @@ public class MilestoneServiceImpl implements MilestoneService {
                     rd.setNotificationTimelineValue(reminder.getNotificationTimelineValue());
                     rd.setRepeatTimelineValue(reminder.getRepeatTimelineValue());
                     rd.setRepeatTimelineType(reminder.getRepeatTimelineType());
-                    rd.setWhomToSendId(reminder.getWhomToSend() != null ? reminder.getWhomToSend().getId() : null);
-                    rd.setWhomToSendName(reminder.getWhomToSend() != null ? reminder.getWhomToSend().getUserName() : null);
                     return rd;
                 })
                 .toList();
@@ -416,10 +413,11 @@ public class MilestoneServiceImpl implements MilestoneService {
                     taskResponse.setStartDate(task.getStartDate());
                     taskResponse.setDueDate(task.getDueDate());
                     taskResponse.setCompletedDate(task.getCompletedDate());
-                    taskResponse.setManagerId(task.getManagerId() != null ? task.getManagerId().getId() : null);
-                    taskResponse.setManagerName(task.getManagerId() != null ? task.getManagerId().getUserName() : null);
-                    taskResponse.setAssigneeId(task.getAssigneeId() != null ? task.getAssigneeId().getId() : null);
-                    taskResponse.setAssigneeName(task.getAssigneeId() != null ? task.getAssigneeId().getUserName() : null);
+                    taskResponse.setManagerId(task.getManager() != null ? task.getManager().getId() : null);
+                    taskResponse.setManagerName(task.getManager() != null ? task.getManager().getUserName() : null);
+                    taskResponse.setAssigneeId(task.getAssignee() != null ? task.getAssignee().getId() : null);
+                    taskResponse.setAssigneeName(task.getAssignee() != null ? task.getAssignee().getUserName() : null);                   taskResponse.setCriticality(task.getCriticality());
+
                     taskResponse.setCriticality(task.getCriticality());
                     return taskResponse;
                 })
@@ -545,6 +543,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         // Map Updated Milestone to Response
         return mapToMilestoneResponseWithDetails(updatedMilestone);
     }
+
 
 
     @Override

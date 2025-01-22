@@ -76,9 +76,6 @@ public class MileStone {
 	@JoinColumn(name = "assigned_by")
 	private User assignedBy;
 
-	@ManyToOne
-	@JoinColumn(name = "task_created_by")
-	private User taskCreatedBy;
 
 	private String criticality;
 
@@ -130,3 +127,4 @@ public class MileStone {
 		this.updatedAt = new Date();
 	}
 }
+

@@ -10,5 +10,5 @@ import java.util.List;
 public interface ReminderService {
     ReminderResponse createReminder(Long complianceId, Long subscriberId, ReminderRequest reminderRequest);
 
-    List<ReminderResponse> fetchReminders(Long complianceId, Long subscriberId);
+//    List<ReminderResponse> fetchReminders(Long complianceId, Long subscriberId);
 }
