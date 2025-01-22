@@ -38,6 +38,8 @@ public class Renewal {
     @Comment(value = "Date when the certificate expires")
     private LocalDate expiryDate;
 
+    private LocalDate renewalDate;
+
     @Comment(value = "Type of duration for reminder (DAYS, WEEKS, MONTHS, YEARS)")
     private String reminderDurationType;
 
