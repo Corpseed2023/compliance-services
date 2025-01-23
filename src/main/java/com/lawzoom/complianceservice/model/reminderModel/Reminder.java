@@ -34,10 +34,6 @@ public class Reminder {
 	private Subscriber subscriber;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "super_admin_id", nullable = false)
-	private User superAdmin;
-
-	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "created_by", nullable = false)
 	private User createdBy;
 
@@ -62,7 +58,6 @@ public class Reminder {
 	@Column(name = "repeat_timeline_type", nullable = false)
 	private String repeatTimelineType;
 
-	// 1 means active and 0 means stopped
 	private int stopFlag=1;
 
 	@Column(name = "created_at", updatable = false)
@@ -72,11 +67,6 @@ public class Reminder {
 	@Column(name = "updated_at")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updatedAt = new Date();
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "task_id", nullable = true)
-	private Task task;
-
 
 	@PrePersist
 	protected void onCreate() {

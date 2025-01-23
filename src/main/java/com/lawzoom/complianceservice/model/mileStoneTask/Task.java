@@ -84,8 +84,6 @@ public class Task {
 	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Document> documents = new ArrayList<>();
 
-	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Reminder> reminders = new ArrayList<>();
 
 	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TaskComments> comments = new ArrayList<>();
