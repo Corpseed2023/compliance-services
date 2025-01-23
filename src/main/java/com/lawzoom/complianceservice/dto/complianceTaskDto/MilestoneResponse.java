@@ -76,6 +76,9 @@ public class MilestoneResponse {
         private String renewalNotes;
         private boolean notificationsEnabled;
         private int reminderFrequency;
+        private LocalDate reminderStartDate; // New field
+        private LocalDate renewalDate; // New field
+        private boolean reminderSent; // New field
     }
 
     @Getter

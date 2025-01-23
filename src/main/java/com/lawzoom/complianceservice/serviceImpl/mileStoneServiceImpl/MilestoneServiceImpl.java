@@ -246,6 +246,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.setReminders(reminderDetails);
 
         // Step 4: Map Renewal Details to RenewalDetails DTO
+// Step 4: Map Renewal Details to RenewalDetails DTO
         List<MilestoneResponse.RenewalDetails> renewalDetails = milestone.getRenewals().stream().map(renewal -> {
             MilestoneResponse.RenewalDetails renDetails = new MilestoneResponse.RenewalDetails();
             renDetails.setId(renewal.getId());
@@ -256,6 +257,9 @@ public class MilestoneServiceImpl implements MilestoneService {
             renDetails.setRenewalNotes(renewal.getRenewalNotes());
             renDetails.setNotificationsEnabled(renewal.isNotificationsEnabled());
             renDetails.setReminderFrequency(renewal.getReminderFrequency());
+            renDetails.setReminderStartDate(renewal.getReminderStartDate()); // Map new field
+            renDetails.setRenewalDate(renewal.getRenewalDate()); // Map new field
+            renDetails.setReminderSent(renewal.isReminderSent()); // Map new field
             return renDetails;
         }).toList();
         response.setRenewals(renewalDetails);
