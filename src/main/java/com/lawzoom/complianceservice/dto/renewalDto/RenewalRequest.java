@@ -1,11 +1,14 @@
 package com.lawzoom.complianceservice.dto.renewalDto;
 
 
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Data
+@Setter
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class RenewalRequest {
 
     private Long userId;
@@ -14,11 +17,13 @@ public class RenewalRequest {
 
     private LocalDate expiryDate;
 
+    private LocalDate renewalDate;
+
     private String reminderDurationType;
 
     private int reminderDurationValue;
 
     private String renewalNotes;
 
-    private boolean stopFlag = false;
+    private boolean notificationsEnabled = false;
 }

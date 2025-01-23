@@ -4,15 +4,18 @@ import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import org.hibernate.annotations.Comment;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -40,8 +43,10 @@ public class Renewal {
 
     private LocalDate renewalDate;
 
+    @Enumerated(EnumType.STRING)
+    @NotNull
     @Comment(value = "Type of duration for reminder (DAYS, WEEKS, MONTHS, YEARS)")
-    private String reminderDurationType;
+    private ReminderDurationType reminderDurationType;
 
     @Column(name = "reminder_duration_value", nullable = true)
     @Comment("Value of the duration (e.g., 10 for 10 days before expiry)")
@@ -55,7 +60,7 @@ public class Renewal {
     private String renewalNotes;
 
     @Comment(value = "Flag to enable or disable renewal notifications")
-    private boolean stopFlag = false;
+    private boolean notificationsEnabled = true;
 
     @Comment(value = "Frequency of reminders sent")
     @Column(name = "reminder_frequency", columnDefinition = "integer default 0")
@@ -68,50 +73,38 @@ public class Renewal {
     @JoinColumn(name = "subscriber_id", nullable = false)
     private Subscriber subscriber;
 
-    @Comment(value = "Created timestamp")
+    @CreatedDate
     @Column(name = "created_at", updatable = false)
-    private LocalDate createdAt;
+    private Date createdAt;
 
-    @Comment(value = "Updated timestamp")
+    @LastModifiedDate
     @Column(name = "updated_at")
-    private LocalDate updatedAt;
+    private Date updatedAt;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDate.now();
-        this.updatedAt = LocalDate.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDate.now();
-    }
-
-    /**
-     * Updates the next reminder date and sets the reminder start date based on the expiry date and reminder duration.
-     */
     public void calculateNextReminderDate() {
         if (this.reminderDurationValue != null && this.reminderDurationType != null) {
-            // Calculate the start date for sending reminders
-            switch (this.reminderDurationType.toUpperCase()) {
-                case "DAYS":
+            switch (this.reminderDurationType) {
+                case DAYS:
                     this.reminderStartDate = this.expiryDate.minusDays(this.reminderDurationValue);
                     break;
-                case "WEEKS":
+                case WEEKS:
                     this.reminderStartDate = this.expiryDate.minusWeeks(this.reminderDurationValue);
                     break;
-                case "MONTHS":
+                case MONTHS:
                     this.reminderStartDate = this.expiryDate.minusMonths(this.reminderDurationValue);
                     break;
-                case "YEARS":
+                case YEARS:
                     this.reminderStartDate = this.expiryDate.minusYears(this.reminderDurationValue);
                     break;
                 default:
                     throw new IllegalArgumentException("Invalid reminder duration type: " + this.reminderDurationType);
             }
-
         } else {
             throw new IllegalArgumentException("Reminder duration type and value must not be null.");
         }
+    }
+
+    public enum ReminderDurationType {
+        DAYS, WEEKS, MONTHS, YEARS
     }
 }

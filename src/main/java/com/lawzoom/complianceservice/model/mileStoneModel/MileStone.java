@@ -12,17 +12,22 @@ import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.model.mileStoneTask.Task;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.Comment;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
-
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -34,6 +39,8 @@ public class MileStone {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@NotNull
+	@Size(max = 255)
 	private String mileStoneName;
 
 	@Column(columnDefinition = "TEXT")
@@ -52,13 +59,13 @@ public class MileStone {
 	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<MileStoneComments> mileStoneComments = new ArrayList<>();
 
-	@Column(name = "created_at")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date createdAt = new Date();
+	@CreatedDate
+	@Column(name = "created_at", updatable = false)
+	private Date createdAt;
 
+	@LastModifiedDate
 	@Column(name = "updated_at")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date updatedAt = new Date();
+	private Date updatedAt;
 
 	@Column(length = 1, name = "is_enable", columnDefinition = "tinyint(1) default 1")
 	@Comment(value = "1 : Active, 0 : Inactive")
@@ -75,7 +82,6 @@ public class MileStone {
 	@ManyToOne
 	@JoinColumn(name = "assigned_by")
 	private User assignedBy;
-
 
 	private String criticality;
 
@@ -101,30 +107,16 @@ public class MileStone {
 	@JoinColumn(name = "subscriber_id", nullable = false)
 	private Subscriber subscriber;
 
-	// Multiple Reminders
 	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Reminder> reminders = new ArrayList<>();
 
-	// Multiple Renewals
 	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Renewal> renewals = new ArrayList<>();
 
-	// Multiple Tasks
 	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Task> tasks = new ArrayList<>();
 
 	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Document> documents = new ArrayList<>();
 
-	@PrePersist
-	protected void onCreate() {
-		this.createdAt = new Date();
-		this.updatedAt = new Date();
-	}
-
-	@PreUpdate
-	protected void onUpdate() {
-		this.updatedAt = new Date();
-	}
 }
-

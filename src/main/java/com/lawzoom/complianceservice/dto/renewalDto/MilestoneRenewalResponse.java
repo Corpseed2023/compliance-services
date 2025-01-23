@@ -23,7 +23,7 @@ public class MilestoneRenewalResponse {
 
     private String renewalNotes;
 
-    private boolean stopFlag;
+    private boolean notificationsEnabled;
 
     private int reminderFrequency;
 }

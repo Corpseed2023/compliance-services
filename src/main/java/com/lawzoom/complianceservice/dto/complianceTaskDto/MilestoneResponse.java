@@ -74,7 +74,7 @@ public class MilestoneResponse {
         private String reminderDurationType;
         private Integer reminderDurationValue;
         private String renewalNotes;
-        private boolean stopFlag;
+        private boolean notificationsEnabled;
         private int reminderFrequency;
     }
 

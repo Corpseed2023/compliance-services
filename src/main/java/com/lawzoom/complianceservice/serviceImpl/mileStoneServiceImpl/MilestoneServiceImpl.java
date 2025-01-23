@@ -1,6 +1,5 @@
 package com.lawzoom.complianceservice.serviceImpl.mileStoneServiceImpl;
 
-import com.lawzoom.complianceservice.dto.DocumentRequest;
 import com.lawzoom.complianceservice.dto.commentDto.CommentDetails;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.*;
 import com.lawzoom.complianceservice.exception.NotFoundException;
@@ -221,10 +220,10 @@ public class MilestoneServiceImpl implements MilestoneService {
             renDetails.setId(renewal.getId());
             renDetails.setIssuedDate(renewal.getIssuedDate());
             renDetails.setExpiryDate(renewal.getExpiryDate());
-            renDetails.setReminderDurationType(renewal.getReminderDurationType());
+            renDetails.setReminderDurationType(renewal.getReminderDurationType().toString()); // Convert enum to String
             renDetails.setReminderDurationValue(renewal.getReminderDurationValue());
             renDetails.setRenewalNotes(renewal.getRenewalNotes());
-            renDetails.setStopFlag(renewal.isStopFlag());
+            renDetails.setNotificationsEnabled(renewal.isNotificationsEnabled());
             renDetails.setReminderFrequency(renewal.getReminderFrequency());
             return renDetails;
         }).toList();
@@ -334,7 +333,6 @@ public class MilestoneServiceImpl implements MilestoneService {
     private MilestoneResponse mapToMilestoneResponseWithDetails(MileStone milestone) {
         MilestoneResponse response = new MilestoneResponse();
 
-        // Set basic milestone details
         response.setId(milestone.getId());
         response.setMileStoneName(milestone.getMileStoneName());
         response.setDescription(milestone.getDescription());
@@ -359,7 +357,6 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.setBusinessUnitId(milestone.getBusinessUnit() != null ? milestone.getBusinessUnit().getId() : null);
         response.setSubscriberId(milestone.getSubscriber() != null ? milestone.getSubscriber().getId() : null);
 
-        // Map reminders
         List<MilestoneResponse.ReminderDetails> reminderDetails = milestone.getReminders().stream()
                 .map(reminder -> {
                     MilestoneResponse.ReminderDetails rd = new MilestoneResponse.ReminderDetails();
@@ -381,10 +378,10 @@ public class MilestoneServiceImpl implements MilestoneService {
                     rd.setId(renewal.getId());
                     rd.setIssuedDate(renewal.getIssuedDate());
                     rd.setExpiryDate(renewal.getExpiryDate());
-                    rd.setReminderDurationType(renewal.getReminderDurationType());
+                    rd.setReminderDurationType(renewal.getReminderDurationType().toString()); // Convert enum to String
                     rd.setReminderDurationValue(renewal.getReminderDurationValue());
                     rd.setRenewalNotes(renewal.getRenewalNotes());
-                    rd.setStopFlag(renewal.isStopFlag());
+                    rd.setNotificationsEnabled(renewal.isNotificationsEnabled());
                     rd.setReminderFrequency(renewal.getReminderFrequency());
                     return rd;
                 })
@@ -426,7 +423,8 @@ public class MilestoneServiceImpl implements MilestoneService {
                     taskResponse.setManagerId(task.getManager() != null ? task.getManager().getId() : null);
                     taskResponse.setManagerName(task.getManager() != null ? task.getManager().getUserName() : null);
                     taskResponse.setAssigneeId(task.getAssignee() != null ? task.getAssignee().getId() : null);
-                    taskResponse.setAssigneeName(task.getAssignee() != null ? task.getAssignee().getUserName() : null);                   taskResponse.setCriticality(task.getCriticality());
+                    taskResponse.setAssigneeName(task.getAssignee() != null ? task.getAssignee().getUserName() : null);
+                    taskResponse.setCriticality(task.getCriticality());
 
                     taskResponse.setCriticality(task.getCriticality());
                     return taskResponse;

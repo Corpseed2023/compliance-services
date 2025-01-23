@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -54,7 +55,7 @@ public class RenewalServiceImpl implements RenewalService {
             renewal.setMilestone(milestone);
             renewal.setSubscriber(milestone.getSubscriber());
             renewal.setUser(user); // Set the creator
-            renewal.setCreatedAt(LocalDate.now());
+            renewal.setCreatedAt(new Date());
         }
 
         if (request.getIssuedDate() == null || request.getExpiryDate() == null) {
@@ -65,15 +66,15 @@ public class RenewalServiceImpl implements RenewalService {
         renewal.setUser(user); // Associate user
         renewal.setIssuedDate(request.getIssuedDate());
         renewal.setExpiryDate(request.getExpiryDate());
-        renewal.setReminderDurationType(request.getReminderDurationType());
+        renewal.setReminderDurationType(Renewal.ReminderDurationType.valueOf(request.getReminderDurationType().toUpperCase()));
         renewal.setReminderDurationValue(request.getReminderDurationValue());
         renewal.setRenewalNotes(request.getRenewalNotes());
-        renewal.setStopFlag(request.isStopFlag());
+        renewal.setNotificationsEnabled(request.isNotificationsEnabled());
 
         // Calculate reminder start date
         renewal.calculateNextReminderDate();
 
-        renewal.setUpdatedAt(LocalDate.now());
+        renewal.setUpdatedAt(new Date());
 
         Renewal savedRenewal = renewalRepository.save(renewal);
 
@@ -83,10 +84,10 @@ public class RenewalServiceImpl implements RenewalService {
         response.setMilestoneId(milestone.getId());
         response.setIssuedDate(savedRenewal.getIssuedDate());
         response.setExpiryDate(savedRenewal.getExpiryDate());
-        response.setReminderDurationType(savedRenewal.getReminderDurationType());
+        response.setReminderDurationType(savedRenewal.getReminderDurationType().toString());
         response.setReminderDurationValue(savedRenewal.getReminderDurationValue());
         response.setRenewalNotes(savedRenewal.getRenewalNotes());
-        response.setStopFlag(savedRenewal.isStopFlag());
+        response.setNotificationsEnabled(savedRenewal.isNotificationsEnabled());
         response.setReminderFrequency(savedRenewal.getReminderFrequency());
 
         return response;
@@ -98,10 +99,10 @@ public class RenewalServiceImpl implements RenewalService {
         response.setMilestoneId(renewal.getMilestone() != null ? renewal.getMilestone().getId() : null);
         response.setIssuedDate(renewal.getIssuedDate());
         response.setExpiryDate(renewal.getExpiryDate());
-        response.setReminderDurationType(renewal.getReminderDurationType());
+        response.setReminderDurationType(renewal.getReminderDurationType().toString());
         response.setReminderDurationValue(renewal.getReminderDurationValue());
         response.setRenewalNotes(renewal.getRenewalNotes());
-        response.setStopFlag(renewal.isStopFlag());
+        response.setStopFlag(renewal.isNotificationsEnabled());
         response.setReminderFrequency(renewal.getReminderFrequency());
         return response;
     }
@@ -117,14 +118,14 @@ public class RenewalServiceImpl implements RenewalService {
 
         renewal.setIssuedDate(request.getIssuedDate());
         renewal.setExpiryDate(request.getExpiryDate());
-        renewal.setReminderDurationType(request.getReminderDurationType());
+//        renewal.setReminderDurationType(request.getReminderDurationType().toString());
         renewal.setReminderDurationValue(request.getReminderDurationValue());
         renewal.setRenewalNotes(request.getRenewalNotes());
-        renewal.setStopFlag(request.isStopFlag());
+        renewal.setNotificationsEnabled(request.isNotificationsEnabled());
 
         renewal.calculateNextReminderDate();
 
-        renewal.setUpdatedAt(LocalDate.now());
+        renewal.setUpdatedAt(new Date());
 
         Renewal updatedRenewal = renewalRepository.save(renewal);
 
@@ -133,10 +134,10 @@ public class RenewalServiceImpl implements RenewalService {
         response.setMilestoneId(updatedRenewal.getMilestone() != null ? updatedRenewal.getMilestone().getId() : null);
         response.setIssuedDate(updatedRenewal.getIssuedDate());
         response.setExpiryDate(updatedRenewal.getExpiryDate());
-        response.setReminderDurationType(updatedRenewal.getReminderDurationType());
+        response.setReminderDurationType(updatedRenewal.getReminderDurationType().toString());
         response.setReminderDurationValue(updatedRenewal.getReminderDurationValue());
         response.setRenewalNotes(updatedRenewal.getRenewalNotes());
-        response.setStopFlag(updatedRenewal.isStopFlag());
+        response.setNotificationsEnabled(updatedRenewal.isNotificationsEnabled());
         response.setReminderFrequency(updatedRenewal.getReminderFrequency());
 
         return response;
