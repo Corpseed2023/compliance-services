@@ -119,4 +119,13 @@ public class MileStone {
 	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Document> documents = new ArrayList<>();
 
+	@Enumerated(EnumType.STRING)
+	@NotNull
+	@Comment(value = "Type of duration for the certificate (DAYS, WEEKS, MONTHS, YEARS)")
+	private Renewal.ReminderDurationType certificateTypeDuration;
+
+	@Column(name = "certificate_duration_value", nullable = true)
+	@Comment("Value of the duration for the certificate (e.g., 10 for 10 days)")
+	private Integer certificateDurationValue;
 }
+

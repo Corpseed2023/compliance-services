@@ -91,111 +91,116 @@ public class MilestoneServiceImpl implements MilestoneService {
         Status status = statusRepository.findById(milestoneRequest.getStatus())
                 .orElseThrow(() -> new NotFoundException("Status not found with ID: " + milestoneRequest.getStatus()));
 
-        // Step 8: Validate Milestone Details
-        if (milestoneRequest.getWorkStatus() == 1) { // Not Done Yet
-            if (milestoneRequest.getMileStoneName() == null || milestoneRequest.getDescription() == null ||
-                    milestoneRequest.getStartedDate() == null || milestoneRequest.getDueDate() == null) {
-                throw new IllegalArgumentException("Milestone Name, Description, Start Date, and Due Date are mandatory for pending compliance.");
-            }
-
-            // Create Milestone
-            MileStone milestone = new MileStone();
-            milestone.setMileStoneName(milestoneRequest.getMileStoneName());
-            milestone.setDescription(milestoneRequest.getDescription());
-            milestone.setStartedDate(milestoneRequest.getStartedDate());
-            milestone.setDueDate(milestoneRequest.getDueDate());
-            milestone.setCompliance(compliance);
-            milestone.setBusinessUnit(businessUnit);
-            milestone.setManager(reporter);
-            milestone.setAssigned(assignedToUser);
-            milestone.setAssignedBy(assignedByUser);
-            milestone.setCriticality(milestoneRequest.getCriticality());
-            milestone.setStatus(status);
-            milestone.setSubscriber(subscriber);
-            milestone.setRemark(milestoneRequest.getRemark());
-            milestone.setExpiryDate(milestoneRequest.getExpiryDate());
-
-            // Add Comments (if provided)
-            if (milestoneRequest.getComment() != null && !milestoneRequest.getComment().isEmpty()) {
-                MileStoneComments comment = new MileStoneComments();
-                comment.setCommentText(milestoneRequest.getComment());
-                comment.setUser(reporter);
-                comment.setMilestone(milestone);
-                milestone.getMileStoneComments().add(comment);
-            }
-
-            // Add Document (if provided)
-            if (milestoneRequest.getFile() != null && !milestoneRequest.getFile().isEmpty()) {
-                Document document = new Document();
-                document.setDocumentName(milestoneRequest.getDocumentName());
-                document.setFile(milestoneRequest.getFile());
-                document.setReferenceNumber(milestoneRequest.getReferenceNumber());
-                document.setRemarks(milestoneRequest.getRemarks());
-
-                User addedBy = userRepository.findById(milestoneRequest.getManagerId())
-                        .orElseThrow(() -> new NotFoundException("Added By user not found with ID: " + milestoneRequest.getManagerId()));
-                document.setAddedBy(addedBy);
-                document.setMilestone(milestone);
-                document.setSubscriber(subscriber);
-                document.setCompliance(compliance);
-
-                documentRepository.save(document);
-                milestone.getDocuments().add(document);
-            }
-
-            // Save Milestone
-            milestoneRepository.save(milestone);
-
-            // Save Renewal if applicable
-            if (milestoneRequest.getRenewalDate() != null || milestoneRequest.getReminderDurationType() != null) {
-                if (milestoneRequest.getRenewalDate() == null || milestoneRequest.getReminderDurationType() == null) {
-                    throw new IllegalArgumentException("Both renewal date and reminder duration type must be provided if renewal data is included.");
-                }
-
-                Renewal.ReminderDurationType reminderType;
-                try {
-                    reminderType = Renewal.ReminderDurationType.valueOf(milestoneRequest.getReminderDurationType().toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("Invalid Reminder Duration Type: " + milestoneRequest.getReminderDurationType());
-                }
-
-                Renewal renewal = new Renewal();
-                renewal.setMilestone(milestone);
-                renewal.setSubscriber(subscriber);
-                renewal.setUser(reporter);
-                renewal.setIssuedDate(milestoneRequest.getIssuedDate());
-                renewal.setExpiryDate(milestoneRequest.getExpiryDate());
-                renewal.setRenewalDate(milestoneRequest.getRenewalDate());
-                renewal.setReminderDurationType(reminderType);
-                renewal.setReminderDurationValue(milestoneRequest.getReminderDurationValue());
-                renewal.setRenewalNotes(milestoneRequest.getRenewalNotes());
-                renewal.setNotificationsEnabled(milestoneRequest.isNotificationsEnabled());
-                renewal.setIssuedDate(milestoneRequest.getIssuedDate());
-                renewal.setExpiryDate(milestoneRequest.getExpiryDate());
-
-                renewal.calculateNextReminderDate();
-
-                renewalRepository.save(renewal);
-            }
-
-            // Prepare Response
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", milestone.getId());
-            response.put("mileStoneName", milestone.getMileStoneName());
-            response.put("description", milestone.getDescription());
-            response.put("status", milestone.getStatus().getName());
-            response.put("createdAt", milestone.getCreatedAt());
-            response.put("updatedAt", milestone.getUpdatedAt());
-            response.put("isEnable", milestone.isEnable());
-            response.put("complianceId", milestone.getCompliance().getId());
-            response.put("reporterId", reporter.getId());
-            response.put("remark", milestone.getRemark());
-            response.put("comment", milestoneRequest.getComment());
-
-            return ResponseEntity.status(201).body(response);
+        // Step 8: Validate Certificate Duration Fields
+        Renewal.ReminderDurationType certificateTypeDuration;
+        try {
+            certificateTypeDuration = Renewal.ReminderDurationType.valueOf(milestoneRequest.getCertificateTypeDuration().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid Certificate Type Duration: " + milestoneRequest.getCertificateTypeDuration());
         }
 
-        throw new IllegalArgumentException("Invalid or unsupported work status for this operation.");
+        if (milestoneRequest.getCertificateDurationValue() == null || milestoneRequest.getCertificateDurationValue() <= 0) {
+            throw new IllegalArgumentException("Certificate Duration Value must be greater than 0.");
+        }
+
+        // Step 9: Create and Populate Milestone
+        MileStone milestone = new MileStone();
+        milestone.setMileStoneName(milestoneRequest.getMileStoneName());
+        milestone.setDescription(milestoneRequest.getDescription());
+        milestone.setStartedDate(milestoneRequest.getStartedDate());
+        milestone.setDueDate(milestoneRequest.getDueDate());
+        milestone.setIssuedDate(milestoneRequest.getIssuedDate());
+        milestone.setExpiryDate(milestoneRequest.getExpiryDate());
+        milestone.setCompliance(compliance);
+        milestone.setBusinessUnit(businessUnit);
+        milestone.setManager(reporter);
+        milestone.setAssigned(assignedToUser);
+        milestone.setAssignedBy(assignedByUser);
+        milestone.setCriticality(milestoneRequest.getCriticality());
+        milestone.setStatus(status);
+        milestone.setSubscriber(subscriber);
+        milestone.setRemark(milestoneRequest.getRemark());
+        milestone.setCertificateTypeDuration(certificateTypeDuration);
+        milestone.setCertificateDurationValue(milestoneRequest.getCertificateDurationValue());
+
+        // Add Comments (if provided)
+        if (milestoneRequest.getComment() != null && !milestoneRequest.getComment().isEmpty()) {
+            MileStoneComments comment = new MileStoneComments();
+            comment.setCommentText(milestoneRequest.getComment());
+            comment.setUser(reporter);
+            comment.setMilestone(milestone);
+            milestone.getMileStoneComments().add(comment);
+        }
+
+        // Add Document (if provided)
+        if (milestoneRequest.getFile() != null && !milestoneRequest.getFile().isEmpty()) {
+            Document document = new Document();
+            document.setDocumentName(milestoneRequest.getDocumentName());
+            document.setFile(milestoneRequest.getFile());
+            document.setReferenceNumber(milestoneRequest.getReferenceNumber());
+            document.setRemarks(milestoneRequest.getRemarks());
+
+            User addedBy = userRepository.findById(milestoneRequest.getManagerId())
+                    .orElseThrow(() -> new NotFoundException("Added By user not found with ID: " + milestoneRequest.getManagerId()));
+            document.setAddedBy(addedBy);
+            document.setMilestone(milestone);
+            document.setSubscriber(subscriber);
+            document.setCompliance(compliance);
+
+            documentRepository.save(document);
+            milestone.getDocuments().add(document);
+        }
+
+        // Save Milestone
+        milestoneRepository.save(milestone);
+
+        // Step 10: Save Renewal if Applicable
+        if (milestoneRequest.getRenewalDate() != null || milestoneRequest.getReminderDurationType() != null) {
+            if (milestoneRequest.getRenewalDate() == null || milestoneRequest.getReminderDurationType() == null) {
+                throw new IllegalArgumentException("Both renewal date and reminder duration type must be provided if renewal data is included.");
+            }
+
+            Renewal.ReminderDurationType reminderType;
+            try {
+                reminderType = Renewal.ReminderDurationType.valueOf(milestoneRequest.getReminderDurationType().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid Reminder Duration Type: " + milestoneRequest.getReminderDurationType());
+            }
+
+            Renewal renewal = new Renewal();
+            renewal.setMilestone(milestone);
+            renewal.setSubscriber(subscriber);
+            renewal.setUser(reporter);
+            renewal.setIssuedDate(milestoneRequest.getIssuedDate());
+            renewal.setExpiryDate(milestoneRequest.getExpiryDate());
+            renewal.setRenewalDate(milestoneRequest.getRenewalDate());
+            renewal.setReminderDurationType(reminderType);
+            renewal.setReminderDurationValue(milestoneRequest.getReminderDurationValue());
+            renewal.setRenewalNotes(milestoneRequest.getRenewalNotes());
+            renewal.setNotificationsEnabled(milestoneRequest.isNotificationsEnabled());
+
+            renewal.calculateNextReminderDate();
+
+            renewalRepository.save(renewal);
+        }
+
+        // Step 11: Prepare Response
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", milestone.getId());
+        response.put("mileStoneName", milestone.getMileStoneName());
+        response.put("description", milestone.getDescription());
+        response.put("status", milestone.getStatus().getName());
+        response.put("createdAt", milestone.getCreatedAt());
+        response.put("updatedAt", milestone.getUpdatedAt());
+        response.put("isEnable", milestone.isEnable());
+        response.put("complianceId", milestone.getCompliance().getId());
+        response.put("reporterId", reporter.getId());
+        response.put("remark", milestone.getRemark());
+        response.put("certificateTypeDuration", milestone.getCertificateTypeDuration().toString());
+        response.put("certificateDurationValue", milestone.getCertificateDurationValue());
+        response.put("comment", milestoneRequest.getComment());
+
+        return ResponseEntity.status(201).body(response);
     }
 
     @Override

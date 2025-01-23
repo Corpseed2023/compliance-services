@@ -68,5 +68,13 @@ public class MilestoneRequest {
 
 	private boolean notificationsEnabled = false;
 
+	@NotNull(message = "Certificate Type Duration is required")
+	private String  certificateTypeDuration;
+
+	@NotNull(message = "Certificate Duration Value is required")
+	private Integer certificateDurationValue;
+
+
+
 
 }
