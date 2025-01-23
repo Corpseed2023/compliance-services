@@ -1,11 +1,13 @@
 package com.lawzoom.complianceservice.serviceImpl.dashboardServiceImpl;
 
 import com.lawzoom.complianceservice.repository.GstDetailsRepository;
+import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
 import com.lawzoom.complianceservice.repository.SubscriptionRepository;
 import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitRepository;
 import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
 import com.lawzoom.complianceservice.repository.complianceRepo.ComplianceRepo;
+import com.lawzoom.complianceservice.repository.taskRepo.TaskRepository;
 import com.lawzoom.complianceservice.service.dashboardService.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,14 +37,15 @@ public class DashboardServiceImpl implements DashboardService {
     private ComplianceRepo complianceRepo;
 
     @Autowired
+    private MilestoneRepository milestoneRepository;
 
-
-
-
-
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Override
-    public ResponseEntity<Map<String, Object>> getDashboardDetails(Long userId, Long subscriberId) {
+    public ResponseEntity<Map<String, Object>> getCompanyDetails(Long userId, Long subscriberId) {
         return null;
     }
+
+
 }

@@ -21,10 +21,13 @@ public class DashboardController {
      * @param subscriberId the ID of the subscriber
      * @return a map containing dashboard details
      */
-    @GetMapping("/details")
-    public ResponseEntity<Map<String, Object>> getDashboardDetails(
+    @GetMapping("/get-company-details")
+    public ResponseEntity<Map<String, Object>> getCompanyDetails(
             @RequestParam Long userId,
             @RequestParam Long subscriberId) {
-        return dashboardService.getDashboardDetails(userId, subscriberId);
+        return dashboardService.getCompanyDetails(userId, subscriberId);
     }
+
+
+
 }

@@ -9,10 +9,12 @@ import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.documentModel.Document;
+import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
 import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
+import com.lawzoom.complianceservice.repository.RenewalRepository.RenewalRepository;
 import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitRepository;
 import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
@@ -48,6 +50,10 @@ public class MilestoneServiceImpl implements MilestoneService {
     private StatusRepository statusRepository;
     @Autowired
     private DocumentRepository documentRepository;
+
+    @Autowired
+    private RenewalRepository renewalRepository;
+
 
     @Override
     public ResponseEntity<Map<String, Object>> createMilestone(MilestoneRequest milestoneRequest) {
@@ -109,6 +115,7 @@ public class MilestoneServiceImpl implements MilestoneService {
             milestone.setRemark(milestoneRequest.getRemark());
             milestone.setExpiryDate(milestoneRequest.getExpiryDate());
 
+            // Add Comments (if provided)
             if (milestoneRequest.getComment() != null && !milestoneRequest.getComment().isEmpty()) {
                 MileStoneComments comment = new MileStoneComments();
                 comment.setCommentText(milestoneRequest.getComment());
@@ -117,33 +124,59 @@ public class MilestoneServiceImpl implements MilestoneService {
                 milestone.getMileStoneComments().add(comment);
             }
 
+            // Add Document (if provided)
             if (milestoneRequest.getFile() != null && !milestoneRequest.getFile().isEmpty()) {
-                // Create a new Document object
                 Document document = new Document();
                 document.setDocumentName(milestoneRequest.getDocumentName());
                 document.setFile(milestoneRequest.getFile());
                 document.setReferenceNumber(milestoneRequest.getReferenceNumber());
                 document.setRemarks(milestoneRequest.getRemarks());
 
-                // Validate and set the addedBy user (assuming `managerId` is the "added by" user)
                 User addedBy = userRepository.findById(milestoneRequest.getManagerId())
                         .orElseThrow(() -> new NotFoundException("Added By user not found with ID: " + milestoneRequest.getManagerId()));
                 document.setAddedBy(addedBy);
-
-                // Set associations
                 document.setMilestone(milestone);
                 document.setSubscriber(subscriber);
                 document.setCompliance(compliance);
 
-                // Save the document to the database
                 documentRepository.save(document);
-
-                // Add to milestone's document list
                 milestone.getDocuments().add(document);
             }
 
             // Save Milestone
             milestoneRepository.save(milestone);
+
+            // Save Renewal if applicable
+            if (milestoneRequest.getRenewalDate() != null || milestoneRequest.getReminderDurationType() != null) {
+                if (milestoneRequest.getRenewalDate() == null || milestoneRequest.getReminderDurationType() == null) {
+                    throw new IllegalArgumentException("Both renewal date and reminder duration type must be provided if renewal data is included.");
+                }
+
+                Renewal.ReminderDurationType reminderType;
+                try {
+                    reminderType = Renewal.ReminderDurationType.valueOf(milestoneRequest.getReminderDurationType().toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Invalid Reminder Duration Type: " + milestoneRequest.getReminderDurationType());
+                }
+
+                Renewal renewal = new Renewal();
+                renewal.setMilestone(milestone);
+                renewal.setSubscriber(subscriber);
+                renewal.setUser(reporter);
+                renewal.setIssuedDate(milestoneRequest.getIssuedDate());
+                renewal.setExpiryDate(milestoneRequest.getExpiryDate());
+                renewal.setRenewalDate(milestoneRequest.getRenewalDate());
+                renewal.setReminderDurationType(reminderType);
+                renewal.setReminderDurationValue(milestoneRequest.getReminderDurationValue());
+                renewal.setRenewalNotes(milestoneRequest.getRenewalNotes());
+                renewal.setNotificationsEnabled(milestoneRequest.isNotificationsEnabled());
+                renewal.setIssuedDate(milestoneRequest.getIssuedDate());
+                renewal.setExpiryDate(milestoneRequest.getExpiryDate());
+
+                renewal.calculateNextReminderDate();
+
+                renewalRepository.save(renewal);
+            }
 
             // Prepare Response
             Map<String, Object> response = new HashMap<>();
@@ -157,15 +190,13 @@ public class MilestoneServiceImpl implements MilestoneService {
             response.put("complianceId", milestone.getCompliance().getId());
             response.put("reporterId", reporter.getId());
             response.put("remark", milestone.getRemark());
-            response.put("comment", milestoneRequest.getComment()); // Include the comment in the response
+            response.put("comment", milestoneRequest.getComment());
 
             return ResponseEntity.status(201).body(response);
         }
 
-        // Handle other work statuses (e.g., Completed, Not Applicable)
         throw new IllegalArgumentException("Invalid or unsupported work status for this operation.");
     }
-
 
     @Override
     public MilestoneResponse fetchMilestoneById(Long milestoneId) {

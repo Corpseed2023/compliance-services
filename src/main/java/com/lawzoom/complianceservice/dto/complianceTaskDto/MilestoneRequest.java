@@ -56,6 +56,17 @@ public class MilestoneRequest {
 	private String referenceNumber;
 	private String remarks;
 
+	/// need to save in renewal table
+
+	private LocalDate renewalDate;
+
+	private String reminderDurationType;
+
+	private int reminderDurationValue;
+
+	private String renewalNotes;
+
+	private boolean notificationsEnabled = false;
 
 
 }
