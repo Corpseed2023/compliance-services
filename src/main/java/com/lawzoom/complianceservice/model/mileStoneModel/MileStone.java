@@ -27,7 +27,6 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

@@ -33,10 +33,10 @@ public class RenewalController {
 
     @PutMapping("/update-milestone-renewal/")
     public ResponseEntity<MilestoneRenewalResponse> updateMilestoneRenewal(
-            @RequestParam("renewalId") Long renewalId,
+            @RequestParam("renewalId") Long renewalId, @RequestParam("mileStoneId") Long mileStoneId,
             @Valid @RequestBody RenewalRequest renewalRequest) {
 
-        MilestoneRenewalResponse response = renewalService.updateMilestoneRenewal(renewalId, renewalRequest);
+        MilestoneRenewalResponse response = renewalService.updateMilestoneRenewal(renewalId, renewalRequest,mileStoneId);
         return ResponseEntity.ok(response);
     }
 

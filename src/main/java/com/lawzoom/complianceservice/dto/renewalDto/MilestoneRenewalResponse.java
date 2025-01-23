@@ -1,10 +1,14 @@
 package com.lawzoom.complianceservice.dto.renewalDto;
 
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+
 public class MilestoneRenewalResponse {
 
     private Long id;
@@ -26,4 +30,6 @@ public class MilestoneRenewalResponse {
     private boolean notificationsEnabled;
 
     private int reminderFrequency;
+
+
 }

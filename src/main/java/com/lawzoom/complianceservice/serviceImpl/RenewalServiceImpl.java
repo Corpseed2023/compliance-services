@@ -108,23 +108,31 @@ public class RenewalServiceImpl implements RenewalService {
     }
 
     @Override
-    public MilestoneRenewalResponse updateMilestoneRenewal(Long renewalId, RenewalRequest request) {
+    public MilestoneRenewalResponse updateMilestoneRenewal(Long renewalId, RenewalRequest renewalRequest, Long mileStoneId) {
+
+
+        MileStone mileStone = milestoneRepository.findById(mileStoneId).orElseThrow(() ->
+                new NotFoundException("Mile Stone not found with ID: " + mileStoneId));
+
+        mileStone.setExpiryDate(renewalRequest.getExpiryDate());
+        mileStone.setIssuedDate(renewalRequest.getIssuedDate());
+
+        milestoneRepository.save(mileStone);
+
+
         Renewal renewal = renewalRepository.findById(renewalId)
                 .orElseThrow(() -> new NotFoundException("Renewal not found with ID: " + renewalId));
 
-        if (request.getIssuedDate() == null || request.getExpiryDate() == null) {
+        if (renewalRequest.getIssuedDate() == null || renewalRequest.getExpiryDate() == null) {
             throw new IllegalArgumentException("Issued date and expiry date cannot be null.");
         }
 
-        renewal.setIssuedDate(request.getIssuedDate());
-        renewal.setExpiryDate(request.getExpiryDate());
-//        renewal.setReminderDurationType(request.getReminderDurationType().toString());
-        renewal.setReminderDurationValue(request.getReminderDurationValue());
-        renewal.setRenewalNotes(request.getRenewalNotes());
-        renewal.setNotificationsEnabled(request.isNotificationsEnabled());
-
+        renewal.setIssuedDate(renewalRequest.getIssuedDate());
+        renewal.setExpiryDate(renewalRequest.getExpiryDate());
+        renewal.setReminderDurationValue(renewalRequest.getReminderDurationValue());
+        renewal.setRenewalNotes(renewalRequest.getRenewalNotes());
+        renewal.setNotificationsEnabled(renewalRequest.isNotificationsEnabled());
         renewal.calculateNextReminderDate();
-
         renewal.setUpdatedAt(new Date());
 
         Renewal updatedRenewal = renewalRepository.save(renewal);

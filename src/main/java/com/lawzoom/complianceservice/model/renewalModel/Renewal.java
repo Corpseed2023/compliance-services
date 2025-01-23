@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

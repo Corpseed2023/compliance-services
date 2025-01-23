@@ -298,8 +298,6 @@ public class MilestoneServiceImpl implements MilestoneService {
         return response;
     }
 
-
-
     @Override
     public List<MilestoneListResponse> fetchAllMilestones(MilestoneRequestForFetch request) {
         // Step 1: Validate Subscriber
