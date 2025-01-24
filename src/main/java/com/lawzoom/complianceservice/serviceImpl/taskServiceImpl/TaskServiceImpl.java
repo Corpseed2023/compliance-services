@@ -2,10 +2,14 @@ package com.lawzoom.complianceservice.serviceImpl.taskServiceImpl;
 
 
 import com.lawzoom.complianceservice.dto.taskDto.TaskListResponse;
+import com.lawzoom.complianceservice.dto.taskDto.TaskReminderRequest;
+import com.lawzoom.complianceservice.dto.taskDto.TaskRenewalRequest;
 import com.lawzoom.complianceservice.dto.taskDto.TaskRequest;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
+import com.lawzoom.complianceservice.model.reminderModel.TaskReminder;
+import com.lawzoom.complianceservice.model.renewalModel.TaskRenewal;
 import com.lawzoom.complianceservice.model.taskModel.Task;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
@@ -39,27 +43,23 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskListResponse createTask(TaskRequest taskRequest, Long userId) {
 
+        // Validate and fetch necessary entities
         MileStone milestone = milestoneRepository.findById(taskRequest.getMilestoneId())
                 .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + taskRequest.getMilestoneId()));
 
-        User manager = userRepository.findActiveUserById(taskRequest.getManagerId());
-        if (manager == null) {
-            throw new NotFoundException("Active manager not found with ID: " + taskRequest.getManagerId());
-        }
+        User manager = userRepository.findActiveUserById(taskRequest.getManagerId())
+                .orElseThrow(() -> new NotFoundException("Active manager not found with ID: " + taskRequest.getManagerId()));
 
-        User assignee = userRepository.findActiveUserById(taskRequest.getAssigneeId());
-        if (assignee == null) {
-            throw new NotFoundException("Active assignee not found with ID: " + taskRequest.getAssigneeId());
-        }
+        User assignee = userRepository.findActiveUserById(taskRequest.getAssigneeId())
+                .orElseThrow(() -> new NotFoundException("Active assignee not found with ID: " + taskRequest.getAssigneeId()));
 
-        User createdBy = userRepository.findActiveUserById(userId);
-        if (createdBy == null) {
-            throw new NotFoundException("Active user not found with ID: " + userId);
-        }
+        User createdBy = userRepository.findActiveUserById(userId)
+                .orElseThrow(() -> new NotFoundException("Active user not found with ID: " + userId));
 
         Status status = statusRepository.findById(taskRequest.getStatusId())
                 .orElseThrow(() -> new NotFoundException("Status not found with ID: " + taskRequest.getStatusId()));
 
+        // Create and save the task
         Task task = new Task();
         task.setName(taskRequest.getName());
         task.setDescription(taskRequest.getDescription());
@@ -73,12 +73,47 @@ public class TaskServiceImpl implements TaskService {
         task.setCreatedByUser(createdBy);
         task.setRemark(taskRequest.getRemark());
 
-        // Save Task
         Task savedTask = taskRepository.save(task);
 
-        // Map to Response
+        // Save TaskReminders
+        if (taskRequest.getReminders() != null && !taskRequest.getReminders().isEmpty()) {
+            for (TaskReminderRequest reminderRequest : taskRequest.getReminders()) {
+                TaskReminder taskReminder = new TaskReminder();
+                taskReminder.setTask(savedTask);
+                taskReminder.setCreatedBy(createdBy);
+                taskReminder.setReminderDate(reminderRequest.getReminderDate());
+                taskReminder.setReminderEndDate(reminderRequest.getReminderEndDate());
+                taskReminder.setNotificationTimelineValue(reminderRequest.getNotificationTimelineValue());
+                taskReminder.setRepeatTimelineValue(reminderRequest.getRepeatTimelineValue());
+                taskReminder.setRepeatTimelineType(reminderRequest.getRepeatTimelineType());
+                taskReminder.setStopFlag(reminderRequest.getStopFlag());
+                taskReminderRepository.save(taskReminder);
+            }
+        }
+
+        // Save TaskRenewals
+        if (taskRequest.getRenewals() != null && !taskRequest.getRenewals().isEmpty()) {
+            for (TaskRenewalRequest renewalRequest : taskRequest.getRenewals()) {
+                TaskRenewal taskRenewal = new TaskRenewal();
+                taskRenewal.setTask(savedTask);
+                taskRenewal.setUser(createdBy);
+                taskRenewal.setIssuedDate(renewalRequest.getIssuedDate());
+                taskRenewal.setExpiryDate(renewalRequest.getExpiryDate());
+                taskRenewal.setRenewalDate(renewalRequest.getRenewalDate());
+                taskRenewal.setReminderDurationType(Renewal.ReminderDurationType.valueOf(renewalRequest.getReminderDurationType().toUpperCase()));
+                taskRenewal.setReminderDurationValue(renewalRequest.getReminderDurationValue());
+                taskRenewal.setRenewalNotes(renewalRequest.getRenewalNotes());
+                taskRenewal.setNotificationsEnabled(renewalRequest.isNotificationsEnabled());
+                taskRenewal.setCertificateTypeDuration(Renewal.ReminderDurationType.valueOf(renewalRequest.getCertificateTypeDuration().toUpperCase()));
+                taskRenewal.setCertificateDurationValue(renewalRequest.getCertificateDurationValue());
+                taskRenewalRepository.save(taskRenewal);
+            }
+        }
+
+        // Map and return the response
         return mapTaskToResponse(savedTask);
     }
+
 
     // Helper Method
     private TaskListResponse mapTaskToResponse(Task task) {

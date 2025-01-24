@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,4 +27,9 @@ public class TaskRequest {
     private Long assigneeId;
     private String remark;
 
+    // List of reminders associated with the task
+    private List<TaskReminderRequest> reminders;
+
+    // List of renewals associated with the task
+    private List<TaskRenewalRequest> renewals;
 }
