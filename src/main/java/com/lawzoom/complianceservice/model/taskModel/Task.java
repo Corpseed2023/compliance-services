@@ -2,8 +2,10 @@ package com.lawzoom.complianceservice.model.taskModel;
 
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.comments.TaskComments;
-import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.documentModel.Document;
+import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
+import com.lawzoom.complianceservice.model.reminderModel.TaskReminder;
+import com.lawzoom.complianceservice.model.renewalModel.TaskRenewal;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -85,9 +87,14 @@ public class Task {
 	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Document> documents = new ArrayList<>();
 
-
 	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TaskComments> comments = new ArrayList<>();
+
+	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<TaskReminder> taskReminders = new ArrayList<>();
+
+	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<TaskRenewal> taskRenewals = new ArrayList<>();
 
 	@PrePersist
 	protected void onCreate() {
