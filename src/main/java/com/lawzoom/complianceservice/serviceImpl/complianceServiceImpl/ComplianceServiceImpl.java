@@ -415,9 +415,6 @@ public class ComplianceServiceImpl implements ComplianceService {
         return companyComplianceDTOs;
     }
 
-
-
-
     @Override
     public Map<String, Object> fetchComplianceById(Long complianceId) {
         // Step 1: Fetch Compliance

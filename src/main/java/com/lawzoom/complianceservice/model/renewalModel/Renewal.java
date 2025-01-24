@@ -82,11 +82,12 @@ public class Renewal {
     private Date updatedAt;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
+    @NotNull(message = "Certificate Type Duration is required")
     @Comment(value = "Type of duration for the certificate (DAYS, WEEKS, MONTHS, YEARS)")
-    private Renewal.ReminderDurationType certificateTypeDuration;
+    private ReminderDurationType certificateTypeDuration;
 
-    @Column(name = "certificate_duration_value", nullable = true)
+    @NotNull(message = "Certificate Duration Value is required")
+    @Column(name = "certificate_duration_value", nullable = false)
     @Comment("Value of the duration for the certificate (e.g., 10 for 10 days)")
     private Integer certificateDurationValue;
 

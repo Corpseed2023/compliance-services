@@ -98,19 +98,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         Status status = statusRepository.findById(milestoneRequest.getStatus())
                 .orElseThrow(() -> new NotFoundException("Status not found with ID: " + milestoneRequest.getStatus()));
 
-//        // Step 8: Validate Certificate Duration Fields
-//        Renewal.ReminderDurationType certificateTypeDuration;
-//        try {
-//            certificateTypeDuration = Renewal.ReminderDurationType.valueOf(milestoneRequest.getCertificateTypeDuration().toUpperCase());
-//        } catch (IllegalArgumentException e) {
-//            throw new IllegalArgumentException("Invalid Certificate Type Duration: " + milestoneRequest.getCertificateTypeDuration());
-//        }
-//
-//        if (milestoneRequest.getCertificateDurationValue() == null || milestoneRequest.getCertificateDurationValue() <= 0) {
-//            throw new IllegalArgumentException("Certificate Duration Value must be greater than 0.");
-//        }
-
-        // Step 9: Create and Populate Milestone
+        // Step 8: Create and Populate Milestone
         MileStone milestone = new MileStone();
         milestone.setMileStoneName(milestoneRequest.getMileStoneName());
         milestone.setDescription(milestoneRequest.getDescription());
@@ -127,7 +115,6 @@ public class MilestoneServiceImpl implements MilestoneService {
         milestone.setStatus(status);
         milestone.setSubscriber(subscriber);
         milestone.setRemark(milestoneRequest.getRemark());
-
 
         // Add Comments (if provided)
         if (milestoneRequest.getComment() != null && !milestoneRequest.getComment().isEmpty()) {
@@ -157,62 +144,75 @@ public class MilestoneServiceImpl implements MilestoneService {
             milestone.getDocuments().add(document);
         }
 
-        // Save Milestone
+        // Step 9: Save Milestone
         milestoneRepository.save(milestone);
 
-        // Step 10: Save Renewal if Applicable
-        if (milestoneRequest.getRenewalRequest() != null) {
-            RenewalRequest renewalRequest = milestoneRequest.getRenewalRequest();
+        // Step 10: Check Status and Handle Renewal and Reminder
+        if (status.getId() != 1) { // If status ID is not 1, save Renewal and Reminder
+            // Save Renewal if Applicable
+            if (milestoneRequest.getRenewalRequest() != null) {
+                RenewalRequest renewalRequest = milestoneRequest.getRenewalRequest();
 
-            if (renewalRequest.getRenewalDate() == null || renewalRequest.getReminderDurationType() == null) {
-                throw new IllegalArgumentException("Both renewal date and reminder duration type must be provided if renewal data is included.");
+                if (renewalRequest.getRenewalDate() == null || renewalRequest.getReminderDurationType() == null) {
+                    throw new IllegalArgumentException("Both renewal date and reminder duration type must be provided if renewal data is included.");
+                }
+
+                Renewal.ReminderDurationType reminderType;
+                try {
+                    reminderType = Renewal.ReminderDurationType.valueOf(renewalRequest.getReminderDurationType().toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Invalid Reminder Duration Type: " + renewalRequest.getReminderDurationType());
+                }
+
+                Renewal renewal = new Renewal();
+                renewal.setMilestone(milestone);
+                renewal.setSubscriber(subscriber);
+                renewal.setUser(reporter);
+                renewal.setIssuedDate(renewalRequest.getIssuedDate());
+                renewal.setExpiryDate(renewalRequest.getExpiryDate());
+                renewal.setRenewalDate(renewalRequest.getRenewalDate());
+                renewal.setReminderDurationType(reminderType);
+                renewal.setReminderDurationValue(renewalRequest.getReminderDurationValue());
+                renewal.setRenewalNotes(renewalRequest.getRenewalNotes());
+                renewal.setNotificationsEnabled(renewalRequest.isNotificationsEnabled());
+                Renewal.ReminderDurationType certificateTypeDuration;
+                try {
+                    certificateTypeDuration = Renewal.ReminderDurationType.valueOf(renewalRequest.getCertificateTypeDuration().toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Invalid Certificate Type Duration: " + renewalRequest.getCertificateTypeDuration());
+                }
+
+                if (renewalRequest.getCertificateDurationValue() == null || renewalRequest.getCertificateDurationValue() <= 0) {
+                    throw new IllegalArgumentException("Certificate Duration Value must be greater than 0.");
+                }
+
+                renewal.setCertificateTypeDuration(certificateTypeDuration);
+                renewal.setCertificateDurationValue(renewalRequest.getCertificateDurationValue());
+                renewal.calculateNextReminderDate();
+
+                renewalRepository.save(renewal);
             }
 
-            Renewal.ReminderDurationType reminderType;
-            try {
-                reminderType = Renewal.ReminderDurationType.valueOf(renewalRequest.getReminderDurationType().toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Invalid Reminder Duration Type: " + renewalRequest.getReminderDurationType());
+            // Save Reminder if Applicable
+            if (milestoneRequest.getReminderRequest() != null) {
+                ReminderRequest reminderRequest = milestoneRequest.getReminderRequest();
+
+                Reminder reminder = new Reminder();
+                reminder.setMilestone(milestone);
+                reminder.setSubscriber(subscriber);
+                reminder.setCreatedBy(reporter);
+                reminder.setReminderDate(reminderRequest.getReminderDate());
+                reminder.setReminderEndDate(reminderRequest.getReminderEndDate());
+                reminder.setNotificationTimelineValue(reminderRequest.getNotificationTimelineValue());
+                reminder.setRepeatTimelineValue(reminderRequest.getRepeatTimelineValue());
+                reminder.setRepeatTimelineType(reminderRequest.getRepeatTimelineType());
+                reminder.setStopFlag(reminderRequest.getStopFlag());
+
+                reminderRepository.save(reminder);
             }
-
-            Renewal renewal = new Renewal();
-            renewal.setMilestone(milestone);
-            renewal.setSubscriber(subscriber);
-            renewal.setUser(reporter);
-            renewal.setIssuedDate(renewalRequest.getIssuedDate());
-            renewal.setExpiryDate(renewalRequest.getExpiryDate());
-            renewal.setRenewalDate(renewalRequest.getRenewalDate());
-            renewal.setReminderDurationType(reminderType);
-            renewal.setReminderDurationValue(renewalRequest.getReminderDurationValue());
-            renewal.setRenewalNotes(renewalRequest.getRenewalNotes());
-            renewal.setNotificationsEnabled(renewalRequest.isNotificationsEnabled());
-            renewal.setCertificateDurationValue(renewal.getCertificateDurationValue());
-            renewal.setCertificateTypeDuration(renewal.getCertificateTypeDuration());
-
-            renewal.calculateNextReminderDate();
-
-            renewalRepository.save(renewal);
         }
 
-        // Step 11: Save Reminder if Applicable
-        if (milestoneRequest.getReminderRequest() != null) {
-            ReminderRequest reminderRequest = milestoneRequest.getReminderRequest();
-
-            Reminder reminder = new Reminder();
-            reminder.setMilestone(milestone);
-            reminder.setSubscriber(subscriber);
-            reminder.setCreatedBy(reporter);
-            reminder.setReminderDate(reminderRequest.getReminderDate());
-            reminder.setReminderEndDate(reminderRequest.getReminderEndDate());
-            reminder.setNotificationTimelineValue(reminderRequest.getNotificationTimelineValue());
-            reminder.setRepeatTimelineValue(reminderRequest.getRepeatTimelineValue());
-            reminder.setRepeatTimelineType(reminderRequest.getRepeatTimelineType());
-            reminder.setStopFlag(reminderRequest.getStopFlag());
-
-            reminderRepository.save(reminder);
-        }
-
-        // Step 12: Prepare Response
+        // Step 11: Prepare Response
         Map<String, Object> response = new HashMap<>();
         response.put("id", milestone.getId());
         response.put("mileStoneName", milestone.getMileStoneName());
