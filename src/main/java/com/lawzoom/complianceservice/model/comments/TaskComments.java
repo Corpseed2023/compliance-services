@@ -1,6 +1,6 @@
 package com.lawzoom.complianceservice.model.comments;
 
-import com.lawzoom.complianceservice.model.mileStoneTask.Task;
+import com.lawzoom.complianceservice.model.taskModel.Task;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

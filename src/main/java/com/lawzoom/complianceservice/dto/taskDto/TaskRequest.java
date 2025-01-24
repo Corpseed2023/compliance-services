@@ -24,5 +24,6 @@ public class TaskRequest {
     private Long milestoneId;
     private Long managerId;
     private Long assigneeId;
+    private String remark;
 
 }

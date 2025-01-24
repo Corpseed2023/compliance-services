@@ -569,7 +569,7 @@ public class MilestoneServiceImpl implements MilestoneService {
 
 
     @Override
-    public MilestoneResponse updateMilestoneAssignment(Long milestoneId, Long assignedToId, Long taskReporterId) {
+    public MilestoneResponse updateMilestoneAssignment(Long milestoneId, Long assignedToId, Long managerId) {
         // Validate Milestone
         MileStone milestone = milestoneRepository.findById(milestoneId)
                 .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
@@ -579,8 +579,8 @@ public class MilestoneServiceImpl implements MilestoneService {
                 .orElseThrow(() -> new NotFoundException("Assigned To user not found with ID: " + assignedToId));
 
         // Validate Task Reporter
-        User mileStoneManager = userRepository.findById(taskReporterId)
-                .orElseThrow(() -> new NotFoundException("Task Reporter not found with ID: " + taskReporterId));
+        User mileStoneManager = userRepository.findById(managerId)
+                .orElseThrow(() -> new NotFoundException("Manager not found with ID: " + managerId));
 
         // Update Fields
         milestone.setAssigned(assignedTo);

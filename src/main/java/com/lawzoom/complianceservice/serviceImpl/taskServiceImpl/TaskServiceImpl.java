@@ -6,7 +6,7 @@ import com.lawzoom.complianceservice.dto.taskDto.TaskRequest;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
-import com.lawzoom.complianceservice.model.mileStoneTask.Task;
+import com.lawzoom.complianceservice.model.taskModel.Task;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
 import com.lawzoom.complianceservice.repository.StatusRepository;
@@ -71,6 +71,7 @@ public class TaskServiceImpl implements TaskService {
         task.setManager(manager);
         task.setAssignee(assignee);
         task.setCreatedByUser(createdBy);
+        task.setRemark(taskRequest.getRemark());
 
         // Save Task
         Task savedTask = taskRepository.save(task);
@@ -95,6 +96,7 @@ public class TaskServiceImpl implements TaskService {
         response.setAssigneeUserName(task.getAssignee().getUserName());
         response.setMilestoneId(task.getMilestone().getId());
         response.setMilestoneName(task.getMilestone().getMileStoneName());
+        response.setRemark(task.getRemark());
         return response;
     }
 
@@ -127,7 +129,9 @@ public class TaskServiceImpl implements TaskService {
             response.setAssigneeUserName(task.getAssignee().getUserName());
             response.setMilestoneId(task.getMilestone().getId());
             response.setMilestoneName(task.getMilestone().getMileStoneName());
+            response.setRemark(task.getRemark());
             responses.add(response);
+
         }
 
         return responses;

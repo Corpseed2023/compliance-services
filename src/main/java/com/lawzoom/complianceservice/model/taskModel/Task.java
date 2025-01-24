@@ -1,10 +1,9 @@
-package com.lawzoom.complianceservice.model.mileStoneTask;
+package com.lawzoom.complianceservice.model.taskModel;
 
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.comments.TaskComments;
 import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.documentModel.Document;
-import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -76,6 +75,8 @@ public class Task {
 	private User createdByUser;
 
 	private String criticality;
+
+	private String remark;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "milestone_id", nullable = false)

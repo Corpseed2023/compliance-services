@@ -28,4 +28,5 @@ public class TaskListResponse {
     private String assigneeUserName;
     private Long milestoneId;
     private String milestoneName;
+    private String remark;
 }

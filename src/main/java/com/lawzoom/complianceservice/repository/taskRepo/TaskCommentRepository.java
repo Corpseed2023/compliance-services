@@ -1,7 +1,7 @@
 package com.lawzoom.complianceservice.repository.taskRepo;
 
 import com.lawzoom.complianceservice.model.comments.TaskComments;
-import com.lawzoom.complianceservice.model.mileStoneTask.Task;
+import com.lawzoom.complianceservice.model.taskModel.Task;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

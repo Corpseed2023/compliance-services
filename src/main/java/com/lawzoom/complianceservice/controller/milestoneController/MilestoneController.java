@@ -54,8 +54,8 @@ public class MilestoneController {
     public ResponseEntity<MilestoneResponse> updateMilestoneAssignment(
             @RequestParam Long milestoneId,
             @RequestParam Long assignedToId,
-            @RequestParam Long taskReporterId) {
-        MilestoneResponse updatedMilestone = milestoneService.updateMilestoneAssignment(milestoneId, assignedToId, taskReporterId);
+            @RequestParam Long managerId) {
+        MilestoneResponse updatedMilestone = milestoneService.updateMilestoneAssignment(milestoneId, assignedToId, managerId);
         return ResponseEntity.ok(updatedMilestone);
     }
 
