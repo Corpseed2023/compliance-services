@@ -1,13 +1,12 @@
 package com.lawzoom.complianceservice.dto.complianceTaskDto;
 
-import com.lawzoom.complianceservice.dto.DocumentRequest;
+import com.lawzoom.complianceservice.dto.complianceReminder.ReminderRequest;
+import com.lawzoom.complianceservice.dto.renewalDto.RenewalRequest;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter
@@ -51,30 +50,20 @@ public class MilestoneRequest {
 	private String remark;
 
 	private String comment;
+
 	private String documentName;
+
 	private String file;
+
 	private String referenceNumber;
-	private String remarks;
 
-	/// need to save in renewal table
+	private RenewalRequest renewalRequest;
 
-	private LocalDate renewalDate;
-
-	private String reminderDurationType;
-
-	private int reminderDurationValue;
-
-	private String renewalNotes;
-
-	private boolean notificationsEnabled = false;
+	private ReminderRequest reminderRequest;
 
 	@NotNull(message = "Certificate Type Duration is required")
-	private String  certificateTypeDuration;
+	private String certificateTypeDuration;
 
 	@NotNull(message = "Certificate Duration Value is required")
 	private Integer certificateDurationValue;
-
-
-
-
 }

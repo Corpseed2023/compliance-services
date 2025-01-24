@@ -34,46 +34,42 @@ public class ReminderServiceImpl implements ReminderService {
     private UserRepository userRepository;
 
     @Override
-    public ReminderResponse createReminder(Long complianceId, Long subscriberId,
-                                           ReminderRequest request) {
-        // Validate Compliance
+    public ReminderResponse createReminder(Long complianceId, Long subscriberId, ReminderRequest request) {
+        // Step 1: Validate Compliance
         Compliance compliance = complianceRepository.findById(complianceId)
                 .orElseThrow(() -> new NotFoundException("Compliance not found with ID: " + complianceId));
 
-        // Validate Subscriber
+        // Step 2: Validate Subscriber
         Subscriber subscriber = subscriberRepository.findById(subscriberId)
                 .orElseThrow(() -> new NotFoundException("Subscriber not found with ID: " + subscriberId));
 
-        // Validate Users
-        User superAdmin = subscriber.getSuperAdmin();
+        // Step 3: Validate Creator User
+        User createdBy = userRepository.findById(request.getCreatedBy())
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + request.getCreatedBy()));
 
-        User createdBy = userRepository.findActiveUserById(request.getCreatedBy());
-        if (createdBy == null) {
-            throw new NotFoundException("User not found with ID: " + request.getCreatedBy());
-        }
 
-        User whomToSend = userRepository.findActiveUserById(request.getWhomToSend());
-        if (createdBy == null) {
-            throw new NotFoundException("Recipient user not found with ID :" + request.getWhomToSend());
-        }
 
-        // Create Reminder
+        // Step 5: Create and Populate Reminder Entity
         Reminder reminder = new Reminder();
+        reminder.setSubscriber(subscriber);
         reminder.setCreatedBy(createdBy);
         reminder.setReminderDate(request.getReminderDate());
         reminder.setReminderEndDate(request.getReminderEndDate());
         reminder.setNotificationTimelineValue(request.getNotificationTimelineValue());
         reminder.setRepeatTimelineValue(request.getRepeatTimelineValue());
         reminder.setRepeatTimelineType(request.getRepeatTimelineType());
+        reminder.setStopFlag(request.getStopFlag());
         reminder.setCreatedAt(new Date());
         reminder.setUpdatedAt(new Date());
 
+        // Step 6: Save Reminder
         Reminder savedReminder = reminderRepository.save(reminder);
 
-        // Map to Response DTO
+        // Step 7: Map Saved Reminder to ReminderResponse DTO
         ReminderResponse response = new ReminderResponse();
         response.setId(savedReminder.getId());
-        response.setSubscriberId(savedReminder.getSubscriber().getId());
+        response.setComplianceId(compliance.getId());
+        response.setSubscriberId(subscriber.getId());
         response.setReminderDate(savedReminder.getReminderDate());
         response.setReminderEndDate(savedReminder.getReminderEndDate());
         response.setNotificationTimelineValue(savedReminder.getNotificationTimelineValue());

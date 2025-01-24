@@ -1,7 +1,9 @@
 package com.lawzoom.complianceservice.serviceImpl.mileStoneServiceImpl;
 
 import com.lawzoom.complianceservice.dto.commentDto.CommentDetails;
+import com.lawzoom.complianceservice.dto.complianceReminder.ReminderRequest;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.*;
+import com.lawzoom.complianceservice.dto.renewalDto.RenewalRequest;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.comments.MileStoneComments;
 import com.lawzoom.complianceservice.model.Status;
@@ -9,11 +11,13 @@ import com.lawzoom.complianceservice.model.businessUnitModel.BusinessUnit;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.documentModel.Document;
+import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
 import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
+import com.lawzoom.complianceservice.repository.ReminderRepositroy.ReminderRepository;
 import com.lawzoom.complianceservice.repository.RenewalRepository.RenewalRepository;
 import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitRepository;
@@ -53,6 +57,9 @@ public class MilestoneServiceImpl implements MilestoneService {
 
     @Autowired
     private RenewalRepository renewalRepository;
+
+    @Autowired
+    private ReminderRepository reminderRepository;
 
 
     @Override
@@ -138,7 +145,7 @@ public class MilestoneServiceImpl implements MilestoneService {
             document.setDocumentName(milestoneRequest.getDocumentName());
             document.setFile(milestoneRequest.getFile());
             document.setReferenceNumber(milestoneRequest.getReferenceNumber());
-            document.setRemarks(milestoneRequest.getRemarks());
+            document.setRemarks(milestoneRequest.getRemark());
 
             User addedBy = userRepository.findById(milestoneRequest.getManagerId())
                     .orElseThrow(() -> new NotFoundException("Added By user not found with ID: " + milestoneRequest.getManagerId()));
@@ -155,36 +162,56 @@ public class MilestoneServiceImpl implements MilestoneService {
         milestoneRepository.save(milestone);
 
         // Step 10: Save Renewal if Applicable
-        if (milestoneRequest.getRenewalDate() != null || milestoneRequest.getReminderDurationType() != null) {
-            if (milestoneRequest.getRenewalDate() == null || milestoneRequest.getReminderDurationType() == null) {
+        if (milestoneRequest.getRenewalRequest() != null) {
+            RenewalRequest renewalRequest = milestoneRequest.getRenewalRequest();
+
+            if (renewalRequest.getRenewalDate() == null || renewalRequest.getReminderDurationType() == null) {
                 throw new IllegalArgumentException("Both renewal date and reminder duration type must be provided if renewal data is included.");
             }
 
             Renewal.ReminderDurationType reminderType;
             try {
-                reminderType = Renewal.ReminderDurationType.valueOf(milestoneRequest.getReminderDurationType().toUpperCase());
+                reminderType = Renewal.ReminderDurationType.valueOf(renewalRequest.getReminderDurationType().toUpperCase());
             } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Invalid Reminder Duration Type: " + milestoneRequest.getReminderDurationType());
+                throw new IllegalArgumentException("Invalid Reminder Duration Type: " + renewalRequest.getReminderDurationType());
             }
 
             Renewal renewal = new Renewal();
             renewal.setMilestone(milestone);
             renewal.setSubscriber(subscriber);
             renewal.setUser(reporter);
-            renewal.setIssuedDate(milestoneRequest.getIssuedDate());
-            renewal.setExpiryDate(milestoneRequest.getExpiryDate());
-            renewal.setRenewalDate(milestoneRequest.getRenewalDate());
+            renewal.setIssuedDate(renewalRequest.getIssuedDate());
+            renewal.setExpiryDate(renewalRequest.getExpiryDate());
+            renewal.setRenewalDate(renewalRequest.getRenewalDate());
             renewal.setReminderDurationType(reminderType);
-            renewal.setReminderDurationValue(milestoneRequest.getReminderDurationValue());
-            renewal.setRenewalNotes(milestoneRequest.getRenewalNotes());
-            renewal.setNotificationsEnabled(milestoneRequest.isNotificationsEnabled());
+            renewal.setReminderDurationValue(renewalRequest.getReminderDurationValue());
+            renewal.setRenewalNotes(renewalRequest.getRenewalNotes());
+            renewal.setNotificationsEnabled(renewalRequest.isNotificationsEnabled());
 
             renewal.calculateNextReminderDate();
 
             renewalRepository.save(renewal);
         }
 
-        // Step 11: Prepare Response
+        // Step 11: Save Reminder if Applicable
+        if (milestoneRequest.getReminderRequest() != null) {
+            ReminderRequest reminderRequest = milestoneRequest.getReminderRequest();
+
+            Reminder reminder = new Reminder();
+            reminder.setMilestone(milestone);
+            reminder.setSubscriber(subscriber);
+            reminder.setCreatedBy(reporter);
+            reminder.setReminderDate(reminderRequest.getReminderDate());
+            reminder.setReminderEndDate(reminderRequest.getReminderEndDate());
+            reminder.setNotificationTimelineValue(reminderRequest.getNotificationTimelineValue());
+            reminder.setRepeatTimelineValue(reminderRequest.getRepeatTimelineValue());
+            reminder.setRepeatTimelineType(reminderRequest.getRepeatTimelineType());
+            reminder.setStopFlag(reminderRequest.getStopFlag());
+
+            reminderRepository.save(reminder);
+        }
+
+        // Step 12: Prepare Response
         Map<String, Object> response = new HashMap<>();
         response.put("id", milestone.getId());
         response.put("mileStoneName", milestone.getMileStoneName());
