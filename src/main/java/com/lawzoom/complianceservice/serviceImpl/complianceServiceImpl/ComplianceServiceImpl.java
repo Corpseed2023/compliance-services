@@ -4,6 +4,8 @@ package com.lawzoom.complianceservice.serviceImpl.complianceServiceImpl;
 
 
 
+import com.lawzoom.complianceservice.dto.commonResponse.ReminderRequest;
+import com.lawzoom.complianceservice.dto.commonResponse.RenewalRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.CompanyComplianceDTO;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceRequest;
 import com.lawzoom.complianceservice.dto.complianceDto.ComplianceResponse;
@@ -18,6 +20,8 @@ import com.lawzoom.complianceservice.model.complianceModel.ComplianceHistory;
 import com.lawzoom.complianceservice.model.gstdetails.GstDetails;
 import com.lawzoom.complianceservice.model.region.City;
 import com.lawzoom.complianceservice.model.region.States;
+import com.lawzoom.complianceservice.model.reminderModel.Reminder;
+import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
@@ -279,7 +283,6 @@ public class ComplianceServiceImpl implements ComplianceService {
                     ? compliance.getBusinessUnit().getBusinessActivity().getBusinessActivityName()
                     : null);
 
-
             // Fetch milestones
             List<MileStone> milestones = compliance.getMilestones();
             int totalMilestones = milestones.size();
@@ -316,6 +319,39 @@ public class ComplianceServiceImpl implements ComplianceService {
                 milestoneResponse.setSubscriberId(milestone.getSubscriber() != null ? milestone.getSubscriber().getId() : null);
                 milestoneResponse.setExpiryDate(milestone.getExpiryDate());
 
+                // Map Renewal Details
+                RenewalRequest renewalRequest = new RenewalRequest();
+                if (!milestone.getRenewals().isEmpty()) {
+                    Renewal renewal = milestone.getRenewals().get(0); // Assuming one renewal per milestone
+                    renewalRequest.setId(renewal.getId());
+                    renewalRequest.setIssuedDate(renewal.getIssuedDate());
+                    renewalRequest.setExpiryDate(renewal.getExpiryDate());
+                    renewalRequest.setRenewalDate(renewal.getRenewalDate());
+                    renewalRequest.setReminderDurationType(renewal.getReminderDurationType().name());
+                    renewalRequest.setReminderDurationValue(renewal.getReminderDurationValue());
+                    renewalRequest.setRenewalNotes(renewal.getRenewalNotes());
+                    renewalRequest.setNotificationsEnabled(renewal.isNotificationsEnabled());
+                    renewalRequest.setCertificateTypeDuration(renewal.getCertificateTypeDuration().name());
+                    renewalRequest.setCertificateDurationValue(renewal.getCertificateDurationValue());
+                    renewalRequest.setUserId(milestone.getManager() != null ? milestone.getManager().getId() : null);
+                }
+                milestoneResponse.setRenewalRequest(renewalRequest);
+
+                // Map Reminder Details
+                ReminderRequest reminderRequest = new ReminderRequest();
+                if (!milestone.getReminders().isEmpty()) {
+                    Reminder reminder = milestone.getReminders().get(0); // Assuming one reminder per milestone
+                    reminderRequest.setUserid(reminder.getCreatedBy().getId());
+                    reminderRequest.setReminderDate(reminder.getReminderDate());
+                    reminderRequest.setReminderEndDate(reminder.getReminderEndDate());
+                    reminderRequest.setNotificationTimelineValue(reminder.getNotificationTimelineValue());
+                    reminderRequest.setRepeatTimelineValue(reminder.getRepeatTimelineValue());
+                    reminderRequest.setRepeatTimelineType(reminder.getRepeatTimelineType());
+                    reminderRequest.setStopFlag(reminder.getStopFlag());
+                    reminderRequest.setCreatedBy(reminder.getCreatedBy().getId());
+                }
+                milestoneResponse.setReminderRequest(reminderRequest);
+
                 milestoneResponses.add(milestoneResponse);
             }
 
@@ -328,6 +364,7 @@ public class ComplianceServiceImpl implements ComplianceService {
 
         return responses;
     }
+
 
     @Override
     public List<CompanyComplianceDTO> getCompanyComplianceDetails(Long userId, Long subscriberId) {

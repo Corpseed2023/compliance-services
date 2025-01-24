@@ -1,5 +1,7 @@
 package com.lawzoom.complianceservice.dto.complianceTaskDto;
 
+import com.lawzoom.complianceservice.dto.commonResponse.ReminderRequest;
+import com.lawzoom.complianceservice.dto.commonResponse.RenewalRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,4 +41,6 @@ public class ComplianceMilestoneResponse {
     private Long businessUnitId;
     private Long subscriberId;
 
+    private RenewalRequest renewalRequest;
+    private ReminderRequest reminderRequest;
 }
