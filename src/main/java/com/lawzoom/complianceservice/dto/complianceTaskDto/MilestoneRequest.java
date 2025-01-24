@@ -61,9 +61,5 @@ public class MilestoneRequest {
 
 	private ReminderRequest reminderRequest;
 
-	@NotNull(message = "Certificate Type Duration is required")
-	private String certificateTypeDuration;
 
-	@NotNull(message = "Certificate Duration Value is required")
-	private Integer certificateDurationValue;
 }

@@ -98,17 +98,17 @@ public class MilestoneServiceImpl implements MilestoneService {
         Status status = statusRepository.findById(milestoneRequest.getStatus())
                 .orElseThrow(() -> new NotFoundException("Status not found with ID: " + milestoneRequest.getStatus()));
 
-        // Step 8: Validate Certificate Duration Fields
-        Renewal.ReminderDurationType certificateTypeDuration;
-        try {
-            certificateTypeDuration = Renewal.ReminderDurationType.valueOf(milestoneRequest.getCertificateTypeDuration().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid Certificate Type Duration: " + milestoneRequest.getCertificateTypeDuration());
-        }
-
-        if (milestoneRequest.getCertificateDurationValue() == null || milestoneRequest.getCertificateDurationValue() <= 0) {
-            throw new IllegalArgumentException("Certificate Duration Value must be greater than 0.");
-        }
+//        // Step 8: Validate Certificate Duration Fields
+//        Renewal.ReminderDurationType certificateTypeDuration;
+//        try {
+//            certificateTypeDuration = Renewal.ReminderDurationType.valueOf(milestoneRequest.getCertificateTypeDuration().toUpperCase());
+//        } catch (IllegalArgumentException e) {
+//            throw new IllegalArgumentException("Invalid Certificate Type Duration: " + milestoneRequest.getCertificateTypeDuration());
+//        }
+//
+//        if (milestoneRequest.getCertificateDurationValue() == null || milestoneRequest.getCertificateDurationValue() <= 0) {
+//            throw new IllegalArgumentException("Certificate Duration Value must be greater than 0.");
+//        }
 
         // Step 9: Create and Populate Milestone
         MileStone milestone = new MileStone();
@@ -127,8 +127,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         milestone.setStatus(status);
         milestone.setSubscriber(subscriber);
         milestone.setRemark(milestoneRequest.getRemark());
-        milestone.setCertificateTypeDuration(certificateTypeDuration);
-        milestone.setCertificateDurationValue(milestoneRequest.getCertificateDurationValue());
+
 
         // Add Comments (if provided)
         if (milestoneRequest.getComment() != null && !milestoneRequest.getComment().isEmpty()) {
@@ -187,6 +186,8 @@ public class MilestoneServiceImpl implements MilestoneService {
             renewal.setReminderDurationValue(renewalRequest.getReminderDurationValue());
             renewal.setRenewalNotes(renewalRequest.getRenewalNotes());
             renewal.setNotificationsEnabled(renewalRequest.isNotificationsEnabled());
+            renewal.setCertificateDurationValue(renewal.getCertificateDurationValue());
+            renewal.setCertificateTypeDuration(renewal.getCertificateTypeDuration());
 
             renewal.calculateNextReminderDate();
 
@@ -223,8 +224,6 @@ public class MilestoneServiceImpl implements MilestoneService {
         response.put("complianceId", milestone.getCompliance().getId());
         response.put("reporterId", reporter.getId());
         response.put("remark", milestone.getRemark());
-        response.put("certificateTypeDuration", milestone.getCertificateTypeDuration().toString());
-        response.put("certificateDurationValue", milestone.getCertificateDurationValue());
         response.put("comment", milestoneRequest.getComment());
 
         return ResponseEntity.status(201).body(response);

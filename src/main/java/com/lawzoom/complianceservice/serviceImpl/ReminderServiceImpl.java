@@ -48,7 +48,6 @@ public class ReminderServiceImpl implements ReminderService {
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + request.getCreatedBy()));
 
 
-
         // Step 5: Create and Populate Reminder Entity
         Reminder reminder = new Reminder();
         reminder.setSubscriber(subscriber);

@@ -81,6 +81,15 @@ public class Renewal {
     @Column(name = "updated_at")
     private Date updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    @Comment(value = "Type of duration for the certificate (DAYS, WEEKS, MONTHS, YEARS)")
+    private Renewal.ReminderDurationType certificateTypeDuration;
+
+    @Column(name = "certificate_duration_value", nullable = true)
+    @Comment("Value of the duration for the certificate (e.g., 10 for 10 days)")
+    private Integer certificateDurationValue;
+
     public void calculateNextReminderDate() {
         if (this.reminderDurationValue != null && this.reminderDurationType != null) {
             switch (this.reminderDurationType) {

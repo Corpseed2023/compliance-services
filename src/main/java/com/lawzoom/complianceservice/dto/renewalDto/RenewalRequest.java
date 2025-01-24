@@ -29,4 +29,11 @@ public class RenewalRequest {
     private boolean notificationsEnabled = false;
 
     private Long userId;
+
+    @NotNull(message = "Certificate Type Duration is required")
+    private String certificateTypeDuration;
+
+    @NotNull(message = "Certificate Duration Value is required")
+    private Integer certificateDurationValue;
+
 }
