@@ -9,11 +9,14 @@ import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.reminderModel.TaskReminder;
+import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.renewalModel.TaskRenewal;
 import com.lawzoom.complianceservice.model.taskModel.Task;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
 import com.lawzoom.complianceservice.repository.StatusRepository;
+import com.lawzoom.complianceservice.repository.TaskReminderRepository;
+import com.lawzoom.complianceservice.repository.TaskRenewalRepository;
 import com.lawzoom.complianceservice.repository.taskRepo.TaskRepository;
 import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.service.taskService.TaskService;
@@ -39,6 +42,12 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private StatusRepository statusRepository;
 
+    @Autowired
+    private TaskReminderRepository taskReminderRepository;
+
+    @Autowired
+    private TaskRenewalRepository taskRenewalRepository;
+
 
     @Override
     public TaskListResponse createTask(TaskRequest taskRequest, Long userId) {
@@ -47,17 +56,24 @@ public class TaskServiceImpl implements TaskService {
         MileStone milestone = milestoneRepository.findById(taskRequest.getMilestoneId())
                 .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + taskRequest.getMilestoneId()));
 
-        User manager = userRepository.findActiveUserById(taskRequest.getManagerId())
-                .orElseThrow(() -> new NotFoundException("Active manager not found with ID: " + taskRequest.getManagerId()));
+        User manager = userRepository.findActiveUserById(taskRequest.getManagerId());
+        if (manager == null) {
+            throw new NotFoundException("Active manager not found with ID: " + taskRequest.getManagerId());
+        }
 
-        User assignee = userRepository.findActiveUserById(taskRequest.getAssigneeId())
-                .orElseThrow(() -> new NotFoundException("Active assignee not found with ID: " + taskRequest.getAssigneeId()));
+        User assignee = userRepository.findActiveUserById(taskRequest.getAssigneeId());
+        if (assignee == null) {
+            throw new NotFoundException("Active assignee not found with ID: " + taskRequest.getAssigneeId());
+        }
 
-        User createdBy = userRepository.findActiveUserById(userId)
-                .orElseThrow(() -> new NotFoundException("Active user not found with ID: " + userId));
+        User createdBy = userRepository.findActiveUserById(userId);
+        if (createdBy == null) {
+            throw new NotFoundException("Active user not found with ID: " + userId);
+        }
 
         Status status = statusRepository.findById(taskRequest.getStatusId())
                 .orElseThrow(() -> new NotFoundException("Status not found with ID: " + taskRequest.getStatusId()));
+
 
         // Create and save the task
         Task task = new Task();
