@@ -4,6 +4,8 @@ import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -54,6 +56,15 @@ public interface MilestoneRepository extends JpaRepository<MileStone, Long> {
             @Param("userId") Long userId
     );
 
+
+    // Fetch all milestones for a subscriber
+    Page<MileStone> findBySubscriber(Subscriber subscriber, Pageable pageable);
+
+    // Fetch milestones where the user is a manager
+    Page<MileStone> findByManager(User manager, Pageable pageable);
+
+    // Fetch milestones where the user is an assignee
+    Page<MileStone> findByAssigned(User assignee, Pageable pageable);
 
 
 }

@@ -1,6 +1,6 @@
 package com.lawzoom.complianceservice.dto.taskDto;
 
-
+import com.lawzoom.complianceservice.dto.DocumentRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,10 +26,14 @@ public class TaskRequest {
     private Long managerId;
     private Long assigneeId;
     private String remark;
+    private Boolean isEnable = true; // New field
 
     // List of reminders associated with the task
     private List<TaskReminderRequest> reminders;
 
     // List of renewals associated with the task
     private List<TaskRenewalRequest> renewals;
+
+    private List<DocumentRequest> documents; // New field for task documents
+    private String comments;
 }

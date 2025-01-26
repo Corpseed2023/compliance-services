@@ -173,9 +173,6 @@ public class CompanyServiceImpl implements CompanyService {
         company.setUpdatedAt(new Date());
         company.setEnable(true);
         company.setDate(LocalDate.now());
-        company.setFirstName(companyRequest.getFirstName());
-        company.setLastName(companyRequest.getLastName());
-
         // Save Company
         company = companyRepository.save(company);
 
@@ -189,7 +186,7 @@ public class CompanyServiceImpl implements CompanyService {
         gstDetails.setCreatedBy(user);
         gstDetails.setCreatedAt(new Date());
         gstDetails.setUpdatedAt(new Date());
-        company.setEnable(true);
+        gstDetails.setUpdatedBy(user);
 
         gstDetails.setDate(LocalDate.now());
         gstDetailsRepository.save(gstDetails);
@@ -205,7 +202,8 @@ public class CompanyServiceImpl implements CompanyService {
         businessUnit.setCreatedAt(new Date());
         businessUnit.setUpdatedAt(new Date());
         businessUnit.setEnable(true);
-
+        businessUnit.setGstNumber(companyRequest.getGstNumber());
+        businessUnit.setUpdatedBy(user);
         businessUnit.setLocatedAt(company.getLocatedAt());
         businessUnit.setDate(LocalDate.now());
         businessUnitRepository.save(businessUnit);

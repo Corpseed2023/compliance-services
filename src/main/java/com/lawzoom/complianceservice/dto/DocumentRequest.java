@@ -1,6 +1,7 @@
 package com.lawzoom.complianceservice.dto;
 
 
+import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.time.LocalDate;

@@ -33,6 +33,7 @@ import java.util.List;
 @Table(name = "milestone")
 public class MileStone {
 
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
@@ -74,7 +75,7 @@ public class MileStone {
 	private User manager;
 
 	@ManyToOne
-	@JoinColumn(name = "assigned")
+	@JoinColumn(name = "assigned_id")
 	private User assigned;
 
 	@ManyToOne

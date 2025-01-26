@@ -1,18 +1,21 @@
 package com.lawzoom.complianceservice.serviceImpl.taskServiceImpl;
 
 
+import com.lawzoom.complianceservice.dto.DocumentRequest;
 import com.lawzoom.complianceservice.dto.taskDto.TaskListResponse;
 import com.lawzoom.complianceservice.dto.taskDto.TaskReminderRequest;
 import com.lawzoom.complianceservice.dto.taskDto.TaskRenewalRequest;
 import com.lawzoom.complianceservice.dto.taskDto.TaskRequest;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.Status;
+import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.reminderModel.TaskReminder;
 import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.renewalModel.TaskRenewal;
 import com.lawzoom.complianceservice.model.taskModel.Task;
 import com.lawzoom.complianceservice.model.user.User;
+import com.lawzoom.complianceservice.repository.DocumentRepository;
 import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
 import com.lawzoom.complianceservice.repository.StatusRepository;
 import com.lawzoom.complianceservice.repository.TaskReminderRepository;
@@ -48,6 +51,9 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private TaskRenewalRepository taskRenewalRepository;
 
+    @Autowired
+    private DocumentRepository documentRepository;
+
 
     @Override
     public TaskListResponse createTask(TaskRequest taskRequest, Long userId) {
@@ -74,7 +80,6 @@ public class TaskServiceImpl implements TaskService {
         Status status = statusRepository.findById(taskRequest.getStatusId())
                 .orElseThrow(() -> new NotFoundException("Status not found with ID: " + taskRequest.getStatusId()));
 
-
         // Create and save the task
         Task task = new Task();
         task.setName(taskRequest.getName());
@@ -88,8 +93,21 @@ public class TaskServiceImpl implements TaskService {
         task.setAssignee(assignee);
         task.setCreatedByUser(createdBy);
         task.setRemark(taskRequest.getRemark());
+        task.setEnable(true); // New field
 
         Task savedTask = taskRepository.save(task);
+
+        // Save Documents
+        if (taskRequest.getDocuments() != null && !taskRequest.getDocuments().isEmpty()) {
+            for (DocumentRequest documentRequest : taskRequest.getDocuments()) {
+                Document document = new Document();
+                document.setTask(savedTask);
+                document.setFile(documentRequest.getFile());
+                documentRepository.save(document);
+            }
+        }
+
+
 
         // Save TaskReminders
         if (taskRequest.getReminders() != null && !taskRequest.getReminders().isEmpty()) {

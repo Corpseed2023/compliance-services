@@ -4,6 +4,10 @@ package com.lawzoom.complianceservice.controller.milestoneController;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.*;
 import com.lawzoom.complianceservice.service.mileStoneService.MilestoneService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -69,18 +73,31 @@ public class MilestoneController {
     }
 
 
-    @GetMapping("/all-milestones/")
-    public ResponseEntity<List<MilestoneDetailsResponse>> allMileStones(
+    @GetMapping("/all-milestones")
+    public ResponseEntity<Page<MilestoneDetailsResponse>> allMileStones(
             @RequestParam Long userId,
-            @RequestParam Long subscriberId) {
+            @RequestParam Long subscriberId,
+            @RequestParam int page,
+            @RequestParam int size
+    ) {
         try {
-            // Fetch milestones based on status
-            List<MilestoneDetailsResponse> milestoneDetailsResponses = milestoneService.allMileStones(userId, subscriberId);
+            // Create pageable object for pagination
+            Pageable pageable = PageRequest.of(page, size);
+
+            // Fetch milestones with pagination
+            Page<MilestoneDetailsResponse> milestoneDetailsResponses = milestoneService.fetchUserAllMilestones(userId, subscriberId, pageable);
+
+            // Return the paginated response
             return ResponseEntity.ok(milestoneDetailsResponses);
+        } catch (IllegalArgumentException e) {
+            // Handle user-related errors
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            // Handle unexpected errors
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
 
 
 
