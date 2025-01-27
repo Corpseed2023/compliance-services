@@ -638,7 +638,7 @@ public class MilestoneServiceImpl implements MilestoneService {
     }
 
     @Override
-    public Page<MilestoneDetailsResponse> fetchUserAllMilestones(Long userId, Long subscriberId, Pageable pageable) {
+    public Page<MilestoneDetailsResponse> fetchUserAllMilestones(Long userId, Long subscriberId, Pageable pageable)  {
         // Step 1: Validate User and Subscriber
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Error: User not found!"));
@@ -648,7 +648,7 @@ public class MilestoneServiceImpl implements MilestoneService {
 
         // Step 2: Determine User Role
         boolean isSuperAdmin = user.getRoles().stream()
-                .anyMatch(role -> role.getRoleName().equalsIgnoreCase("SUPER ADMIN"));
+                .anyMatch(role -> role.getRoleName().equalsIgnoreCase("SUPER_ADMIN"));
         boolean isAdmin = user.getRoles().stream()
                 .anyMatch(role -> role.getRoleName().equalsIgnoreCase("ADMIN"));
         boolean isUser = user.getRoles().stream()
