@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -74,27 +75,36 @@ public class MilestoneController {
 
 
     @GetMapping("/all-milestones")
-    public ResponseEntity<Page<MilestoneDetailsResponse>> allMileStones(
+    public ResponseEntity<Map<String, Object>> allMileStones(
             @RequestParam Long userId,
             @RequestParam Long subscriberId,
             @RequestParam int page,
             @RequestParam int size
     ) {
         try {
+            // Adjust page number to 0-based indexing if the user sends 1-based page number
+            int adjustedPage = Math.max(page - 1, 0);
+
             // Create pageable object for pagination
-            Pageable pageable = PageRequest.of(page, size);
+            Pageable pageable = PageRequest.of(adjustedPage, size);
 
             // Fetch milestones with pagination
-            Page<MilestoneDetailsResponse> milestoneDetailsResponses = milestoneService.fetchUserAllMilestones(userId, subscriberId, pageable);
+            Map<String, Object> response = milestoneService.fetchUserAllMilestonesAsMap(userId, subscriberId, pageable);
 
-            // Return the paginated response
-            return ResponseEntity.ok(milestoneDetailsResponses);
+            // Return the response as Map
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             // Handle user-related errors
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         } catch (Exception e) {
             // Handle unexpected errors
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", "An unexpected error occurred.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 

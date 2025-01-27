@@ -24,5 +24,5 @@ public interface MilestoneService {
 
     MilestoneResponse updateMilestoneStatus(Long milestoneId, Long statusId);
 
-    Page<MilestoneDetailsResponse> fetchUserAllMilestones(Long userId, Long subscriberId, Pageable pageable);
+    Map<String, Object> fetchUserAllMilestonesAsMap(Long userId, Long subscriberId, Pageable pageable);
 }

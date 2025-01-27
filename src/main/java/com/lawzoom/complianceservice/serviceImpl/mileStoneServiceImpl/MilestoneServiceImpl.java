@@ -636,9 +636,8 @@ public class MilestoneServiceImpl implements MilestoneService {
         // Map Updated Milestone to Response
         return mapToMilestoneResponseWithDetails(updatedMilestone);
     }
-
     @Override
-    public Page<MilestoneDetailsResponse> fetchUserAllMilestones(Long userId, Long subscriberId, Pageable pageable) {
+    public Map<String, Object> fetchUserAllMilestonesAsMap(Long userId, Long subscriberId, Pageable pageable) {
         // Step 1: Validate User and Subscriber
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Error: User not found!"));
@@ -657,14 +656,11 @@ public class MilestoneServiceImpl implements MilestoneService {
         Page<MileStone> milestonePage;
 
         // Step 3: Fetch Milestones Based on Role
-        if (isSuperAdmin) {
-            // SUPER_ADMIN can fetch all milestones under the subscriber
-            milestonePage = milestoneRepository.findBySubscriber(subscriber, pageable);
-        } else if (isAdmin) {
-            // ADMIN fetches milestones under their subscriber
+        if (isSuperAdmin || isAdmin) {
+            // Fetch all milestones under the subscriber
             milestonePage = milestoneRepository.findBySubscriber(subscriber, pageable);
         } else if (isUser) {
-            // USER fetches milestones where they are a manager or assignee
+            // Fetch milestones where the user is either a manager or assignee
             List<MileStone> managerMilestones = milestoneRepository.findByManager(user, pageable).getContent();
             List<MileStone> assignedMilestones = milestoneRepository.findByAssigned(user, pageable).getContent();
 
@@ -684,35 +680,47 @@ public class MilestoneServiceImpl implements MilestoneService {
             throw new IllegalArgumentException("Error: Role not supported for this operation!");
         }
 
-        // Step 4: Map Milestones to Response DTO
-        return milestonePage.map(this::mapToMilestoneDetailsResponse);
-    }
-
-    private MilestoneDetailsResponse mapToMilestoneDetailsResponse(MileStone milestone) {
-        MilestoneDetailsResponse response = new MilestoneDetailsResponse();
-        response.setCompanyId(milestone.getBusinessUnit().getGstDetails().getCompany().getId());
-        response.setCompanyName(milestone.getBusinessUnit().getGstDetails().getCompany().getCompanyName());
-        response.setBusinessUnit(milestone.getBusinessUnit().getId());
-        response.setBusinessName(milestone.getBusinessUnit().getAddress());
-        response.setBusinessActivityId(milestone.getBusinessUnit().getBusinessActivity() != null
-                ? milestone.getBusinessUnit().getBusinessActivity().getId()
-                : null);
-        response.setBusinessActivityName(milestone.getBusinessUnit().getBusinessActivity() != null
-                ? milestone.getBusinessUnit().getBusinessActivity().getBusinessActivityName()
-                : null);
-        response.setComplianceId(milestone.getCompliance().getId());
-        response.setComplianceName(milestone.getCompliance().getComplianceName());
-        response.setMileStoneId(milestone.getId());
-        response.setMileStoneName(milestone.getMileStoneName());
-        response.setCriticality(milestone.getCriticality());
-        response.setStartedDate(milestone.getStartedDate());
-        response.setDueDate(milestone.getDueDate());
-        response.setStatusName(milestone.getStatus() != null ? milestone.getStatus().getName() : "Not Started");
-        response.setManagerId(milestone.getManager() != null ? milestone.getManager().getId() : null);
-        response.setManagerName(milestone.getManager() != null ? milestone.getManager().getUserName() : null);
+        // Step 4: Map Milestones to Map<String, Object>
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", milestonePage.stream().map(this::mapToMilestoneMap).toList());
+        response.put("pageNumber", milestonePage.getNumber());
+        response.put("pageSize", milestonePage.getSize());
+        response.put("totalElements", milestonePage.getTotalElements());
+        response.put("totalPages", milestonePage.getTotalPages());
+        response.put("last", milestonePage.isLast());
+        response.put("first", milestonePage.isFirst());
+        response.put("numberOfElements", milestonePage.getNumberOfElements());
+        response.put("empty", milestonePage.isEmpty());
 
         return response;
     }
+
+    private Map<String, Object> mapToMilestoneMap(MileStone milestone) {
+        Map<String, Object> milestoneMap = new HashMap<>();
+        milestoneMap.put("companyId", milestone.getBusinessUnit().getGstDetails().getCompany().getId());
+        milestoneMap.put("companyName", milestone.getBusinessUnit().getGstDetails().getCompany().getCompanyName());
+        milestoneMap.put("businessUnit", milestone.getBusinessUnit().getId());
+        milestoneMap.put("businessName", milestone.getBusinessUnit().getAddress());
+        milestoneMap.put("businessActivityId", milestone.getBusinessUnit().getBusinessActivity() != null
+                ? milestone.getBusinessUnit().getBusinessActivity().getId()
+                : null);
+        milestoneMap.put("businessActivityName", milestone.getBusinessUnit().getBusinessActivity() != null
+                ? milestone.getBusinessUnit().getBusinessActivity().getBusinessActivityName()
+                : null);
+        milestoneMap.put("complianceId", milestone.getCompliance().getId());
+        milestoneMap.put("complianceName", milestone.getCompliance().getComplianceName());
+        milestoneMap.put("mileStoneId", milestone.getId());
+        milestoneMap.put("mileStoneName", milestone.getMileStoneName());
+        milestoneMap.put("criticality", milestone.getCriticality());
+        milestoneMap.put("startedDate", milestone.getStartedDate());
+        milestoneMap.put("dueDate", milestone.getDueDate());
+        milestoneMap.put("statusName", milestone.getStatus() != null ? milestone.getStatus().getName() : "Not Started");
+        milestoneMap.put("managerId", milestone.getManager() != null ? milestone.getManager().getId() : null);
+        milestoneMap.put("managerName", milestone.getManager() != null ? milestone.getManager().getUserName() : null);
+
+        return milestoneMap;
+    }
+
 
 }
 
