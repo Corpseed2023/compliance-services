@@ -638,7 +638,7 @@ public class MilestoneServiceImpl implements MilestoneService {
     }
 
     @Override
-    public Page<MilestoneDetailsResponse> fetchUserAllMilestones(Long userId, Long subscriberId, Pageable pageable)  {
+    public Page<MilestoneDetailsResponse> fetchUserAllMilestones(Long userId, Long subscriberId, Pageable pageable) {
         // Step 1: Validate User and Subscriber
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Error: User not found!"));
@@ -657,11 +657,14 @@ public class MilestoneServiceImpl implements MilestoneService {
         Page<MileStone> milestonePage;
 
         // Step 3: Fetch Milestones Based on Role
-        if (isSuperAdmin || isAdmin) {
-            // Fetch all milestones for the subscriber with pagination
+        if (isSuperAdmin) {
+            // SUPER_ADMIN can fetch all milestones under the subscriber
+            milestonePage = milestoneRepository.findBySubscriber(subscriber, pageable);
+        } else if (isAdmin) {
+            // ADMIN fetches milestones under their subscriber
             milestonePage = milestoneRepository.findBySubscriber(subscriber, pageable);
         } else if (isUser) {
-            // Fetch milestones where the user is either a manager or assignee
+            // USER fetches milestones where they are a manager or assignee
             List<MileStone> managerMilestones = milestoneRepository.findByManager(user, pageable).getContent();
             List<MileStone> assignedMilestones = milestoneRepository.findByAssigned(user, pageable).getContent();
 
@@ -677,8 +680,7 @@ public class MilestoneServiceImpl implements MilestoneService {
             List<MileStone> paginatedMilestones = combinedMilestonesList.subList(start, end);
 
             milestonePage = new PageImpl<>(paginatedMilestones, pageable, combinedMilestonesList.size());
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Error: Role not supported for this operation!");
         }
 

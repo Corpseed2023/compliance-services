@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 public class DocumentRequiredDTO {
     private Long id;
     private String name;
-    private Long milestoneId;
+    private Long complianceId;
 }
