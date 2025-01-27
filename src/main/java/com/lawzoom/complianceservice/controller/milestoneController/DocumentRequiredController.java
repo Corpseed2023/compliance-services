@@ -1,5 +1,7 @@
 package com.lawzoom.complianceservice.controller.milestoneController;
 
+import com.lawzoom.complianceservice.dto.documentRequiredDto.CreateDocumentResponseDTO;
+import com.lawzoom.complianceservice.dto.documentRequiredDto.MilestoneDocumentsResponseDTO;
 import com.lawzoom.complianceservice.service.documentRequiredService.DocumentRequiredService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +25,9 @@ public class DocumentRequiredController {
      * @return ResponseEntity with a success message and document details
      */
     @PostMapping("/create")
-    public ResponseEntity<Map<String, Object>> createDocument(@RequestParam Long milestoneId,
-                                                              @RequestParam String name) {
-        Map<String, Object> response = documentRequiredService.createDocumentRequired(milestoneId, name);
+    public ResponseEntity<CreateDocumentResponseDTO> createDocument(@RequestParam Long milestoneId,
+                                                                    @RequestParam String name) {
+        CreateDocumentResponseDTO response = documentRequiredService.createDocumentRequired(milestoneId, name);
         return ResponseEntity.ok(response);
     }
 
@@ -36,8 +38,11 @@ public class DocumentRequiredController {
      * @return ResponseEntity with milestone details and a list of documents
      */
     @GetMapping("/milestone")
-    public ResponseEntity<Map<String, Object>> getDocumentsByMilestone(@RequestParam Long milestoneId) {
-        Map<String, Object> response = documentRequiredService.getDocumentsByMilestone(milestoneId);
+    public ResponseEntity<MilestoneDocumentsResponseDTO> getDocumentsByMilestone(@RequestParam Long milestoneId) {
+        MilestoneDocumentsResponseDTO response = documentRequiredService.getDocumentsByMilestone(milestoneId);
         return ResponseEntity.ok(response);
     }
+
+
+
 }
