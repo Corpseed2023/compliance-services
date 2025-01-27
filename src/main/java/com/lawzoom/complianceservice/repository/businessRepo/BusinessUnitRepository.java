@@ -38,4 +38,18 @@ public interface BusinessUnitRepository extends JpaRepository<BusinessUnit,Long>
     List<BusinessUnit> findBusinessUnitsByGstDetails(
             @Param("gstDetailsId") Long gstDetailsId,
             @Param("isEnable") boolean isEnable
-    );}
+    );
+
+
+    /**
+     * Count business units by subscriber ID.
+     *
+     * @param subscriberId the subscriber ID
+     * @return count of business units
+     */
+    @Query("SELECT COUNT(bu) FROM BusinessUnit bu WHERE bu.gstDetails.company.subscriber.id = :subscriberId AND bu.isDeleted = false")
+    Long countBySubscriberId(@Param("subscriberId") Long subscriberId);
+
+
+
+}

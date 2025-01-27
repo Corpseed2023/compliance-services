@@ -59,7 +59,7 @@ public class User {
     @Column(nullable = false)
     private Date updatedAt = new Date();
 
-    private boolean isAssociated;
+    private boolean isAssociated; //
 
     @ManyToOne
     @JoinColumn(name = "subscriber_id", nullable = true) // Allow null values initially

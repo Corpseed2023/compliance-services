@@ -29,6 +29,7 @@ public class DashboardServiceImpl implements DashboardService {
     @Autowired
     private CompanyRepository companyRepository;
 
+
     @Autowired
     private GstDetailsRepository gstDetailsRepository;
 
@@ -83,6 +84,48 @@ public class DashboardServiceImpl implements DashboardService {
         response.put("status", "success");
         return ResponseEntity.ok(response);
     }
+
+
+
+    @Override
+    public ResponseEntity<Map<String, Object>> getBusinessUnitCount(Long subscriberId, Long companyId) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (companyId != null) {
+            // Count business units for a specific company
+            long businessUnitCount = businessUnitRepository.countByCompanyId(companyId);
+            response.put("businessUnitCount", businessUnitCount);
+            response.put("message", "Business unit count for company fetched successfully.");
+        } else {
+            // Count business units for all companies under the subscriber
+            long businessUnitCount = businessUnitRepository.countBySubscriberId(subscriberId);
+            response.put("businessUnitCount", businessUnitCount);
+            response.put("message", "Business unit count for subscriber fetched successfully.");
+        }
+
+        response.put("status", "success");
+        return ResponseEntity.ok(response);
+    }
+
+
+    @Override
+    public ResponseEntity<Map<String, Object>> getUserCount(Long subscriberId) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (subscriberId == null) {
+            throw new IllegalArgumentException("Subscriber ID cannot be null.");
+        }
+
+        // Fetch user count by subscriber
+        long userCount = userRepository.countBySubscriberId(subscriberId);
+
+        response.put("userCount", userCount);
+        response.put("message", "User count for subscriber fetched successfully.");
+        response.put("status", "success");
+
+        return ResponseEntity.ok(response);
+    }
+
 
 
 

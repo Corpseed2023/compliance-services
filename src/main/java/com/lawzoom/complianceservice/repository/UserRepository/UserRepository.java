@@ -19,6 +19,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findActiveUserById(@Param("userId") Long userId);
 
     List<User> findAllBySubscriber(@Param("subscriber") Subscriber subscriber);
+    @Query("SELECT COUNT(u) FROM User u WHERE u.subscriber.id = :subscriberId AND u.isDeleted = false AND u.isEnable = true")
+    Long countBySubscriberId(@Param("subscriberId") Long subscriberId);
+
+
+
+
 
 
 }

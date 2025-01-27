@@ -43,5 +43,32 @@ public class DashboardController {
     }
 
 
+    /**
+     * Fetch the count of business units for a subscriber or a company.
+     *
+     * @param subscriberId the ID of the subscriber
+     * @param companyId    the ID of the company (optional)
+     * @return a map containing the count of business units
+     */
+    @GetMapping("/business-unit-count")
+    public ResponseEntity<Map<String, Object>> getBusinessUnitCount(
+            @RequestParam Long subscriberId,
+            @RequestParam(required = false) Long companyId) {
+        return dashboardService.getBusinessUnitCount(subscriberId, companyId);
+    }
+
+    /**
+     * Fetch user count for a subscriber or a company.
+     *
+     * @param subscriberId the ID of the subscriber
+     * @param companyId    the ID of the company (optional)
+     * @return a map containing the user count
+     */
+    @GetMapping("/user-count")
+    public ResponseEntity<Map<String, Object>> getUserCount(
+            @RequestParam Long subscriberId){
+        return dashboardService.getUserCount(subscriberId);
+    }
+
 
 }
