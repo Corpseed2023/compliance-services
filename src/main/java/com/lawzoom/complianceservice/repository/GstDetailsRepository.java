@@ -52,4 +52,12 @@ public interface GstDetailsRepository extends JpaRepository<GstDetails, Long> {
     // Count GST Details by Company ID
     @Query(value = "SELECT COUNT(*) FROM gst_details WHERE company_id = :companyId AND is_deleted = 0", nativeQuery = true)
     Long countByCompanyId(@Param("companyId") Long companyId);
-}
+
+    /**
+     * Count GST Details by Subscriber ID.
+     *
+     * @param subscriberId the subscriber ID
+     * @return count of GST details
+     */
+    @Query(value = "SELECT COUNT(*) FROM gst_details g WHERE g.company_id IN (SELECT c.id FROM company c WHERE c.subscriber_id = :subscriberId) AND g.is_deleted = 0", nativeQuery = true)
+    Long countBySubscriberId(@Param("subscriberId") Long subscriberId);}

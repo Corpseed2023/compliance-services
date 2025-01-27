@@ -28,6 +28,20 @@ public class DashboardController {
         return dashboardService.getCompanyDetails(userId, subscriberId);
     }
 
+    /**
+     * Fetch GST details count for a subscriber or a company.
+     *
+     * @param subscriberId the ID of the subscriber
+     * @param companyId    the ID of the company (optional)
+     * @return a map containing the count of GST details
+     */
+    @GetMapping("/gst-details-count")
+    public ResponseEntity<Map<String, Object>> getGstDetailsCount(
+            @RequestParam Long subscriberId,
+            @RequestParam(required = false) Long companyId) {
+        return dashboardService.getGstDetailsCount(subscriberId, companyId);
+    }
+
 
 
 }

@@ -10,9 +10,11 @@ import com.lawzoom.complianceservice.repository.complianceRepo.ComplianceRepo;
 import com.lawzoom.complianceservice.repository.taskRepo.TaskRepository;
 import com.lawzoom.complianceservice.service.dashboardService.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -44,8 +46,45 @@ public class DashboardServiceImpl implements DashboardService {
 
     @Override
     public ResponseEntity<Map<String, Object>> getCompanyDetails(Long userId, Long subscriberId) {
-        return null;
+        Map<String, Object> response = new HashMap<>();
+
+        // Validate user existence
+        userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Error: User not found!"));
+
+        // Fetch the count of companies under the subscriber
+        long companyCount = companyRepository.countBySubscriberId(subscriberId);
+
+        // Add the company count to the response
+        response.put("companyCount", companyCount);
+        response.put("status", "success");
+        response.put("message", "Company details fetched successfully.");
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+
+    @Override
+    public ResponseEntity<Map<String, Object>> getGstDetailsCount(Long subscriberId, Long companyId) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (companyId != null) {
+            // Count GST details for a specific company
+            long gstCount = gstDetailsRepository.countByCompanyId(companyId);
+            response.put("gstDetailsCount", gstCount);
+            response.put("message", "GST details count for company fetched successfully.");
+        } else {
+            // Count GST details for all companies under a subscriber
+            long gstCount = gstDetailsRepository.countBySubscriberId(subscriberId);
+            response.put("gstDetailsCount", gstCount);
+            response.put("message", "GST details count for subscriber fetched successfully.");
+        }
+
+        response.put("status", "success");
+        return ResponseEntity.ok(response);
+    }
+
+
 
 
 }
