@@ -1,11 +1,11 @@
 package com.lawzoom.complianceservice.model.mileStoneModel;
 
+import com.lawzoom.complianceservice.model.complianceModel.Compliance;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 @Entity
 @AllArgsConstructor
@@ -22,7 +22,7 @@ public class DocumentRequired {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "milestone_id", nullable = false)
-    private MileStone milestone;
+    @JoinColumn(name = "compliance_id", nullable = false)
+    private Compliance compliance;
 
 }

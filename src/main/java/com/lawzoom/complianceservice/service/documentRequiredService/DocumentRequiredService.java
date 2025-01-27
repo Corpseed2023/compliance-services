@@ -1,13 +1,13 @@
 package com.lawzoom.complianceservice.service.documentRequiredService;
 
-import com.lawzoom.complianceservice.dto.documentRequiredDto.CreateDocumentResponseDTO;
-import com.lawzoom.complianceservice.dto.documentRequiredDto.MilestoneDocumentsResponseDTO;
 
-import java.util.Map;
+import com.lawzoom.complianceservice.dto.documentRequiredDto.ComplianceDocumentsResponseDTO;
+import com.lawzoom.complianceservice.dto.documentRequiredDto.CreateDocumentResponseDTO;
 
 public interface DocumentRequiredService {
 
-    CreateDocumentResponseDTO createDocumentRequired(Long milestoneId, String name);
 
-    MilestoneDocumentsResponseDTO getDocumentsByMilestone(Long milestoneId);
+    CreateDocumentResponseDTO createDocumentRequired(Long complianceId, String name);
+
+    ComplianceDocumentsResponseDTO getDocumentsByCompliance(Long complianceId);
 }

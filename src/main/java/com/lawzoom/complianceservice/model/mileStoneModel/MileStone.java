@@ -118,8 +118,6 @@ public class MileStone {
 	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Document> documents = new ArrayList<>();
 
-	@OneToMany(mappedBy = "milestone", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<DocumentRequired> documentRequiredList = new ArrayList<>();
 
 
 }
