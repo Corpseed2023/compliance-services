@@ -24,4 +24,5 @@ public class MilestoneUpdateRequest {
     private Long assignedByUserId;
     private String criticality;
     private String remark;
+    private LocalDate completedDate;
 }

@@ -31,6 +31,8 @@ public class MilestoneRequest {
 
 	private LocalDate dueDate;
 
+	private LocalDate completedDate;
+
 	private LocalDate issuedDate;
 
 	private LocalDate expiryDate;
