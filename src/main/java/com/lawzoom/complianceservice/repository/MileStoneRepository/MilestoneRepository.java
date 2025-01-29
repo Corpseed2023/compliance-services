@@ -65,6 +65,9 @@ public interface MilestoneRepository extends JpaRepository<MileStone, Long> {
 
     // Fetch milestones where the user is an assignee
     Page<MileStone> findByAssigned(User assignee, Pageable pageable);
+    List<MileStone> findByManager(User manager);
+    List<MileStone> findByAssigned(User assigned);
+
 
 
 }

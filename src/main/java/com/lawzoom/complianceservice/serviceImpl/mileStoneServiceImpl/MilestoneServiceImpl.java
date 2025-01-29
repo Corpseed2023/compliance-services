@@ -13,6 +13,7 @@ import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.reminderModel.Reminder;
 import com.lawzoom.complianceservice.model.renewalModel.Renewal;
+import com.lawzoom.complianceservice.model.taskModel.Task;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.*;
@@ -23,6 +24,7 @@ import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitRepository;
 import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
 import com.lawzoom.complianceservice.repository.complianceRepo.ComplianceRepo;
+import com.lawzoom.complianceservice.repository.taskRepo.TaskRepository;
 import com.lawzoom.complianceservice.service.mileStoneService.MilestoneService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -40,6 +42,9 @@ public class MilestoneServiceImpl implements MilestoneService {
 
     @Autowired
     private MilestoneRepository milestoneRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Autowired
     private ComplianceRepo complianceRepository;
@@ -576,6 +581,7 @@ public class MilestoneServiceImpl implements MilestoneService {
     }
 
 
+
     @Override
     public Map<String, Object> fetchUserAllMilestonesAsMap(Long userId, Long subscriberId, Pageable pageable) {
         // Step 1: Validate User and Subscriber
@@ -590,50 +596,81 @@ public class MilestoneServiceImpl implements MilestoneService {
                 .anyMatch(role -> role.getRoleName().equalsIgnoreCase("SUPER_ADMIN"));
         boolean isAdmin = user.getRoles().stream()
                 .anyMatch(role -> role.getRoleName().equalsIgnoreCase("ADMIN"));
-        boolean isUser = user.getRoles().stream()
-                .anyMatch(role -> role.getRoleName().equalsIgnoreCase("USER"));
 
         Page<MileStone> milestonePage;
+        Page<Task> taskPage;
 
-        // Step 3: Fetch Milestones Based on Role
+        // Step 3: Fetch Milestones & Tasks Based on Role
         if (isSuperAdmin || isAdmin) {
-            // Fetch all milestones under the subscriber
+            // Fetch all milestones and tasks for Super Admin & Admin
             milestonePage = milestoneRepository.findBySubscriber(subscriber, pageable);
-        } else if (isUser) {
-            // Fetch milestones where the user is either a manager or assignee
-            List<MileStone> managerMilestones = milestoneRepository.findByManager(user, pageable).getContent();
-            List<MileStone> assignedMilestones = milestoneRepository.findByAssigned(user, pageable).getContent();
-
-            // Combine the two lists, ensuring no duplicates
-            Set<MileStone> combinedMilestones = new HashSet<>();
-            combinedMilestones.addAll(managerMilestones);
-            combinedMilestones.addAll(assignedMilestones);
-
-            // Convert the combined set back to a pageable format
-            List<MileStone> combinedMilestonesList = new ArrayList<>(combinedMilestones);
-            int start = Math.min((int) pageable.getOffset(), combinedMilestonesList.size());
-            int end = Math.min((start + pageable.getPageSize()), combinedMilestonesList.size());
-            List<MileStone> paginatedMilestones = combinedMilestonesList.subList(start, end);
-
-            milestonePage = new PageImpl<>(paginatedMilestones, pageable, combinedMilestonesList.size());
+            taskPage = taskRepository.findByMilestone_Subscriber(subscriber, pageable);
         } else {
-            throw new IllegalArgumentException("Error: Role not supported for this operation!");
+            // Check if the user is a Manager in the milestone table
+            List<MileStone> managerMilestones = milestoneRepository.findByManager(user);
+            List<Task> managerTasks = taskRepository.findByManager(user);
+
+            if (!managerMilestones.isEmpty()) {
+                // User is a manager, fetch all milestones where they are a manager
+                milestonePage = new PageImpl<>(managerMilestones, pageable, managerMilestones.size());
+                taskPage = new PageImpl<>(managerTasks, pageable, managerTasks.size());
+            } else {
+                // If user is not a manager, check if they are assigned in milestones
+                List<MileStone> assignedMilestones = milestoneRepository.findByAssigned(user);
+                List<Task> assignedTasks = taskRepository.findByAssignee(user);
+
+                // Combine milestones assigned to user
+                milestonePage = new PageImpl<>(assignedMilestones, pageable, assignedMilestones.size());
+
+                // Fetch all tasks where user is either assigned directly or in an assigned milestone
+                List<Task> allTasks = new ArrayList<>(assignedTasks);
+
+                // Fetch tasks that belong to the assigned milestones
+                for (MileStone milestone : assignedMilestones) {
+                    List<Task> milestoneTasks = taskRepository.findByMilestone(milestone);
+                    allTasks.addAll(milestoneTasks);
+                }
+
+                // Remove duplicate tasks
+                Set<Task> uniqueTasks = new HashSet<>(allTasks);
+                List<Task> finalTaskList = new ArrayList<>(uniqueTasks);
+                taskPage = new PageImpl<>(finalTaskList, pageable, finalTaskList.size());
+            }
         }
 
-        // Step 4: Map Milestones to Map<String, Object>
+        // Step 4: Prepare the response Map
         Map<String, Object> response = new HashMap<>();
-        response.put("content", milestonePage.stream().map(this::mapToMilestoneMap).toList());
-        response.put("pageNumber", milestonePage.getNumber());
-        response.put("pageSize", milestonePage.getSize());
-        response.put("totalElements", milestonePage.getTotalElements());
-        response.put("totalPages", milestonePage.getTotalPages());
-        response.put("last", milestonePage.isLast());
-        response.put("first", milestonePage.isFirst());
-        response.put("numberOfElements", milestonePage.getNumberOfElements());
-        response.put("empty", milestonePage.isEmpty());
+        response.put("milestones", milestonePage.stream().map(this::mapToMilestoneMap).toList());
+        response.put("tasks", taskPage.stream().map(this::mapToTaskMap).toList());
+
+        // Pagination details for milestones
+        response.put("milestonePageNumber", milestonePage.getNumber());
+        response.put("milestonePageSize", milestonePage.getSize());
+        response.put("totalMilestoneElements", milestonePage.getTotalElements());
+        response.put("totalMilestonePages", milestonePage.getTotalPages());
+        response.put("lastMilestonePage", milestonePage.isLast());
+
+        // Pagination details for tasks
+        response.put("taskPageNumber", taskPage.getNumber());
+        response.put("taskPageSize", taskPage.getSize());
+        response.put("totalTaskElements", taskPage.getTotalElements());
+        response.put("totalTaskPages", taskPage.getTotalPages());
+        response.put("lastTaskPage", taskPage.isLast());
 
         return response;
     }
+
+
+    private Map<String, Object> mapToTaskMap(Task task) {
+        return Map.of(
+                "taskId", task.getId(),
+                "taskName", task.getName(),
+                "status", task.getStatus().getName(),
+                "manager", task.getManager() != null ? task.getManager().getUserName() : null,
+                "assignee", task.getAssignee() != null ? task.getAssignee().getUserName() : null
+        );
+    }
+
 
     private Map<String, Object> mapToMilestoneMap(MileStone milestone) {
         Map<String, Object> milestoneMap = new HashMap<>();
