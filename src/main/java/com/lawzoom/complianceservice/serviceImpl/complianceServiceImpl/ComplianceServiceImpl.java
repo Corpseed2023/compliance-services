@@ -305,8 +305,8 @@ public class ComplianceServiceImpl implements ComplianceService {
                 milestoneResponse.setComplianceId(compliance.getId());
                 milestoneResponse.setManagerId(milestone.getManager() != null ? milestone.getManager().getId() : null);
                 milestoneResponse.setManagerName(milestone.getManager() != null ? milestone.getManager().getUserName() : null);
-                milestoneResponse.setAssignedId(milestone.getAssigned() != null ? milestone.getAssigned().getId() : null);
-                milestoneResponse.setAssignedName(milestone.getAssigned() != null ? milestone.getAssigned().getUserName() : null);
+                milestoneResponse.setAssigneeId(milestone.getAssigned() != null ? milestone.getAssigned().getId() : null);
+                milestoneResponse.setAssigneeName(milestone.getAssigned() != null ? milestone.getAssigned().getUserName() : null);
                 milestoneResponse.setAssignedBy(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getId() : null);
                 milestoneResponse.setAssignedByName(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getUserName() : null);
                 milestoneResponse.setIssuedDate(milestone.getIssuedDate());

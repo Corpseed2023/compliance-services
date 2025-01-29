@@ -76,7 +76,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         User assignedToUser = fetchOptionalUser(milestoneRequest.getAssignee(), "Assigned To");
         User assignedByUser = fetchOptionalUser(milestoneRequest.getAssignedBy(), "Assigned By");
         Subscriber subscriber = fetchSubscriber(milestoneRequest.getSubscriberId());
-        Status status = fetchStatus(milestoneRequest.getStatus());
+        Status status = fetchStatus(milestoneRequest.getStatusId());
 
         // Step 2: Create and Populate Milestone
         MileStone milestone = new MileStone();
