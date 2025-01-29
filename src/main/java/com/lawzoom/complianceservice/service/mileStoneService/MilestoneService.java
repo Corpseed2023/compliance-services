@@ -14,15 +14,15 @@ public interface MilestoneService {
 
     ResponseEntity<Map<String, Object>> createMilestone(MilestoneRequest milestoneRequest);
 
-    List<MilestoneListResponse> fetchAllMilestones(@Valid MilestoneRequestForFetch request);
-
-    MilestoneResponse fetchMilestoneById(Long milestoneId);
-
+//    List<MilestoneListResponse> fetchAllMilestones(@Valid MilestoneRequestForFetch request);
+    
     List<MilestoneResponse> fetchMilestonesByStatus(Long userId, Long subscriberId, String status);
-
-    MilestoneResponse updateMilestoneAssignment(Long milestoneId, Long assignedToId, Long managerId);
 
     MilestoneResponse updateMilestoneStatus(Long milestoneId, Long statusId);
 
     Map<String, Object> fetchUserAllMilestonesAsMap(Long userId, Long subscriberId, Pageable pageable);
+
+    Map<String, Object> updateMilestone(MilestoneUpdateRequest updateRequest);
+
+    Map<String, Object> fetchMilestoneById(Long milestoneId);
 }

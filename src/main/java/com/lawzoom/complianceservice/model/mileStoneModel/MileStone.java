@@ -19,7 +19,6 @@ import org.hibernate.annotations.Comment;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;

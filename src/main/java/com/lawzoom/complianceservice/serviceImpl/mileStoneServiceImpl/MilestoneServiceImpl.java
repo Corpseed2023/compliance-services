@@ -24,6 +24,7 @@ import com.lawzoom.complianceservice.repository.businessRepo.BusinessUnitReposit
 import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
 import com.lawzoom.complianceservice.repository.complianceRepo.ComplianceRepo;
 import com.lawzoom.complianceservice.service.mileStoneService.MilestoneService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -250,169 +251,75 @@ public class MilestoneServiceImpl implements MilestoneService {
     }
 
 
-    @Override
-    public MilestoneResponse fetchMilestoneById(Long milestoneId) {
-        // Step 1: Validate Milestone ID
-        MileStone milestone = milestoneRepository.findById(milestoneId)
-                .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
 
-        // Step 2: Map Milestone Entity to Response DTO
-        MilestoneResponse response = new MilestoneResponse();
-        response.setId(milestone.getId());
-        response.setMileStoneName(milestone.getMileStoneName());
-        response.setDescription(milestone.getDescription());
-        response.setStatusId(milestone.getStatus() != null ? milestone.getStatus().getId() : null);
-        response.setStatus(milestone.getStatus() != null ? milestone.getStatus().getName() : null);
-        response.setCreatedAt(milestone.getCreatedAt());
-        response.setUpdatedAt(milestone.getUpdatedAt());
-        response.setEnable(milestone.isEnable());
-        response.setComplianceId(milestone.getCompliance() != null ? milestone.getCompliance().getId() : null);
-        response.setManagerId(milestone.getManager() != null ? milestone.getManager().getId() : null);
-        response.setManagerName(milestone.getManager() != null ? milestone.getManager().getUserName() : null);
-        response.setAssignedId(milestone.getAssigned() != null ? milestone.getAssigned().getId() : null);
-        response.setAssignedName(milestone.getAssigned() != null ? milestone.getAssigned().getUserName() : null);
-        response.setAssignedBy(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getId() : null);
-        response.setAssignedByName(milestone.getAssignedBy() != null ? milestone.getAssignedBy().getUserName() : null);
-        response.setIssuedDate(milestone.getIssuedDate());
-        response.setStartedDate(milestone.getStartedDate());
-        response.setDueDate(milestone.getDueDate());
-        response.setCompletedDate(milestone.getCompletedDate());
-        response.setCriticality(milestone.getCriticality());
-        response.setRemark(milestone.getRemark());
-        response.setBusinessUnitId(milestone.getBusinessUnit() != null ? milestone.getBusinessUnit().getId() : null);
-        response.setSubscriberId(milestone.getSubscriber() != null ? milestone.getSubscriber().getId() : null);
-        response.setExpiryDate(milestone.getExpiryDate());
-
-        // Step 3: Map Reminder Details to ReminderDetails DTO
-        List<MilestoneResponse.ReminderDetails> reminderDetails = milestone.getReminders().stream().map(reminder -> {
-            MilestoneResponse.ReminderDetails remDetails = new MilestoneResponse.ReminderDetails();
-            remDetails.setId(reminder.getId());
-            remDetails.setReminderDate(reminder.getReminderDate());
-            remDetails.setReminderEndDate(reminder.getReminderEndDate());
-            remDetails.setNotificationTimelineValue(reminder.getNotificationTimelineValue());
-            remDetails.setRepeatTimelineValue(reminder.getRepeatTimelineValue());
-            remDetails.setRepeatTimelineType(reminder.getRepeatTimelineType());
-
-            return remDetails;
-        }).toList();
-        response.setReminders(reminderDetails);
-
-        // Step 4: Map Renewal Details to RenewalDetails DTO
-// Step 4: Map Renewal Details to RenewalDetails DTO
-        List<MilestoneResponse.RenewalDetails> renewalDetails = milestone.getRenewals().stream().map(renewal -> {
-            MilestoneResponse.RenewalDetails renDetails = new MilestoneResponse.RenewalDetails();
-            renDetails.setId(renewal.getId());
-            renDetails.setIssuedDate(renewal.getIssuedDate());
-            renDetails.setExpiryDate(renewal.getExpiryDate());
-            renDetails.setReminderDurationType(renewal.getReminderDurationType().toString()); // Convert enum to String
-            renDetails.setReminderDurationValue(renewal.getReminderDurationValue());
-            renDetails.setRenewalNotes(renewal.getRenewalNotes());
-            renDetails.setNotificationsEnabled(renewal.isNotificationsEnabled());
-            renDetails.setReminderFrequency(renewal.getReminderFrequency());
-            renDetails.setReminderStartDate(renewal.getReminderStartDate()); // Map new field
-            renDetails.setRenewalDate(renewal.getRenewalDate()); // Map new field
-            renDetails.setReminderSent(renewal.isReminderSent()); // Map new field
-            return renDetails;
-        }).toList();
-        response.setRenewals(renewalDetails);
-
-        // Step 5: Map Document Details to DocumentDetails DTO
-        List<MilestoneResponse.DocumentDetails> documentDetails = milestone.getDocuments().stream().map(document -> {
-            MilestoneResponse.DocumentDetails docDetails = new MilestoneResponse.DocumentDetails();
-            docDetails.setId(document.getId());
-            docDetails.setDocumentName(document.getDocumentName());
-            docDetails.setFileName(document.getFile());
-            docDetails.setIssueDate(document.getIssueDate());
-            docDetails.setReferenceNumber(document.getReferenceNumber());
-            docDetails.setRemarks(document.getRemarks());
-            docDetails.setUploadDate(document.getUploadDate());
-            return docDetails;
-        }).toList();
-        response.setDocuments(documentDetails);
-
-        // Step 6: Map Comments to CommentDetails DTO
-        List<CommentDetails> commentDetails = milestone.getMileStoneComments().stream().map(comment -> {
-            CommentDetails commDetails = new CommentDetails();
-            commDetails.setId(comment.getId());
-            commDetails.setCommentText(comment.getCommentText());
-            commDetails.setUserId(comment.getUser() != null ? comment.getUser().getId() : null);
-            commDetails.setUserName(comment.getUser() != null ? comment.getUser().getUserName() : null);
-            commDetails.setCreatedAt(comment.getCreatedAt());
-            return commDetails;
-        }).toList();
-        response.setComments(commentDetails);
-
-        return response;
-    }
-
-    @Override
-    public List<MilestoneListResponse> fetchAllMilestones(MilestoneRequestForFetch request) {
-        // Step 1: Validate Subscriber
-        Subscriber subscriber = subscriberRepository.findById(request.getSubscriberId())
-                .orElseThrow(() -> new NotFoundException("Subscriber not found with ID: " + request.getSubscriberId()));
-
-        // Step 2: Fetch Milestones
-        List<MileStone> milestones;
-        if (isSuperAdmin(request.getUserId())) {
-            // Case 1: User is SUPER_ADMIN
-            milestones = milestoneRepository.findMilestonesBySubscriber(subscriber.getId());
-        } else {
-            // Case 2: User is USER
-            User user = userRepository.findById(request.getUserId())
-                    .orElseThrow(() -> new NotFoundException("User not found with ID: " + request.getUserId()));
-
-            milestones = milestoneRepository.findMilestonesBySubscriberAndAssignedTo(subscriber.getId(), user.getId());
-        }
-
-        // Step 3: Map milestones to response DTOs manually
-        List<MilestoneListResponse> milestoneResponses = new ArrayList<>();
-
-        for (MileStone milestone : milestones) {
-            MilestoneListResponse response = new MilestoneListResponse();
-
-            response.setId(milestone.getId());
-            response.setMileStoneName(milestone.getMileStoneName());
-            response.setDescription(milestone.getDescription());
-            response.setStatusId(milestone.getStatus().getId());
-            response.setStatus(milestone.getStatus().getName());
-            response.setCreatedAt(milestone.getCreatedAt());
-            response.setUpdatedAt(milestone.getUpdatedAt());
-            response.setEnable(milestone.isEnable());
-            response.setComplianceId(milestone.getCompliance().getId());
-            response.setBusinessUnitId(milestone.getBusinessUnit().getId());
-            response.setSubscriberId(subscriber.getId());
-
-            // Manually set manager details
-            if (milestone.getManager() != null) {
-                response.setManagerId(milestone.getManager().getId());
-                response.setManagerName(milestone.getManager().getUserName());
-            }
-
-            // Manually set assigned user details
-            if (milestone.getAssigned() != null) {
-                response.setAssignedId(milestone.getAssigned().getId());
-                response.setAssignedName(milestone.getAssigned().getUserName());
-            }
-
-            // Manually set the user who assigned the task
-            if (milestone.getAssignedBy() != null) {
-                response.setAssignedBy(milestone.getAssignedBy().getId());
-                response.setAssignedByName(milestone.getAssignedBy().getUserName());
-            }
-
-            response.setIssuedDate(milestone.getIssuedDate());
-            response.setStartedDate(milestone.getStartedDate());
-            response.setDueDate(milestone.getDueDate());
-            response.setCompletedDate(milestone.getCompletedDate());
-            response.setCriticality(milestone.getCriticality());
-            response.setRemark(milestone.getRemark());
-
-            // Add to the list
-            milestoneResponses.add(response);
-        }
-
-        return milestoneResponses;
-    }
+//    @Override
+//    public List<MilestoneListResponse> fetchAllMilestones(MilestoneRequestForFetch request) {
+//        // Step 1: Validate Subscriber
+//        Subscriber subscriber = subscriberRepository.findById(request.getSubscriberId())
+//                .orElseThrow(() -> new NotFoundException("Subscriber not found with ID: " + request.getSubscriberId()));
+//
+//        // Step 2: Fetch Milestones
+//        List<MileStone> milestones;
+//        if (isSuperAdmin(request.getUserId())) {
+//            // Case 1: User is SUPER_ADMIN
+//            milestones = milestoneRepository.findMilestonesBySubscriber(subscriber.getId());
+//        } else {
+//            // Case 2: User is USER
+//            User user = userRepository.findById(request.getUserId())
+//                    .orElseThrow(() -> new NotFoundException("User not found with ID: " + request.getUserId()));
+//
+//            milestones = milestoneRepository.findMilestonesBySubscriberAndAssignedTo(subscriber.getId(), user.getId());
+//        }
+//
+//        // Step 3: Map milestones to response DTOs manually
+//        List<MilestoneListResponse> milestoneResponses = new ArrayList<>();
+//
+//        for (MileStone milestone : milestones) {
+//            MilestoneListResponse response = new MilestoneListResponse();
+//
+//            response.setId(milestone.getId());
+//            response.setMileStoneName(milestone.getMileStoneName());
+//            response.setDescription(milestone.getDescription());
+//            response.setStatusId(milestone.getStatus().getId());
+//            response.setStatus(milestone.getStatus().getName());
+//            response.setCreatedAt(milestone.getCreatedAt());
+//            response.setUpdatedAt(milestone.getUpdatedAt());
+//            response.setEnable(milestone.isEnable());
+//            response.setComplianceId(milestone.getCompliance().getId());
+//            response.setBusinessUnitId(milestone.getBusinessUnit().getId());
+//            response.setSubscriberId(subscriber.getId());
+//
+//            // Manually set manager details
+//            if (milestone.getManager() != null) {
+//                response.setManagerId(milestone.getManager().getId());
+//                response.setManagerName(milestone.getManager().getUserName());
+//            }
+//
+//            // Manually set assigned user details
+//            if (milestone.getAssigned() != null) {
+//                response.setAssignedId(milestone.getAssigned().getId());
+//                response.setAssignedName(milestone.getAssigned().getUserName());
+//            }
+//
+//            // Manually set the user who assigned the task
+//            if (milestone.getAssignedBy() != null) {
+//                response.setAssignedBy(milestone.getAssignedBy().getId());
+//                response.setAssignedByName(milestone.getAssignedBy().getUserName());
+//            }
+//
+//            response.setIssuedDate(milestone.getIssuedDate());
+//            response.setStartedDate(milestone.getStartedDate());
+//            response.setDueDate(milestone.getDueDate());
+//            response.setCompletedDate(milestone.getCompletedDate());
+//            response.setCriticality(milestone.getCriticality());
+//            response.setRemark(milestone.getRemark());
+//
+//            // Add to the list
+//            milestoneResponses.add(response);
+//        }
+//
+//        return milestoneResponses;
+//    }
 
 
     private MilestoneResponse mapToMilestoneResponseWithDetails(MileStone milestone) {
@@ -588,32 +495,62 @@ public class MilestoneServiceImpl implements MilestoneService {
         return responses;
     }
 
-
     @Override
-    public MilestoneResponse updateMilestoneAssignment(Long milestoneId, Long assignedToId, Long managerId) {
-        // Validate Milestone
-        MileStone milestone = milestoneRepository.findById(milestoneId)
-                .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
+    @Transactional
+    public Map<String, Object> updateMilestone(MilestoneUpdateRequest updateRequest) {
+        // Step 1: Fetch the existing milestone
+        MileStone milestone = milestoneRepository.findById(updateRequest.getMilestoneId())
+                .orElseThrow(() -> new EntityNotFoundException("Milestone not found"));
 
-        // Validate Assigned To User
-        User assignedTo = userRepository.findById(assignedToId)
-                .orElseThrow(() -> new NotFoundException("Assigned To user not found with ID: " + assignedToId));
+        // Step 2: Update required fields
+        if (updateRequest.getMileStoneName() != null) {
+            milestone.setMileStoneName(updateRequest.getMileStoneName());
+        }
+        if (updateRequest.getDescription() != null) {
+            milestone.setDescription(updateRequest.getDescription());
+        }
+        if (updateRequest.getDueDate() != null) {
+            milestone.setDueDate(updateRequest.getDueDate());
+        }
+        if (updateRequest.getStatusId() != null) {
+            Status status = statusRepository.findById(updateRequest.getStatusId())
+                    .orElseThrow(() -> new EntityNotFoundException("Status not found"));
+            milestone.setStatus(status);
+        }
+        if (updateRequest.getAssignedToUserId() != null) {
+            User assignedUser = userRepository.findById(updateRequest.getAssignedToUserId())
+                    .orElseThrow(() -> new EntityNotFoundException("Assigned user not found"));
+            milestone.setAssigned(assignedUser);
+        }
+        if (updateRequest.getAssignedByUserId() != null) {
+            User assignedByUser = userRepository.findById(updateRequest.getAssignedByUserId())
+                    .orElseThrow(() -> new EntityNotFoundException("Assigned by user not found"));
+            milestone.setAssignedBy(assignedByUser);
+        }
+        if (updateRequest.getCriticality() != null) {
+            milestone.setCriticality(updateRequest.getCriticality());
+        }
+        if (updateRequest.getRemark() != null) {
+            milestone.setRemark(updateRequest.getRemark());
+        }
 
-        // Validate Task Reporter
-        User mileStoneManager = userRepository.findById(managerId)
-                .orElseThrow(() -> new NotFoundException("Manager not found with ID: " + managerId));
+        // Step 3: Save updated milestone
+        milestone = milestoneRepository.save(milestone);
 
-        // Update Fields
-        milestone.setAssigned(assignedTo);
-        milestone.setManager(mileStoneManager);
-        milestone.setUpdatedAt(new Date());
-
-        // Save Updated Milestone
-        MileStone updatedMilestone = milestoneRepository.save(milestone);
-
-        // Map to Response DTO
-        return mapToMilestoneResponseWithDetails(updatedMilestone);
+        return Map.of(
+                "message", "Milestone updated successfully",
+                "milestoneId", milestone.getId(),
+                "mileStoneName", milestone.getMileStoneName(),
+                "description", milestone.getDescription(),
+                "dueDate", milestone.getDueDate(),
+                "status", milestone.getStatus().getName(),
+                "assignedTo", milestone.getAssigned() != null ? milestone.getAssigned().getUserName() : null,
+                "assignedBy", milestone.getAssignedBy() != null ? milestone.getAssignedBy().getUserName() : null,
+                "criticality", milestone.getCriticality(),
+                "remark", milestone.getRemark()
+        );
     }
+
 
 
     @Override
@@ -636,6 +573,8 @@ public class MilestoneServiceImpl implements MilestoneService {
         // Map Updated Milestone to Response
         return mapToMilestoneResponseWithDetails(updatedMilestone);
     }
+
+
     @Override
     public Map<String, Object> fetchUserAllMilestonesAsMap(Long userId, Long subscriberId, Pageable pageable) {
         // Step 1: Validate User and Subscriber
@@ -719,6 +658,92 @@ public class MilestoneServiceImpl implements MilestoneService {
         milestoneMap.put("managerName", milestone.getManager() != null ? milestone.getManager().getUserName() : null);
 
         return milestoneMap;
+    }
+
+
+    @Override
+    public Map<String, Object> fetchMilestoneById(Long milestoneId) {
+        // Step 1: Fetch milestone
+        MileStone milestone = milestoneRepository.findById(milestoneId)
+                .orElseThrow(() -> new EntityNotFoundException("Milestone not found"));
+
+        // Step 2: Prepare response
+        Map<String, Object> response = new HashMap<>();
+        response.put("milestoneId", milestone.getId());
+        response.put("mileStoneName", milestone.getMileStoneName());
+        response.put("description", milestone.getDescription());
+        response.put("startedDate", milestone.getStartedDate());
+        response.put("dueDate", milestone.getDueDate());
+        response.put("completedDate", milestone.getCompletedDate());
+        response.put("issuedDate", milestone.getIssuedDate());
+        response.put("expiryDate", milestone.getExpiryDate());
+        response.put("criticality", milestone.getCriticality());
+        response.put("remark", milestone.getRemark());
+        response.put("status", milestone.getStatus() != null ? milestone.getStatus().getName() : null);
+        response.put("businessUnit", milestone.getBusinessUnit() != null ? milestone.getBusinessUnit().getBusinessActivity().getBusinessActivityName() : null);
+        response.put("businessActivity", milestone.getBusinessActivity() != null ? milestone.getBusinessActivity().getBusinessActivityName() : null);
+        response.put("compliance", milestone.getCompliance() != null ? milestone.getCompliance().getComplianceName() : null);
+        response.put("subscriber", milestone.getSubscriber() != null ? milestone.getSubscriber() : null);
+        response.put("createdAt", milestone.getCreatedAt());
+        response.put("updatedAt", milestone.getUpdatedAt());
+
+        // Step 3: Fetch related entities
+        response.put("manager", milestone.getManager() != null ? milestone.getManager().getUserName() : null);
+        response.put("assignedTo", milestone.getAssigned() != null ? milestone.getAssigned().getUserName() : null);
+        response.put("assignedBy", milestone.getAssignedBy() != null ? milestone.getAssignedBy().getUserName() : null);
+
+        // Step 4: Fetch Comments
+        response.put("comments", milestone.getMileStoneComments().stream()
+                .map(comment -> Map.of(
+                        "commentId", comment.getId(),
+                        "commentText", comment.getCommentText(),
+                        "commentedBy", comment.getUser().getUserName(),
+                        "createdAt", comment.getCreatedAt()))
+                .toList());
+
+        // Step 5: Fetch Tasks
+        response.put("tasks", milestone.getTasks().stream()
+                .map(task -> Map.of(
+                        "taskId", task.getId(),
+                        "taskName", task.getName(),
+                        "status", task.getStatus().getName(),
+                        "assignee", task.getAssignee() != null ? task.getAssignee().getUserName() : null))
+                .toList());
+
+        // Step 6: Fetch Documents
+        response.put("documents", milestone.getDocuments().stream()
+                .map(document -> Map.of(
+                        "documentId", document.getId(),
+                        "documentName", document.getDocumentName(),
+                        "fileURL", document.getFileURL(),
+                        "uploadedBy", document.getAddedBy() != null ? document.getAddedBy().getUserName() : null,
+                        "uploadDate", document.getUploadDate()))
+                .toList());
+
+        // Step 7: Fetch Reminders
+        response.put("reminders", milestone.getReminders().stream()
+                .map(reminder -> Map.of(
+                        "reminderId", reminder.getId(),
+                        "reminderDate", reminder.getReminderDate(),
+                        "reminderEndDate", reminder.getReminderEndDate(),
+                        "createdBy", reminder.getCreatedBy().getUserName(),
+                        "repeatTimelineType", reminder.getRepeatTimelineType(),
+                        "repeatTimelineValue", reminder.getRepeatTimelineValue()))
+                .toList());
+
+        // Step 8: Fetch Renewals
+        response.put("renewals", milestone.getRenewals().stream()
+                .map(renewal -> Map.of(
+                        "renewalId", renewal.getId(),
+                        "issuedDate", renewal.getIssuedDate(),
+                        "expiryDate", renewal.getExpiryDate(),
+                        "renewalDate", renewal.getRenewalDate(),
+                        "reminderDurationValue", renewal.getReminderDurationValue(),
+                        "reminderStartDate", renewal.getReminderStartDate(),
+                        "subscriber", renewal.getSubscriber()))
+                .toList());
+
+        return response;
     }
 
 
