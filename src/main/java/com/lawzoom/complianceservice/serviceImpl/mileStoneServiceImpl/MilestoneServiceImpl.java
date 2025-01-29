@@ -160,6 +160,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         milestone.setStatus(status);
         milestone.setSubscriber(subscriber);
         milestone.setRemark(milestoneRequest.getRemark());
+        milestone.setCompletedDate(milestoneRequest.getCompletedDate());
     }
 
 
