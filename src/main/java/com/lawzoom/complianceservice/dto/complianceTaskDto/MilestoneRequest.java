@@ -43,7 +43,7 @@ public class MilestoneRequest {
 
 	private String criticality;
 
-	private Long status;
+	private Long statusId;
 
 	private Long subscriberId;
 

@@ -27,8 +27,8 @@ public class ComplianceMilestoneResponse {
     private Long complianceId;
     private Long managerId;
     private String managerName;
-    private Long assignedId;
-    private String assignedName;
+    private Long assigneeId;
+    private String assigneeName;
     private Long assignedBy;
     private String assignedByName;
     private LocalDate issuedDate;

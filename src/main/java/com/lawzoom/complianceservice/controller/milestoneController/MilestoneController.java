@@ -4,7 +4,6 @@ package com.lawzoom.complianceservice.controller.milestoneController;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.*;
 import com.lawzoom.complianceservice.service.mileStoneService.MilestoneService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
