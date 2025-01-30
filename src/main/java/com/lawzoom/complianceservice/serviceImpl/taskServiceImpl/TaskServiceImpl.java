@@ -14,21 +14,20 @@ import com.lawzoom.complianceservice.model.reminderModel.TaskReminder;
 import com.lawzoom.complianceservice.model.renewalModel.Renewal;
 import com.lawzoom.complianceservice.model.renewalModel.TaskRenewal;
 import com.lawzoom.complianceservice.model.taskModel.Task;
+import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
-import com.lawzoom.complianceservice.repository.DocumentRepository;
+import com.lawzoom.complianceservice.repository.*;
 import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRepository;
-import com.lawzoom.complianceservice.repository.StatusRepository;
-import com.lawzoom.complianceservice.repository.TaskReminderRepository;
-import com.lawzoom.complianceservice.repository.TaskRenewalRepository;
 import com.lawzoom.complianceservice.repository.taskRepo.TaskRepository;
 import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.service.taskService.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -47,6 +46,10 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     private TaskReminderRepository taskReminderRepository;
+
+    @Autowired
+
+    private SubscriberRepository subscriberRepository;
 
     @Autowired
     private TaskRenewalRepository taskRenewalRepository;
@@ -178,7 +181,7 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
 
         // Fetch Tasks
-        List<Task> tasks = taskRepository.findByMilestone(milestone);
+        List<Task> tasks = taskRepository.findByMilestone(milestone.getId());
 
         // Map Tasks to Response DTOs manually
         List<TaskListResponse> responses = new ArrayList<>();
@@ -251,7 +254,75 @@ public class TaskServiceImpl implements TaskService {
         return response;
     }
 
+    @Override
+    public Map<String, Object> fetchAllTask(Long userId, Long subscriberId, Pageable pageable) {
+        // Validate User
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
 
+        // Validate Subscriber
+        Subscriber subscriber = subscriberRepository.findById(subscriberId)
+                .orElseThrow(() -> new IllegalArgumentException("Subscriber not found with ID: " + subscriberId));
+
+        // Determine User Role
+        boolean isSuperAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getRoleName().equalsIgnoreCase("SUPER_ADMIN"));
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getRoleName().equalsIgnoreCase("ADMIN"));
+
+        Page<Task> taskPage;
+
+        if (isSuperAdmin || isAdmin) {
+            // Fetch all tasks for SUPER_ADMIN or ADMIN
+            taskPage = taskRepository.findBySubscriber(subscriber, pageable);
+        } else {
+            // Fetch tasks where the user is a Manager
+            List<Task> managerTasks = taskRepository.findByManager(user);
+
+            // Fetch tasks where the user is an Assignee
+            List<Task> assigneeTasks = taskRepository.findByAssignee(user);
+
+            // Combine both lists and create a Page object manually
+            List<Task> combinedTasks = new ArrayList<>();
+            combinedTasks.addAll(managerTasks);
+            combinedTasks.addAll(assigneeTasks);
+
+            // Convert to paginated result
+            int start = Math.min((int) pageable.getOffset(), combinedTasks.size());
+            int end = Math.min(start + pageable.getPageSize(), combinedTasks.size());
+            taskPage = new PageImpl<>(combinedTasks.subList(start, end), pageable, combinedTasks.size());
+        }
+
+        // Prepare response map
+        Map<String, Object> response = new HashMap<>();
+        response.put("tasks", taskPage.stream().map(this::mapToTaskResponse).toList());
+        response.put("currentPage", taskPage.getNumber());
+        response.put("totalItems", taskPage.getTotalElements());
+        response.put("totalPages", taskPage.getTotalPages());
+        response.put("isLastPage", taskPage.isLast());
+
+        return response;
+    }
+
+    private TaskListResponse mapToTaskResponse(Task task) {
+        TaskListResponse response = new TaskListResponse();
+        response.setId(task.getId());
+        response.setName(task.getName());
+        response.setDescription(task.getDescription());
+        response.setStatus(task.getStatus().getName());
+        response.setStartDate(task.getStartDate());
+        response.setDueDate(task.getDueDate());
+        response.setCompletedDate(task.getCompletedDate());
+        response.setCriticality(task.getCriticality());
+        response.setManagerId(task.getManager() != null ? task.getManager().getId() : null);
+        response.setManagerName(task.getManager() != null ? task.getManager().getUserName() : null);
+        response.setAssigneeUserId(task.getAssignee() != null ? task.getAssignee().getId() : null);
+        response.setAssigneeUserName(task.getAssignee() != null ? task.getAssignee().getUserName() : null);
+        response.setMilestoneId(task.getMilestone().getId());
+        response.setMilestoneName(task.getMilestone().getMileStoneName());
+        response.setRemark(task.getRemark());
+        return response;
+    }
 
 }
 

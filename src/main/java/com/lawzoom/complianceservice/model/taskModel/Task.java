@@ -6,6 +6,7 @@ import com.lawzoom.complianceservice.model.documentModel.Document;
 import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.reminderModel.TaskReminder;
 import com.lawzoom.complianceservice.model.renewalModel.TaskRenewal;
+import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -73,6 +74,12 @@ public class Task {
 	private User assignee;
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "assigned_by", nullable = true)
+	private User assignedBy;
+
+
+
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "created_by_user_id", nullable = true)
 	private User createdByUser;
 
@@ -95,6 +102,11 @@ public class Task {
 
 	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TaskRenewal> taskRenewals = new ArrayList<>();
+
+	@ManyToOne
+	@JoinColumn(name = "subscriber_id", nullable = false)
+	private Subscriber subscriber;
+
 
 	@PrePersist
 	protected void onCreate() {
