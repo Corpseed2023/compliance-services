@@ -36,4 +36,5 @@ public class TaskRequest {
 
     private List<DocumentRequest> documents; // New field for task documents
     private String comments;
+    private Long subscriberId;
 }

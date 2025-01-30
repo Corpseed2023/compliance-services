@@ -58,6 +58,7 @@ public class TaskServiceImpl implements TaskService {
     private DocumentRepository documentRepository;
 
 
+
     @Override
     public TaskListResponse createTask(TaskRequest taskRequest, Long userId) {
 
@@ -83,6 +84,9 @@ public class TaskServiceImpl implements TaskService {
         Status status = statusRepository.findById(taskRequest.getStatusId())
                 .orElseThrow(() -> new NotFoundException("Status not found with ID: " + taskRequest.getStatusId()));
 
+       Subscriber subscriber= subscriberRepository.findById(taskRequest.getSubscriberId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + taskRequest.getSubscriberId()));
+
         // Create and save the task
         Task task = new Task();
         task.setName(taskRequest.getName());
@@ -97,6 +101,7 @@ public class TaskServiceImpl implements TaskService {
         task.setCreatedByUser(createdBy);
         task.setRemark(taskRequest.getRemark());
         task.setEnable(true); // New field
+        task.setSubscriber(subscriber);
 
         Task savedTask = taskRepository.save(task);
 
