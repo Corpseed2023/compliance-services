@@ -1,15 +1,18 @@
 package com.lawzoom.complianceservice.dto.renewalDto;
 
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDate;
 
-@Data
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class RenewalResponse {
 
     private Long id;
 
-    private Long milestoneId; // Optional, for milestone-related renewals
+    private Long milestoneId;
 
     private LocalDate issuedDate;
 

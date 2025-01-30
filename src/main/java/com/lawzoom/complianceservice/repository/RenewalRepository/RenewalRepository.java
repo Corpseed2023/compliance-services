@@ -21,8 +21,5 @@ public interface RenewalRepository extends JpaRepository<Renewal, Long> {
                                              @Param("userId") Long userId);
 
 
-
-
-
-
+    List<Renewal> findByUserId(Long userId);
 }

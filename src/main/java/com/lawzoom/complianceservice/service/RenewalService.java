@@ -19,4 +19,6 @@ public interface RenewalService {
     RenewalResponse getRenewalById(Long renewalId);
 
     MilestoneRenewalResponse updateMilestoneRenewal(Long renewalId, RenewalRequest renewalRequest, Long mileStoneId);
+
+    List<RenewalResponse> fetchAllRenewals(Long userid);
 }

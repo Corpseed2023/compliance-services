@@ -46,7 +46,7 @@ public class RenewalController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/milestone")
+    @GetMapping("/milestone-renewal")
     public ResponseEntity<List<RenewalResponse>> getRenewalsByMilestoneId(
             @RequestParam Long userid,
             @RequestParam Long milestoneId) {
@@ -57,6 +57,12 @@ public class RenewalController {
 
 
 
+    @GetMapping("/all-milestones")
+    public ResponseEntity<List<RenewalResponse>> getAllMileStone(@RequestParam Long userid) {
+
+        List<RenewalResponse> responses = renewalService.fetchAllRenewals(userid);
+        return ResponseEntity.ok(responses);
+    }
 
 }
 

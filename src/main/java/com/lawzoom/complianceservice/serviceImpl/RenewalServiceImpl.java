@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class RenewalServiceImpl implements RenewalService {
@@ -39,7 +40,7 @@ public class RenewalServiceImpl implements RenewalService {
     private UserRepository userRepository;
 
     @Override
-    public MilestoneRenewalResponse createMilestoneRenewal(Long milestoneId, RenewalRequest request) {
+    public MilestoneRenewalResponse  createMilestoneRenewal(Long milestoneId, RenewalRequest request) {
         // Validate Milestone
         MileStone milestone = milestoneRepository.findById(milestoneId)
                 .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
@@ -165,9 +166,40 @@ public class RenewalServiceImpl implements RenewalService {
                 .map(this::mapToRenewalResponse)
                 .toList();
     }
-
     @Override
     public RenewalResponse getRenewalById(Long renewalId) {
         return null;
     }
+
+
+    @Override
+    public List<RenewalResponse> fetchAllRenewals(Long userId) {
+        // ✅ Fetch the user details
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
+
+        List<Renewal> renewals;
+
+        // ✅ Check if the user is SUPER ADMIN or ADMIN
+        boolean isSuperAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getRoleName().equalsIgnoreCase("SUPER_ADMIN"));
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getRoleName().equalsIgnoreCase("ADMIN"));
+
+        if (isSuperAdmin || isAdmin) {
+            // ✅ Fetch ALL renewals
+            renewals = renewalRepository.findAll();
+        } else {
+            // ✅ Fetch only renewals where the user is assigned
+            renewals = renewalRepository.findByUserId(userId);
+        }
+
+        // ✅ Convert renewals to response DTOs
+        return renewals.stream()
+                .map(this::mapToRenewalResponse)
+                .collect(Collectors.toList());
+    }
+
+
+
 }

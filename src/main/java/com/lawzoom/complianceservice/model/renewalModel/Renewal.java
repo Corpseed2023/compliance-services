@@ -42,7 +42,6 @@ public class Renewal {
 
     private LocalDate renewalDate;
 
-
     @Enumerated(EnumType.STRING)
     @NotNull
     @Comment(value = "Type of duration for reminder (DAYS, WEEKS, MONTHS, YEARS)")
