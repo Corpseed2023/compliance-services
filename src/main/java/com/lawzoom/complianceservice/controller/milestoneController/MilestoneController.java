@@ -103,7 +103,7 @@ public class MilestoneController {
             Pageable pageable = PageRequest.of(adjustedPage, size);
 
             // Fetch milestones with pagination
-            Map<String, Object> response = milestoneService.fetchUserAllMilestonesAsMap(userId, subscriberId, pageable);
+            Map<String, Object> response = milestoneService.fetchUserAllMilestones(userId, subscriberId, pageable);
 
             // Return the response as Map
             return ResponseEntity.ok(response);

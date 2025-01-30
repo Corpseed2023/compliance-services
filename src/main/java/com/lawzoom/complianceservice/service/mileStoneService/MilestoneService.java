@@ -20,7 +20,7 @@ public interface MilestoneService {
 
     MilestoneResponse updateMilestoneStatus(Long milestoneId, Long statusId);
 
-    Map<String, Object> fetchUserAllMilestonesAsMap(Long userId, Long subscriberId, Pageable pageable);
+    Map<String, Object> fetchUserAllMilestones(Long userId, Long subscriberId, Pageable pageable);
 
     Map<String, Object> updateMilestone(MilestoneUpdateRequest updateRequest);
 
