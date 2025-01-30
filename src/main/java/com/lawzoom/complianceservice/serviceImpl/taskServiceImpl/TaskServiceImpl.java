@@ -115,9 +115,6 @@ public class TaskServiceImpl implements TaskService {
             }
         }
 
-
-
-        // Save TaskReminders
         if (taskRequest.getReminders() != null && !taskRequest.getReminders().isEmpty()) {
             for (TaskReminderRequest reminderRequest : taskRequest.getReminders()) {
                 TaskReminder taskReminder = new TaskReminder();
@@ -133,24 +130,6 @@ public class TaskServiceImpl implements TaskService {
             }
         }
 
-        // Save TaskRenewals
-        if (taskRequest.getRenewals() != null && !taskRequest.getRenewals().isEmpty()) {
-            for (TaskRenewalRequest renewalRequest : taskRequest.getRenewals()) {
-                TaskRenewal taskRenewal = new TaskRenewal();
-                taskRenewal.setTask(savedTask);
-                taskRenewal.setUser(createdBy);
-                taskRenewal.setIssuedDate(renewalRequest.getIssuedDate());
-                taskRenewal.setExpiryDate(renewalRequest.getExpiryDate());
-                taskRenewal.setRenewalDate(renewalRequest.getRenewalDate());
-                taskRenewal.setReminderDurationType(Renewal.ReminderDurationType.valueOf(renewalRequest.getReminderDurationType().toUpperCase()));
-                taskRenewal.setReminderDurationValue(renewalRequest.getReminderDurationValue());
-                taskRenewal.setRenewalNotes(renewalRequest.getRenewalNotes());
-                taskRenewal.setNotificationsEnabled(renewalRequest.isNotificationsEnabled());
-                taskRenewal.setCertificateTypeDuration(Renewal.ReminderDurationType.valueOf(renewalRequest.getCertificateTypeDuration().toUpperCase()));
-                taskRenewal.setCertificateDurationValue(renewalRequest.getCertificateDurationValue());
-                taskRenewalRepository.save(taskRenewal);
-            }
-        }
 
         // Map and return the response
         return mapTaskToResponse(savedTask);

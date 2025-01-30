@@ -28,13 +28,9 @@ public class TaskRequest {
     private String remark;
     private Boolean isEnable = true; // New field
 
-    // List of reminders associated with the task
     private List<TaskReminderRequest> reminders;
 
-    // List of renewals associated with the task
-    private List<TaskRenewalRequest> renewals;
-
-    private List<DocumentRequest> documents; // New field for task documents
+    private List<DocumentRequest> documents;
     private String comments;
     private Long subscriberId;
 }

@@ -15,10 +15,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class TaskReminderRequest {
 
-    @NotNull(message = "Reminder Date is required")
     private LocalDate reminderDate;
 
-    @NotNull(message = "Reminder End Date is required")
     private LocalDate reminderEndDate;
 
     @Min(value = 0, message = "Notification timeline value must not be negative")
@@ -27,7 +25,6 @@ public class TaskReminderRequest {
     @Min(value = 0, message = "Repeat timeline value must not be negative")
     private int repeatTimelineValue;
 
-    @NotNull(message = "Repeat Timeline Type is required")
     private String repeatTimelineType;
 
     private int stopFlag = 1;

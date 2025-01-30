@@ -100,9 +100,6 @@ public class Task {
 	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TaskReminder> taskReminders = new ArrayList<>();
 
-	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<TaskRenewal> taskRenewals = new ArrayList<>();
-
 	@ManyToOne
 	@JoinColumn(name = "subscriber_id", nullable = false)
 	private Subscriber subscriber;
