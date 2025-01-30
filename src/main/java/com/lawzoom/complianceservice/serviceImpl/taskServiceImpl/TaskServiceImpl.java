@@ -84,7 +84,7 @@ public class TaskServiceImpl implements TaskService {
         Status status = statusRepository.findById(taskRequest.getStatusId())
                 .orElseThrow(() -> new NotFoundException("Status not found with ID: " + taskRequest.getStatusId()));
 
-       Subscriber subscriber= subscriberRepository.findById(taskRequest.getSubscriberId())
+        Subscriber subscriber = subscriberRepository.findById(taskRequest.getSubscriberId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid subscriberId: " + taskRequest.getSubscriberId()));
 
         // Create and save the task
@@ -100,12 +100,12 @@ public class TaskServiceImpl implements TaskService {
         task.setAssignee(assignee);
         task.setCreatedByUser(createdBy);
         task.setRemark(taskRequest.getRemark());
-        task.setEnable(true); // New field
+        task.setEnable(true);
         task.setSubscriber(subscriber);
 
         Task savedTask = taskRepository.save(task);
 
-        // Save Documents
+        // ✅ Handle optional documents
         if (taskRequest.getDocuments() != null && !taskRequest.getDocuments().isEmpty()) {
             for (DocumentRequest documentRequest : taskRequest.getDocuments()) {
                 Document document = new Document();
@@ -115,8 +115,14 @@ public class TaskServiceImpl implements TaskService {
             }
         }
 
+        // ✅ Handle optional reminders
         if (taskRequest.getReminders() != null && !taskRequest.getReminders().isEmpty()) {
             for (TaskReminderRequest reminderRequest : taskRequest.getReminders()) {
+                // ✅ Ensure reminder fields are valid before saving
+                if (reminderRequest.getReminderDate() == null || reminderRequest.getReminderEndDate() == null) {
+                    continue; // Skip invalid reminders
+                }
+
                 TaskReminder taskReminder = new TaskReminder();
                 taskReminder.setTask(savedTask);
                 taskReminder.setCreatedBy(createdBy);
@@ -126,10 +132,13 @@ public class TaskServiceImpl implements TaskService {
                 taskReminder.setRepeatTimelineValue(reminderRequest.getRepeatTimelineValue());
                 taskReminder.setRepeatTimelineType(reminderRequest.getRepeatTimelineType());
                 taskReminder.setStopFlag(reminderRequest.getStopFlag());
+
                 taskReminderRepository.save(taskReminder);
             }
         }
 
+        // ✅ Log Task Creation
+        System.out.println("Task Created Successfully: " + savedTask.getId());
 
         // Map and return the response
         return mapTaskToResponse(savedTask);
