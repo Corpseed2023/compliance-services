@@ -22,4 +22,5 @@ public interface ComplianceService {
     Map<String, Object> fetchComplianceById(Long complianceId);
 
     Map<String, Object> updateCompliance(ComplianceRequest complianceRequest, Long businessUnitId, Long complianceId, Long userId);
+
 }

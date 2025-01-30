@@ -321,6 +321,9 @@ public class TaskServiceImpl implements TaskService {
         response.setMilestoneId(task.getMilestone().getId());
         response.setMilestoneName(task.getMilestone().getMileStoneName());
         response.setRemark(task.getRemark());
+        response.setComplianceId(task.getMilestone().getCompliance().getId());
+        response.setComplianceName(task.getMilestone().getCompliance().getComplianceName());
+
         return response;
     }
 

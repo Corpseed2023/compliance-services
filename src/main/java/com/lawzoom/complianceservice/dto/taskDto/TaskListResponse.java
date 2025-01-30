@@ -29,4 +29,7 @@ public class TaskListResponse {
     private Long milestoneId;
     private String milestoneName;
     private String remark;
+    private Long complianceId;
+    private String complianceName;
+
 }
