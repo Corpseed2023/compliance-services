@@ -8,7 +8,6 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class MilestoneRenewalResponse {
 
     private Long id;
@@ -31,5 +30,7 @@ public class MilestoneRenewalResponse {
 
     private int reminderFrequency;
 
+    private String certificateTypeDuration;
 
+    private int certificateDurationValue;
 }

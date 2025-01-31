@@ -40,14 +40,15 @@ public class RenewalServiceImpl implements RenewalService {
     @Autowired
     private UserRepository userRepository;
 
+
     @Override
     @Transactional
     public MilestoneRenewalResponse createOrUpdateMilestoneRenewal(Long milestoneId, RenewalRequest request, Long renewalId) {
-        // Validate Milestone
+        // Step 1: Validate Milestone
         MileStone milestone = milestoneRepository.findById(milestoneId)
                 .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + milestoneId));
 
-        // Validate User
+        // Step 2: Validate User
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new NotFoundException("User not found with ID: " + request.getUserId()));
 
@@ -66,29 +67,46 @@ public class RenewalServiceImpl implements RenewalService {
             renewal.setCreatedAt(new Date());
         }
 
-        // Validate and Set Reminder Duration Type
-        try {
-            renewal.setReminderDurationType(Renewal.ReminderDurationType.valueOf(request.getReminderDurationType().trim().toUpperCase()));
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid reminder duration type: " + request.getReminderDurationType() +
-                    ". Allowed values: DAYS, WEEKS, MONTHS, YEARS");
+        // Step 3: Validate Required Fields
+        if (request.getIssuedDate() == null || request.getExpiryDate() == null) {
+            throw new IllegalArgumentException("Issued date and expiry date cannot be null.");
+        }
+        if (request.getCertificateTypeDuration() == null || request.getCertificateDurationValue() == null) {
+            throw new IllegalArgumentException("Certificate type duration and certificate duration value cannot be null.");
         }
 
-        // Update Renewal details
+        // Step 4: Normalize Duration Type (Handle Different Capitalizations)
+        String reminderDurationType = request.getReminderDurationType().trim().toUpperCase();
+        String certificateTypeDuration = request.getCertificateTypeDuration().trim().toUpperCase();
+
+        try {
+            renewal.setReminderDurationType(Renewal.ReminderDurationType.valueOf(reminderDurationType));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid reminder duration type provided. Allowed values: DAYS, WEEKS, MONTHS, YEARS.");
+        }
+
+        try {
+            renewal.setCertificateTypeDuration(Renewal.ReminderDurationType.valueOf(certificateTypeDuration));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid certificate type duration provided. Allowed values: DAYS, WEEKS, MONTHS, YEARS.");
+        }
+
+        // Step 5: Update Renewal details
         renewal.setIssuedDate(request.getIssuedDate());
         renewal.setExpiryDate(request.getExpiryDate());
         renewal.setReminderDurationValue(request.getReminderDurationValue());
         renewal.setRenewalNotes(request.getRenewalNotes());
         renewal.setNotificationsEnabled(request.isNotificationsEnabled());
+        renewal.setCertificateDurationValue(request.getCertificateDurationValue());
 
-        // Calculate reminder start date
+        // Step 6: Calculate reminder start date
         renewal.calculateNextReminderDate();
         renewal.setUpdatedAt(new Date());
 
-        // Save renewal
+        // Step 7: Save renewal
         Renewal savedRenewal = renewalRepository.save(renewal);
 
-        // Map to MilestoneRenewalResponse
+        // Step 8: Map to MilestoneRenewalResponse
         MilestoneRenewalResponse response = new MilestoneRenewalResponse();
         response.setId(savedRenewal.getId());
         response.setMilestoneId(milestone.getId());
@@ -99,6 +117,8 @@ public class RenewalServiceImpl implements RenewalService {
         response.setRenewalNotes(savedRenewal.getRenewalNotes());
         response.setNotificationsEnabled(savedRenewal.isNotificationsEnabled());
         response.setReminderFrequency(savedRenewal.getReminderFrequency());
+        response.setCertificateTypeDuration(savedRenewal.getCertificateTypeDuration().toString());
+        response.setCertificateDurationValue(savedRenewal.getCertificateDurationValue());
 
         return response;
     }

@@ -68,6 +68,13 @@ public class Renewal {
     @Comment(value = "Indicator if the reminder has been sent")
     private boolean reminderSent = false;
 
+    @Comment("Flag to stop the reminders")
+    @Column(name = "stop_flag", columnDefinition = "integer default 1")
+    private int stopFlag = 1;
+
+
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscriber_id", nullable = false)
     private Subscriber subscriber;
