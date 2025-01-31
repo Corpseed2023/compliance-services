@@ -295,7 +295,7 @@ public class ComplianceServiceImpl implements ComplianceService {
                 // Map Renewal Details
                 RenewalRequest renewalRequest = new RenewalRequest();
                 if (!milestone.getRenewals().isEmpty()) {
-                    Renewal renewal = milestone.getRenewals().get(0); // Assuming one renewal per milestone
+                    Renewal renewal = milestone.getRenewals().get(0);
                     renewalRequest.setId(renewal.getId());
                     renewalRequest.setIssuedDate(renewal.getIssuedDate());
                     renewalRequest.setExpiryDate(renewal.getExpiryDate());
@@ -313,25 +313,27 @@ public class ComplianceServiceImpl implements ComplianceService {
                 // Map Reminder Details
                 ReminderRequest reminderRequest = new ReminderRequest();
                 if (!milestone.getReminders().isEmpty()) {
-                    Reminder reminder = milestone.getReminders().get(0); // Assuming one reminder per milestone
-                    reminderRequest.setUserid(reminder.getCreatedBy().getId());
+                    Reminder reminder = milestone.getReminders().get(0);
+                    reminderRequest.setUserid(reminder.getUser().getId());
                     reminderRequest.setReminderDate(reminder.getReminderDate());
                     reminderRequest.setReminderEndDate(reminder.getReminderEndDate());
                     reminderRequest.setNotificationTimelineValue(reminder.getNotificationTimelineValue());
                     reminderRequest.setRepeatTimelineValue(reminder.getRepeatTimelineValue());
                     reminderRequest.setRepeatTimelineType(reminder.getRepeatTimelineType());
                     reminderRequest.setStopFlag(reminder.getStopFlag());
-                    reminderRequest.setCreatedBy(reminder.getCreatedBy().getId());
+                    reminderRequest.setCreatedBy(reminder.getUser().getId());
                 }
                 milestoneResponse.setReminderRequest(reminderRequest);
+
+                milestoneResponse.setComment(milestone.getMileStoneComments().isEmpty() ? null : milestone.getMileStoneComments().get(0).getCommentText());
+                milestoneResponse.setDocumentName(milestone.getDocuments().isEmpty() ? null : milestone.getDocuments().get(0).getDocumentName());
+                milestoneResponse.setFile(milestone.getDocuments().isEmpty() ? null : milestone.getDocuments().get(0).getFile());
+                milestoneResponse.setReferenceNumber(milestone.getDocuments().isEmpty() ? null : milestone.getDocuments().get(0).getReferenceNumber());
 
                 milestoneResponses.add(milestoneResponse);
             }
 
-            // Add milestone responses to the compliance response
             response.setMilestones(milestoneResponses);
-
-            // Add compliance response to the final list
             responses.add(response);
         }
 

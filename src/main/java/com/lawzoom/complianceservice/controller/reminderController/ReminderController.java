@@ -1,6 +1,5 @@
 package com.lawzoom.complianceservice.controller.reminderController;
 
-
 import com.lawzoom.complianceservice.dto.complianceReminder.ReminderRequest;
 import com.lawzoom.complianceservice.dto.complianceReminder.ReminderResponse;
 import com.lawzoom.complianceservice.service.ReminderService;
@@ -10,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 
-import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/compliance/reminder")
@@ -20,18 +19,18 @@ public class ReminderController {
     @Autowired
     private ReminderService reminderService;
 
-    @PostMapping("/create")
-    public ResponseEntity<ReminderResponse> createReminder(
-            @RequestParam("complianceId") Long complianceId,
-            @RequestParam("subscriberId") Long subscriberId,
+    @PostMapping("/save")
+    public ResponseEntity<ReminderResponse> createOrUpdateReminder(
             @Valid @RequestBody ReminderRequest reminderRequest) {
 
-        ReminderResponse response = reminderService.createReminder(
-                complianceId, subscriberId, reminderRequest);
-
+        ReminderResponse response = reminderService.createOrUpdateReminder(reminderRequest);
         return ResponseEntity.status(201).body(response);
     }
 
-
+    @GetMapping("/fetch")
+    public ResponseEntity<Map<String, Object>> fetchAllReminders(@RequestParam Long userId) {
+        Map<String, Object> response = reminderService.fetchAllRemindersByUserId(userId);
+        return ResponseEntity.ok(response);
+    }
 
 }

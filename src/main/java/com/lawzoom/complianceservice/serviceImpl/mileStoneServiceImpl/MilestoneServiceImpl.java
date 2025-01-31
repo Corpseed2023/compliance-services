@@ -231,7 +231,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         Reminder reminder = new Reminder();
         reminder.setMilestone(milestone);
         reminder.setSubscriber(subscriber);
-        reminder.setCreatedBy(reporter);
+        reminder.setUser(reporter);
         reminder.setReminderDate(reminderRequest.getReminderDate());
         reminder.setReminderEndDate(reminderRequest.getReminderEndDate());
         reminder.setNotificationTimelineValue(reminderRequest.getNotificationTimelineValue());
@@ -722,7 +722,7 @@ public class MilestoneServiceImpl implements MilestoneService {
                         "reminderId", reminder.getId(),
                         "reminderDate", reminder.getReminderDate(),
                         "reminderEndDate", reminder.getReminderEndDate(),
-                        "createdBy", reminder.getCreatedBy().getUserName(),
+                        "createdBy", reminder.getUser().getUserName(),
                         "repeatTimelineType", reminder.getRepeatTimelineType(),
                         "repeatTimelineValue", reminder.getRepeatTimelineValue()))
                 .toList());

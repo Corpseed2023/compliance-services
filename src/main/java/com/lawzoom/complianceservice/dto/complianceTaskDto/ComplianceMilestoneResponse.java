@@ -40,7 +40,14 @@ public class ComplianceMilestoneResponse {
     private String remark;
     private Long businessUnitId;
     private Long subscriberId;
+    private String comment;
+    private String documentName;
+    private String file;
+    private String referenceNumber;
 
     private RenewalRequest renewalRequest;
     private ReminderRequest reminderRequest;
+
+
+
 }

@@ -31,8 +31,8 @@ public class Reminder {
 	private Subscriber subscriber;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "created_by", nullable = false)
-	private User createdBy;
+	@JoinColumn(name = "user", nullable = false)
+	private User user;
 
 	@Column(name = "reminder_date", nullable = false)
 	@Temporal(TemporalType.DATE)

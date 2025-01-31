@@ -1,7 +1,6 @@
 package com.lawzoom.complianceservice.dto.complianceReminder;
 
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -12,24 +11,27 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class ReminderRequest {
 
-    @NotNull(message = "Reminder Date is required")
-    private LocalDate reminderDate;
+    private Long reminderId;  // ✅ If provided, update existing reminder
 
-    @NotNull(message = "Reminder End Date is required")
-    private LocalDate reminderEndDate;
+    private Long milestoneId; // ✅ Optional: Can be linked to a milestone
+
+    private Long subscriberId; // ✅ Required for both create and update
+
+    private Long whomToSend;  // ✅ Optional: Who receives the reminder
+
+    private LocalDate reminderDate;  // ✅ Optional for update
+
+    private LocalDate reminderEndDate; // ✅ Optional for update
 
     @Min(value = 0, message = "Notification Timeline Value must not be negative")
-    private int notificationTimelineValue;
+    private Integer notificationTimelineValue;  // ✅ Optional for update
 
     @Min(value = 0, message = "Repeat Timeline Value must not be negative")
-    private int repeatTimelineValue;
+    private Integer repeatTimelineValue;  // ✅ Optional for update
 
-    @NotNull(message = "Repeat Timeline Type is required")
-    private String repeatTimelineType;
+    private String repeatTimelineType;  // ✅ Optional for update
 
-    private int stopFlag = 1;
+    private Integer stopFlag = 1;  // ✅ Default to 1 if not provided
 
-    private Long createdBy;
-
-
+    private Long createdBy;  // ✅ Who created the reminder
 }
