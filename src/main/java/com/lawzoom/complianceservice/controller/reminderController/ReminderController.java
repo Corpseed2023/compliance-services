@@ -27,10 +27,12 @@ public class ReminderController {
         return ResponseEntity.status(201).body(response);
     }
 
-    @GetMapping("/fetch")
-    public ResponseEntity<Map<String, Object>> fetchAllReminders(@RequestParam Long userId) {
+    @GetMapping("/fetch-all")
+    public ResponseEntity<Map<String, Object>> fetchAllRemindersByUserId(@RequestParam("userId") Long userId) {
         Map<String, Object> response = reminderService.fetchAllRemindersByUserId(userId);
         return ResponseEntity.ok(response);
     }
+
+
 
 }

@@ -82,49 +82,50 @@ public class ReminderServiceImpl implements ReminderService {
         return response;
     }
 
-//    @Override
-//    public Map<String, Object> fetchAllRemindersByUserId(Long userId) {
-//        // Fetch user details
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
-//
-//        List<Reminder> reminders;
-//
-//        // If user is SUPER_ADMIN or ADMIN, fetch all reminders
-//        if ("SUPER_ADMIN".equalsIgnoreCase(user.getRoles()) || "ADMIN".equalsIgnoreCase(user.getRole())) {
-//            reminders = reminderRepository.findAll();
-//        } else {
-//            // Fetch only reminders created by the user
-//            reminders = reminderRepository.findByUser(user);
-//        }
-//
-//        // Prepare response as Map
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("status", "success");
-//        response.put("totalReminders", reminders.size());
-//        response.put("reminders", reminders.stream().map(this::mapToResponse).collect(Collectors.toList()));
-//
-//        return response;
-//    }
-//
-//    private Map<String, Object> mapToResponse(Reminder reminder) {
-//        Map<String, Object> response = new HashMap<>();
-//        response.put("reminderId", reminder.getId());
-//        response.put("milestoneId", reminder.getMilestone() != null ? reminder.getMilestone().getId() : null);
-//        response.put("subscriberId", reminder.getSubscriber().getId());
-//        response.put("reminderDate", reminder.getReminderDate());
-//        response.put("reminderEndDate", reminder.getReminderEndDate());
-//        response.put("notificationTimelineValue", reminder.getNotificationTimelineValue());
-//        response.put("repeatTimelineValue", reminder.getRepeatTimelineValue());
-//        response.put("repeatTimelineType", reminder.getRepeatTimelineType());
-//        response.put("stopFlag", reminder.getStopFlag());
-//        response.put("userId", reminder.getUser().getId());
-//        return response;
-//    }
-
-
     @Override
     public Map<String, Object> fetchAllRemindersByUserId(Long userId) {
-        return null;
+        // Fetch user details
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
+
+        List<Reminder> reminders;
+
+        // Check if the user has SUPER_ADMIN or ADMIN role
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.getRoleName().equalsIgnoreCase("SUPER_ADMIN") || role.getRoleName().equalsIgnoreCase("ADMIN"));
+
+        if (isAdmin) {
+            // Fetch all reminders if user is SUPER_ADMIN or ADMIN
+            reminders = reminderRepository.findAll();
+        } else {
+            // Fetch only reminders assigned to this user
+            reminders = reminderRepository.findByUser(user);
+        }
+
+        // Prepare response as Map
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("totalReminders", reminders.size());
+        response.put("reminders", reminders.stream().map(this::mapToResponse).collect(Collectors.toList()));
+
+        return response;
     }
+
+
+    private Map<String, Object> mapToResponse(Reminder reminder) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("reminderId", reminder.getId());
+        response.put("milestoneId", reminder.getMilestone() != null ? reminder.getMilestone().getId() : null);
+        response.put("subscriberId", reminder.getSubscriber().getId());
+        response.put("reminderDate", reminder.getReminderDate());
+        response.put("reminderEndDate", reminder.getReminderEndDate());
+        response.put("notificationTimelineValue", reminder.getNotificationTimelineValue());
+        response.put("repeatTimelineValue", reminder.getRepeatTimelineValue());
+        response.put("repeatTimelineType", reminder.getRepeatTimelineType());
+        response.put("stopFlag", reminder.getStopFlag());
+        response.put("userId", reminder.getUser().getId());
+        return response;
+    }
+
+
 }

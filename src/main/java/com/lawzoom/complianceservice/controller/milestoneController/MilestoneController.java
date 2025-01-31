@@ -30,12 +30,6 @@ public class MilestoneController {
         return milestoneService.createMilestone(milestoneRequest);
     }
 
-//    @PostMapping("/fetch-all-milestone")
-//    public ResponseEntity<List<MilestoneListResponse>> fetchAllMilestones(@RequestBody MilestoneRequestForFetch milestoneRequestForFetch) {
-//        List<MilestoneListResponse> responseList = milestoneService.fetchAllMilestones(milestoneRequestForFetch);
-//        return ResponseEntity.ok(responseList);
-//    }
-
     @GetMapping("/fetchById")
     public ResponseEntity<Map<String, Object>> fetchMilestoneById(@RequestParam Long milestoneId) {
         try {
