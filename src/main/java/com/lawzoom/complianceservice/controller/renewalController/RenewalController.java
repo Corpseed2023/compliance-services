@@ -21,27 +21,18 @@ public class RenewalController {
     @Autowired
     private RenewalService renewalService;
 
-
-    @PostMapping("/create-milestone-renewal")
-    public ResponseEntity<MilestoneRenewalResponse> createMilestoneRenewal(
+    @PostMapping("/save")
+    public ResponseEntity<MilestoneRenewalResponse> createOrUpdateMilestoneRenewal(
             @RequestParam("milestoneId") Long milestoneId,
+            @RequestParam(value = "renewalId", required = false) Long renewalId,
             @Valid @RequestBody RenewalRequest renewalRequest) {
 
-        MilestoneRenewalResponse response = renewalService.createMilestoneRenewal(milestoneId, renewalRequest);
+        MilestoneRenewalResponse response = renewalService.createOrUpdateMilestoneRenewal(milestoneId, renewalRequest,renewalId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping("/update-milestone-renewal")
-    public ResponseEntity<MilestoneRenewalResponse> updateMilestoneRenewal(
-            @RequestParam("renewalId") Long renewalId, @RequestParam("mileStoneId") Long mileStoneId,
-            @Valid @RequestBody RenewalRequest renewalRequest) {
-
-        MilestoneRenewalResponse response = renewalService.updateMilestoneRenewal(renewalId, renewalRequest,mileStoneId);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{renewalId}")
-    public ResponseEntity<RenewalResponse> getRenewalById(@PathVariable Long renewalId) {
+    @GetMapping("/fetch-renewal")
+    public ResponseEntity<RenewalResponse> getRenewalById(@RequestParam Long renewalId) {
         RenewalResponse response = renewalService.getRenewalById(renewalId);
         return ResponseEntity.ok(response);
     }
@@ -63,6 +54,9 @@ public class RenewalController {
         List<RenewalResponse> responses = renewalService.fetchAllRenewals(userid);
         return ResponseEntity.ok(responses);
     }
+
+
+
 
 }
 

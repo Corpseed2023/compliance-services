@@ -10,15 +10,14 @@ import java.util.List;
 
 public interface RenewalService {
 
-
-    MilestoneRenewalResponse createMilestoneRenewal(Long milestoneId, RenewalRequest renewalRequest);
-
-
     List<RenewalResponse> getRenewalsByMilestoneId(Long userid, Long milestoneId);
 
     RenewalResponse getRenewalById(Long renewalId);
 
-    MilestoneRenewalResponse updateMilestoneRenewal(Long renewalId, RenewalRequest renewalRequest, Long mileStoneId);
 
     List<RenewalResponse> fetchAllRenewals(Long userid);
+
+    MilestoneRenewalResponse createOrUpdateMilestoneRenewal(Long milestoneId, RenewalRequest request, Long renewalId);
+
+
 }

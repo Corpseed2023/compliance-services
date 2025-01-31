@@ -29,4 +29,6 @@ public class TaskReminderRequest {
     private String repeatTimelineType;
 
     private int stopFlag = 1;
+
+
 }
