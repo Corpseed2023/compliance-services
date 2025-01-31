@@ -6,12 +6,19 @@ import com.lawzoom.complianceservice.dto.renewalDto.RenewalRequest;
 import com.lawzoom.complianceservice.dto.renewalDto.RenewalResponse;
 import jakarta.validation.Valid;
 
-public interface RenewalService {
-    RenewalResponse generateComplianceRenewal(Long complianceId, RenewalRequest request);
-    RenewalResponse getRenewalByComplianceId(Long complianceId);
-    void deleteRenewal(Long complianceId);
+import java.util.List;
 
-    RenewalResponse createRenewalForCompliance(Long complianceId, @Valid RenewalRequest renewalRequest);
+public interface RenewalService {
+
 
     MilestoneRenewalResponse createMilestoneRenewal(Long milestoneId, RenewalRequest renewalRequest);
+
+
+    List<RenewalResponse> getRenewalsByMilestoneId(Long userid, Long milestoneId);
+
+    RenewalResponse getRenewalById(Long renewalId);
+
+    MilestoneRenewalResponse updateMilestoneRenewal(Long renewalId, RenewalRequest renewalRequest, Long mileStoneId);
+
+    List<RenewalResponse> fetchAllRenewals(Long userid);
 }

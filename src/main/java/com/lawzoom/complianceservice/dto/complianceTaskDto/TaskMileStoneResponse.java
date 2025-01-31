@@ -24,9 +24,9 @@ public class TaskMileStoneResponse {
     private Date createdAt;
     private Date updatedAt;
     private boolean isEnable;
-    private Date startDate;
-    private Date dueDate;
-    private Date completedDate;
+    private LocalDate startDate;
+    private LocalDate dueDate;
+    private LocalDate completedDate;
     private Long managerId;
     private String managerName;
     private Long assigneeId;

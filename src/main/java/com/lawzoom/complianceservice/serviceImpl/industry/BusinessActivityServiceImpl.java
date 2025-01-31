@@ -5,7 +5,7 @@ import com.lawzoom.complianceservice.dto.industryDTO.request.BusinessActivityReq
 import com.lawzoom.complianceservice.dto.industryDTO.response.BusinessActivityResponseDTO;
 import com.lawzoom.complianceservice.model.businessActivityModel.BusinessActivity;
 import com.lawzoom.complianceservice.model.businessActivityModel.IndustrySubCategory;
-import com.lawzoom.complianceservice.repository.UserRepository;
+import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.BusinessActivityRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.IndustrySubCategoryRepository;
 import com.lawzoom.complianceservice.service.industry.BusinessActivityService;

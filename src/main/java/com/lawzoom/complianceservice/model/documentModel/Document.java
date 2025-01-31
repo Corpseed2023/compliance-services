@@ -1,8 +1,8 @@
 package com.lawzoom.complianceservice.model.documentModel;
 
-import com.lawzoom.complianceservice.model.complianceMileStoneModel.MileStone;
+import com.lawzoom.complianceservice.model.mileStoneModel.MileStone;
 import com.lawzoom.complianceservice.model.complianceModel.Compliance;
-import com.lawzoom.complianceservice.model.mileStoneTask.Task;
+import com.lawzoom.complianceservice.model.taskModel.Task;
 import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import jakarta.persistence.*;
@@ -26,8 +26,10 @@ public class Document {
     @Column(name = "doc_name")
     private String documentName;
 
-    @Column(name = "file_name")
-    private String fileName;
+    @Column(name = "file")
+    private String file;
+
+    private String fileURL;
 
     @Temporal(TemporalType.DATE)
     @Column(name = "issue_date")

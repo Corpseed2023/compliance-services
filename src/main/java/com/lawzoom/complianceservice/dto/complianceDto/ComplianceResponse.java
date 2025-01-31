@@ -3,6 +3,7 @@ package com.lawzoom.complianceservice.dto.complianceDto;
 import com.lawzoom.complianceservice.dto.complianceTaskDto.ComplianceMilestoneResponse;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -23,10 +24,19 @@ public class ComplianceResponse {
     private boolean isEnable;
     private int priority;
     private Long companyId;
+    private String companyName;
+    private Long businessActivityId;
+    private String businessActivityName;
+    private Long cityId;
+    private String city;
+    private Long stateId;
+    private String state;
     private Long businessUnitId;
     private Long subscriberId;
     private double progressPercentage;
     private List<ComplianceMilestoneResponse> milestones;
     private int MilestoneCount;
+
+
 
 }

@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/compliance/renewal")
 public class RenewalController {
@@ -18,37 +21,6 @@ public class RenewalController {
     @Autowired
     private RenewalService renewalService;
 
-    // Endpoint for creating a new renewal
-    @PostMapping("/create-compliance-renewal")
-    public ResponseEntity<RenewalResponse> createRenewal(
-            @RequestParam("complianceId") Long complianceId,
-            @Valid @RequestBody RenewalRequest renewalRequest) {
-
-        RenewalResponse response = renewalService.createRenewalForCompliance(complianceId, renewalRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    // Endpoint for updating an existing renewal
-    @PostMapping("/update")
-    public ResponseEntity<RenewalResponse> createOrUpdateRenewal(
-            @RequestParam("complianceId") Long complianceId,
-            @Valid @RequestBody RenewalRequest renewalRequest) {
-
-        RenewalResponse response = renewalService.generateComplianceRenewal(complianceId, renewalRequest);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{complianceId}")
-    public ResponseEntity<RenewalResponse> getRenewalByComplianceId(@PathVariable Long complianceId) {
-        RenewalResponse response = renewalService.getRenewalByComplianceId(complianceId);
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/{complianceId}")
-    public ResponseEntity<Void> deleteRenewal(@PathVariable Long complianceId) {
-        renewalService.deleteRenewal(complianceId);
-        return ResponseEntity.noContent().build();
-    }
 
     @PostMapping("/create-milestone-renewal")
     public ResponseEntity<MilestoneRenewalResponse> createMilestoneRenewal(
@@ -59,8 +31,38 @@ public class RenewalController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PutMapping("/update-milestone-renewal")
+    public ResponseEntity<MilestoneRenewalResponse> updateMilestoneRenewal(
+            @RequestParam("renewalId") Long renewalId, @RequestParam("mileStoneId") Long mileStoneId,
+            @Valid @RequestBody RenewalRequest renewalRequest) {
+
+        MilestoneRenewalResponse response = renewalService.updateMilestoneRenewal(renewalId, renewalRequest,mileStoneId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{renewalId}")
+    public ResponseEntity<RenewalResponse> getRenewalById(@PathVariable Long renewalId) {
+        RenewalResponse response = renewalService.getRenewalById(renewalId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/milestone-renewal")
+    public ResponseEntity<List<RenewalResponse>> getRenewalsByMilestoneId(
+            @RequestParam Long userid,
+            @RequestParam Long milestoneId) {
+
+        List<RenewalResponse> responses = renewalService.getRenewalsByMilestoneId(userid, milestoneId);
+        return ResponseEntity.ok(responses);
+    }
 
 
+
+    @GetMapping("/all-milestones")
+    public ResponseEntity<List<RenewalResponse>> getAllMileStone(@RequestParam Long userid) {
+
+        List<RenewalResponse> responses = renewalService.fetchAllRenewals(userid);
+        return ResponseEntity.ok(responses);
+    }
 
 }
 

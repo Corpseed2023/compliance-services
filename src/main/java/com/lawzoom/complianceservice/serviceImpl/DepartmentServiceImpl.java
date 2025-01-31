@@ -6,7 +6,7 @@ import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.user.Department;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.DepartmentRepository;
-import com.lawzoom.complianceservice.repository.UserRepository;
+import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

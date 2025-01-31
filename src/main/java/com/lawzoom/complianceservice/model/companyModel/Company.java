@@ -38,10 +38,6 @@ public class Company {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	private String firstName;
-
-	private String lastName;
-
 	@ManyToOne
 	@JoinColumn(name = "created_by", nullable = false)
 	private User createdBy;

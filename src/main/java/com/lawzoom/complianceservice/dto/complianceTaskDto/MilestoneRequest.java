@@ -1,13 +1,12 @@
 package com.lawzoom.complianceservice.dto.complianceTaskDto;
 
-import com.lawzoom.complianceservice.dto.DocumentRequest;
+import com.lawzoom.complianceservice.dto.complianceReminder.ReminderRequest;
+import com.lawzoom.complianceservice.dto.renewalDto.RenewalRequest;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
 
 @Getter
 @Setter
@@ -32,29 +31,37 @@ public class MilestoneRequest {
 
 	private LocalDate dueDate;
 
+	private LocalDate completedDate;
+
 	private LocalDate issuedDate;
+
+	private LocalDate expiryDate;
 
 	private Long managerId;
 
-	private Long assignee;
+	private Long assigneeId;
 
 	private Long assignedBy;
 
 	private String criticality;
 
-	private Long status;
+	private Long statusId;
 
 	private Long subscriberId;
 
 	private String remark;
 
-	private LocalDate expiryDate;
-
 	private String comment;
 
+	private String documentName;
 
-	private List<DocumentRequest> documents;
+	private String file;
 
+	private String referenceNumber;
+
+	private RenewalRequest renewalRequest;
+
+	private ReminderRequest reminderRequest;
 
 
 }

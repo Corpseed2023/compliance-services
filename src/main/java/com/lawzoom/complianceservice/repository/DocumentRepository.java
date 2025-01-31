@@ -11,4 +11,5 @@ public interface DocumentRepository extends JpaRepository<Document,Long> {
     @Query("DELETE FROM Document d WHERE d.compliance.id = :complianceId")
     void deleteByComplianceId(@Param("complianceId") Long complianceId);
 
+    void deleteByTaskId(Long id);
 }

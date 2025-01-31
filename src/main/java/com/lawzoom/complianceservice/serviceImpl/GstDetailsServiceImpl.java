@@ -16,7 +16,7 @@ import com.lawzoom.complianceservice.model.user.Subscriber;
 import com.lawzoom.complianceservice.model.user.User;
 import com.lawzoom.complianceservice.repository.GstDetailsRepository;
 import com.lawzoom.complianceservice.repository.SubscriberRepository;
-import com.lawzoom.complianceservice.repository.UserRepository;
+import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.repository.companyRepo.CompanyRepository;
 import com.lawzoom.complianceservice.repository.regionRepo.CountryRepository;
 import com.lawzoom.complianceservice.repository.regionRepo.StatesRepository;

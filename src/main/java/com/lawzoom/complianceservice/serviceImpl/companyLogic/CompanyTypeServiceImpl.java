@@ -4,7 +4,7 @@ package com.lawzoom.complianceservice.serviceImpl.companyLogic;
 import com.lawzoom.complianceservice.dto.companyDto.CompanyTypeRequest;
 import com.lawzoom.complianceservice.dto.companyDto.CompanyTypeResponse;
 import com.lawzoom.complianceservice.model.companyModel.CompanyType;
-import com.lawzoom.complianceservice.repository.UserRepository;
+import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.repository.companyRepo.CompanyTypeRepository;
 import com.lawzoom.complianceservice.service.companyService.CompanyServiceType;
 import org.springframework.beans.factory.annotation.Autowired;

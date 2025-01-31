@@ -5,7 +5,7 @@ import com.lawzoom.complianceservice.dto.industryDTO.response.IndustryCategoryRe
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.businessActivityModel.IndustryCategory;
 import com.lawzoom.complianceservice.model.user.User;
-import com.lawzoom.complianceservice.repository.UserRepository;
+import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.IndustryCategoryRepository;
 import com.lawzoom.complianceservice.service.industry.IndustryCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service

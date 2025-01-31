@@ -2,6 +2,7 @@ package com.lawzoom.complianceservice.dto.complianceTaskDto;
 
 
 
+import com.lawzoom.complianceservice.dto.commentDto.CommentDetails;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -39,12 +40,13 @@ public class MilestoneResponse {
     private String remark;
     private Long businessUnitId;
     private Long subscriberId;
+    private LocalDate expiryDate;
 
     private List<ReminderDetails> reminders;
     private List<RenewalDetails> renewals;
     private List<DocumentDetails> documents;
-
     private List<TaskMileStoneResponse> tasks;
+    private List<CommentDetails> comments;
 
     @Getter
     @Setter
@@ -71,10 +73,12 @@ public class MilestoneResponse {
         private LocalDate expiryDate;
         private String reminderDurationType;
         private Integer reminderDurationValue;
-        private LocalDate nextReminderDate;
         private String renewalNotes;
-        private boolean stopFlag;
+        private boolean notificationsEnabled;
         private int reminderFrequency;
+        private LocalDate reminderStartDate; // New field
+        private LocalDate renewalDate; // New field
+        private boolean reminderSent; // New field
     }
 
     @Getter

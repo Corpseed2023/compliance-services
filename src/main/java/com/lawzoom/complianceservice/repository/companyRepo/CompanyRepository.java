@@ -41,6 +41,14 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
             @Param("subscriberId") Long subscriberId
     );
 
+    /**
+     * Count companies by subscriber ID.
+     *
+     * @param subscriberId the subscriber ID
+     * @return the count of companies
+     */
+    long countBySubscriberId(Long subscriberId);
+
 
 
 

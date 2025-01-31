@@ -51,23 +51,26 @@ public class ComplianceController {
 
 
     @PutMapping("/updateCompliance")
-    public ResponseEntity<ComplianceResponse> updateCompliance(
+    public ResponseEntity<Map<String, Object>> updateCompliance(
             @Valid @RequestBody ComplianceRequest complianceRequest,
-            @RequestParam("businessUnitId") Long businessUnitId,@RequestParam Long complianceId,@RequestParam Long userId) {
+            @RequestParam("businessUnitId") Long businessUnitId,
+            @RequestParam Long complianceId,
+            @RequestParam Long userId) {
 
         if (businessUnitId == null) {
             throw new IllegalArgumentException("Please provide a valid businessUnitId");
         }
 
         try {
-            ComplianceResponse response = complianceService.updateCompliance(complianceRequest, businessUnitId,complianceId,userId);
+            Map<String, Object> response = complianceService.updateCompliance(complianceRequest, businessUnitId, complianceId, userId);
             return ResponseEntity.ok(response);
         } catch (ResponseStatusException e) {
-            throw e; // Let Spring handle the HTTP status and message
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Failed to update compliance: " + e.getMessage(), e);
         }
     }
+
 
     @GetMapping("/fetchByBusinessUnit")
     public ResponseEntity<List<ComplianceResponse>> fetchComplianceByBusinessUnit(

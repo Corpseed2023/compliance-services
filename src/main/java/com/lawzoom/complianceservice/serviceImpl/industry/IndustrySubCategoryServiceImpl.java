@@ -6,7 +6,7 @@ import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.businessActivityModel.IndustryCategory;
 import com.lawzoom.complianceservice.model.businessActivityModel.IndustrySubCategory;
 import com.lawzoom.complianceservice.model.user.User;
-import com.lawzoom.complianceservice.repository.UserRepository;
+import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.IndustryCategoryRepository;
 import com.lawzoom.complianceservice.repository.businessRepo.IndustrySubCategoryRepository;
 import com.lawzoom.complianceservice.service.industry.IndustrySubCategoryService;

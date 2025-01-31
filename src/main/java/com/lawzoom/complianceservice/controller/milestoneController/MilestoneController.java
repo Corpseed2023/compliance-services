@@ -1,15 +1,19 @@
 package com.lawzoom.complianceservice.controller.milestoneController;
 
 
-import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequest;
-import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneRequestForFetch;
-import com.lawzoom.complianceservice.dto.complianceTaskDto.MilestoneResponse;
-import com.lawzoom.complianceservice.service.MilestoneService;
+import com.lawzoom.complianceservice.dto.complianceTaskDto.*;
+import com.lawzoom.complianceservice.service.mileStoneService.MilestoneService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,17 +30,26 @@ public class MilestoneController {
         return milestoneService.createMilestone(milestoneRequest);
     }
 
-    @PostMapping("/fetch-all-milestone")
-    public ResponseEntity<List<MilestoneResponse>> fetchAllMilestones(@RequestBody MilestoneRequestForFetch milestoneRequestForFetch) {
-        List<MilestoneResponse> responseList = milestoneService.fetchAllMilestones(milestoneRequestForFetch);
-        return ResponseEntity.ok(responseList);
+//    @PostMapping("/fetch-all-milestone")
+//    public ResponseEntity<List<MilestoneListResponse>> fetchAllMilestones(@RequestBody MilestoneRequestForFetch milestoneRequestForFetch) {
+//        List<MilestoneListResponse> responseList = milestoneService.fetchAllMilestones(milestoneRequestForFetch);
+//        return ResponseEntity.ok(responseList);
+//    }
+
+    @GetMapping("/fetchById")
+    public ResponseEntity<Map<String, Object>> fetchMilestoneById(@RequestParam Long milestoneId) {
+        try {
+            Map<String, Object> response = milestoneService.fetchMilestoneById(milestoneId);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to fetch milestone"));
+        }
     }
 
-    @GetMapping("/fetchById/")
-    public ResponseEntity<MilestoneResponse> fetchMilestoneById(@RequestParam Long milestoneId) {
-        MilestoneResponse response = milestoneService.fetchMilestoneById(milestoneId);
-        return ResponseEntity.ok(response);
-    }
 
     @GetMapping("/status-milestone/")
     public ResponseEntity<List<MilestoneResponse>> statusMileStone(
@@ -52,14 +65,18 @@ public class MilestoneController {
         }
     }
 
-    @PutMapping("/update-assignment")
-    public ResponseEntity<MilestoneResponse> updateMilestoneAssignment(
-            @RequestParam Long milestoneId,
-            @RequestParam Long assignedToId,
-            @RequestParam Long taskReporterId) {
-        MilestoneResponse updatedMilestone = milestoneService.updateMilestoneAssignment(milestoneId, assignedToId, taskReporterId);
-        return ResponseEntity.ok(updatedMilestone);
+    @PutMapping("/update-milestone")
+    public ResponseEntity<Map<String, Object>> updateMilestone(
+            @RequestBody @Valid MilestoneUpdateRequest updateRequest) {
+        try {
+            Map<String, Object> response = milestoneService.updateMilestone(updateRequest);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Failed to update milestone"));
+        }
     }
+
 
 
     @PutMapping("/update-status")
@@ -69,6 +86,42 @@ public class MilestoneController {
         MilestoneResponse updatedMilestone = milestoneService.updateMilestoneStatus(milestoneId, statusId);
         return ResponseEntity.ok(updatedMilestone);
     }
+
+
+    @GetMapping("/all-milestones")
+    public ResponseEntity<Map<String, Object>> allMileStones(
+            @RequestParam Long userId,
+            @RequestParam Long subscriberId,
+            @RequestParam int page,
+            @RequestParam int size
+    ) {
+        try {
+            // Adjust page number to 0-based indexing if the user sends 1-based page number
+            int adjustedPage = Math.max(page - 1, 0);
+
+            // Create pageable object for pagination
+            Pageable pageable = PageRequest.of(adjustedPage, size);
+
+            // Fetch milestones with pagination
+            Map<String, Object> response = milestoneService.fetchUserAllMilestones(userId, subscriberId, pageable);
+
+            // Return the response as Map
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            // Handle user-related errors
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        } catch (Exception e) {
+            // Handle unexpected errors
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", "An unexpected error occurred.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
 
 
 
