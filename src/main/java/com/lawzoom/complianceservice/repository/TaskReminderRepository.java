@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TaskReminderRepository extends JpaRepository<TaskReminder, Long> {
+    void deleteByTaskId(Long id);
 }

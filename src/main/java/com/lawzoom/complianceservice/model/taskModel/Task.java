@@ -55,15 +55,15 @@ public class Task {
 
 	@Column(name = "start_date")
 	@Temporal(TemporalType.DATE)
-	private Date startDate;
+	private LocalDate startDate;
 
 	@Column(name = "due_date")
 	@Temporal(TemporalType.DATE)
-	private Date dueDate;
+	private LocalDate dueDate;
 
 	@Column(name = "completed_date")
 	@Temporal(TemporalType.DATE)
-	private Date completedDate;
+	private LocalDate completedDate;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "manager_id", nullable = true)

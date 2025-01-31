@@ -1,11 +1,7 @@
 package com.lawzoom.complianceservice.serviceImpl.taskServiceImpl;
 
-
 import com.lawzoom.complianceservice.dto.DocumentRequest;
-import com.lawzoom.complianceservice.dto.taskDto.TaskListResponse;
-import com.lawzoom.complianceservice.dto.taskDto.TaskReminderRequest;
-import com.lawzoom.complianceservice.dto.taskDto.TaskRenewalRequest;
-import com.lawzoom.complianceservice.dto.taskDto.TaskRequest;
+import com.lawzoom.complianceservice.dto.taskDto.*;
 import com.lawzoom.complianceservice.exception.NotFoundException;
 import com.lawzoom.complianceservice.model.Status;
 import com.lawzoom.complianceservice.model.documentModel.Document;
@@ -115,10 +111,8 @@ public class TaskServiceImpl implements TaskService {
             }
         }
 
-        // ✅ Handle optional reminders
         if (taskRequest.getReminders() != null && !taskRequest.getReminders().isEmpty()) {
             for (TaskReminderRequest reminderRequest : taskRequest.getReminders()) {
-                // ✅ Ensure reminder fields are valid before saving
                 if (reminderRequest.getReminderDate() == null || reminderRequest.getReminderEndDate() == null) {
                     continue; // Skip invalid reminders
                 }
@@ -137,10 +131,8 @@ public class TaskServiceImpl implements TaskService {
             }
         }
 
-        // ✅ Log Task Creation
         System.out.println("Task Created Successfully: " + savedTask.getId());
 
-        // Map and return the response
         return mapTaskToResponse(savedTask);
     }
 
@@ -196,56 +188,104 @@ public class TaskServiceImpl implements TaskService {
             response.setMilestoneName(task.getMilestone().getMileStoneName());
             response.setRemark(task.getRemark());
             responses.add(response);
-
         }
 
         return responses;
     }
 
-
-
-
     @Override
-    public TaskListResponse updateTaskAssignment(Long taskId, Long assigneeUserId, Long reporterUserId) {
-        // Validate Task
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new NotFoundException("Task not found with ID: " + taskId));
+    public Map<String, Object> updateTask(TaskUpdateRequest taskUpdateRequest) {
+        // Validate and fetch existing task
+        Task task = taskRepository.findById(taskUpdateRequest.getTaskId())
+                .orElseThrow(() -> new NotFoundException("Task not found with ID: " + taskUpdateRequest.getTaskId()));
 
-        // Validate Assignee User
-        User assignee = userRepository.findById(assigneeUserId)
-                .orElseThrow(() -> new NotFoundException("Assignee not found with ID: " + assigneeUserId));
+        // Validate status
+        Status status = statusRepository.findById(taskUpdateRequest.getStatusId())
+                .orElseThrow(() -> new NotFoundException("Status not found with ID: " + taskUpdateRequest.getStatusId()));
 
-        // Validate Reporter User
-        User reporter = userRepository.findById(reporterUserId)
-                .orElseThrow(() -> new NotFoundException("Reporter not found with ID: " + reporterUserId));
+        // Validate milestone
+        MileStone milestone = milestoneRepository.findById(taskUpdateRequest.getMilestoneId())
+                .orElseThrow(() -> new NotFoundException("Milestone not found with ID: " + taskUpdateRequest.getMilestoneId()));
 
-        // Update Task with new Assignee and Reporter
+        // Validate manager and assignee
+        User manager = userRepository.findById(taskUpdateRequest.getManagerId())
+                .orElseThrow(() -> new NotFoundException("Manager not found with ID: " + taskUpdateRequest.getManagerId()));
+
+        User assignee = userRepository.findById(taskUpdateRequest.getAssigneeId())
+                .orElseThrow(() -> new NotFoundException("Assignee not found with ID: " + taskUpdateRequest.getAssigneeId()));
+
+        // Validate subscriber
+        Subscriber subscriber = subscriberRepository.findById(taskUpdateRequest.getSubscriberId())
+                .orElseThrow(() -> new NotFoundException("Subscriber not found with ID: " + taskUpdateRequest.getSubscriberId()));
+
+        // Update task details
+        task.setName(taskUpdateRequest.getName());
+        task.setDescription(taskUpdateRequest.getDescription());
+        task.setStatus(status);
+        task.setStartDate(taskUpdateRequest.getStartDate());
+        task.setDueDate(taskUpdateRequest.getDueDate());
+        task.setCompletedDate(taskUpdateRequest.getCompletedDate());
+        task.setCriticality(taskUpdateRequest.getCriticality());
+        task.setRemark(taskUpdateRequest.getRemark());
+        task.setManager(manager);
         task.setAssignee(assignee);
-        task.setManager(reporter);
+        task.setMilestone(milestone);
+        task.setSubscriber(subscriber);
         task.setUpdatedAt(new Date());
 
-        // Save Updated Task
+        // Save updated task
         Task updatedTask = taskRepository.save(task);
 
-        // Create and populate TaskResponse manually
-        TaskListResponse response = new TaskListResponse();
-        response.setId(updatedTask.getId());
-        response.setName(updatedTask.getName());
-        response.setDescription(updatedTask.getDescription());
-        response.setStatus(updatedTask.getStatus().getName());
-        response.setStartDate(updatedTask.getStartDate());
-        response.setDueDate(updatedTask.getDueDate());
-        response.setCompletedDate(updatedTask.getCompletedDate());
-        response.setCriticality(updatedTask.getCriticality());
-        response.setManagerId(task.getManager().getId());
-        response.setManagerName(task.getManager().getUserName());
-        response.setAssigneeUserId(task.getAssignee().getId());
-        response.setAssigneeUserName(task.getAssignee().getUserName());
-        response.setMilestoneId(updatedTask.getMilestone().getId());
-        response.setMilestoneName(updatedTask.getMilestone().getMileStoneName());
+        // Update documents if provided
+        if (taskUpdateRequest.getDocuments() != null) {
+            documentRepository.deleteByTaskId(updatedTask.getId()); // Remove existing documents
+            for (DocumentRequest docReq : taskUpdateRequest.getDocuments()) {
+                Document document = new Document();
+                document.setTask(updatedTask);
+                document.setFile(docReq.getFile());
+                documentRepository.save(document);
+            }
+        }
+
+        if (taskUpdateRequest.getReminders() != null) {
+            taskReminderRepository.deleteByTaskId(updatedTask.getId()); // Remove existing reminders
+            for (TaskReminderRequest reminderReq : taskUpdateRequest.getReminders()) {
+                TaskReminder reminder = new TaskReminder();
+                reminder.setTask(updatedTask);
+                reminder.setCreatedBy(manager);
+                reminder.setReminderDate(reminderReq.getReminderDate());
+                reminder.setReminderEndDate(reminderReq.getReminderEndDate());
+                reminder.setNotificationTimelineValue(reminderReq.getNotificationTimelineValue());
+                reminder.setRepeatTimelineValue(reminderReq.getRepeatTimelineValue());
+                reminder.setRepeatTimelineType(reminderReq.getRepeatTimelineType());
+                taskReminderRepository.save(reminder);
+            }
+        }
+
+        // Create response map
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "Task updated successfully");
+        response.put("taskId", updatedTask.getId());
+        response.put("name", updatedTask.getName());
+        response.put("status", updatedTask.getStatus().getName());
+        response.put("startDate", updatedTask.getStartDate());
+        response.put("dueDate", updatedTask.getDueDate());
+        response.put("completedDate", updatedTask.getCompletedDate());
+        response.put("criticality", updatedTask.getCriticality());
+        response.put("remark", updatedTask.getRemark());
+        response.put("managerName", updatedTask.getManager().getUserName());
+        response.put("assigneeName", updatedTask.getAssignee().getUserName());
+        response.put("milestoneName", updatedTask.getMilestone().getMileStoneName());
 
         return response;
     }
+
+
+
+
+
+
 
     @Override
     public Map<String, Object> fetchAllTask(Long userId, Long subscriberId, Pageable pageable) {

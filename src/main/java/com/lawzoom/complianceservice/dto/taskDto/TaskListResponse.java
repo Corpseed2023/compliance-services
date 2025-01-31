@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -18,9 +19,9 @@ public class TaskListResponse {
     private String name;
     private String description;
     private String status;
-    private Date startDate;
-    private Date dueDate;
-    private Date completedDate;
+    private LocalDate startDate;
+    private LocalDate dueDate;
+    private LocalDate completedDate;
     private String criticality;
     private Long managerId;
     private String managerName;

@@ -3,6 +3,7 @@ package com.lawzoom.complianceservice.controller.taskController;
 
 import com.lawzoom.complianceservice.dto.taskDto.TaskListResponse;
 import com.lawzoom.complianceservice.dto.taskDto.TaskRequest;
+import com.lawzoom.complianceservice.dto.taskDto.TaskUpdateRequest;
 import com.lawzoom.complianceservice.service.taskService.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -35,14 +36,6 @@ public class TaskController {
         return ResponseEntity.ok(taskResponses);
     }
 
-    @PutMapping("/update-assignment")
-    public ResponseEntity<TaskListResponse> updateTaskAssignment(
-            @RequestParam Long taskId,
-            @RequestParam Long assigneeUserId,
-            @RequestParam Long reporterUserId) {
-        TaskListResponse updatedTask = taskService.updateTaskAssignment(taskId, assigneeUserId, reporterUserId);
-        return ResponseEntity.ok(updatedTask);
-    }
 
     @GetMapping("/all-task")
     public ResponseEntity<Map<String, Object>> allTask(
@@ -76,6 +69,13 @@ public class TaskController {
             errorResponse.put("message", "An unexpected error occurred.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
+    }
+
+
+    @PutMapping("/update-task")
+    public ResponseEntity<Map<String, Object>> updateTask(@RequestBody TaskUpdateRequest taskUpdateRequest) {
+        Map<String, Object> response = taskService.updateTask(taskUpdateRequest);
+        return ResponseEntity.ok(response);
     }
 
 
