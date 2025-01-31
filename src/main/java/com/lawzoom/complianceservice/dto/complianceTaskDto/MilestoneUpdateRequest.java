@@ -14,15 +14,16 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class MilestoneUpdateRequest {
 
-    @NotNull
     private Long milestoneId;
     private String mileStoneName;
     private String description;
     private LocalDate dueDate;
     private Long statusId;
-    private Long assignedToUserId;
-    private Long assignedByUserId;
+    private Long managerId;
+    private Long assigneeId;
     private String criticality;
     private String remark;
     private LocalDate completedDate;
+
+
 }

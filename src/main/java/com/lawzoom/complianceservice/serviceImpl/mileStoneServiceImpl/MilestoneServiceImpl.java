@@ -81,7 +81,7 @@ public class MilestoneServiceImpl implements MilestoneService {
         Compliance compliance = fetchCompliance(milestoneRequest.getComplianceId());
         BusinessUnit businessUnit = fetchBusinessUnit(milestoneRequest.getBusinessUnitId());
         User reporter = fetchUser(milestoneRequest.getManagerId(), "Reporter");
-        User assignedToUser = fetchOptionalUser(milestoneRequest.getAssignee(), "Assigned To");
+        User assignedToUser = fetchOptionalUser(milestoneRequest.getAssigneeId(), "Assigned To");
         User assignedByUser = fetchOptionalUser(milestoneRequest.getAssignedBy(), "Assigned By");
         Subscriber subscriber = fetchSubscriber(milestoneRequest.getSubscriberId());
         Status status = fetchStatus(milestoneRequest.getStatusId());
@@ -436,16 +436,6 @@ public class MilestoneServiceImpl implements MilestoneService {
     }
 
 
-    private boolean isSuperAdmin(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found with ID: " + userId));
-
-        // Check if the user has a role with the name "SUPER_ADMIN"
-        return user.getRoles().stream()
-                .anyMatch(role -> "SUPER_ADMIN".equalsIgnoreCase(role.getRoleName()));
-    }
-
-
     @Override
     public List<MilestoneResponse> fetchMilestonesByStatus(Long userId, Long subscriberId, String statusName) {
         // Step 1: Validate Subscriber
@@ -508,9 +498,9 @@ public class MilestoneServiceImpl implements MilestoneService {
     public Map<String, Object> updateMilestone(MilestoneUpdateRequest updateRequest) {
         // Step 1: Fetch the existing milestone
         MileStone milestone = milestoneRepository.findById(updateRequest.getMilestoneId())
-                .orElseThrow(() -> new EntityNotFoundException("Milestone not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Milestone not found with ID: " + updateRequest.getMilestoneId()));
 
-        // Step 2: Update required fields
+        // Step 2: Update required fields if provided
         if (updateRequest.getMileStoneName() != null) {
             milestone.setMileStoneName(updateRequest.getMileStoneName());
         }
@@ -520,43 +510,49 @@ public class MilestoneServiceImpl implements MilestoneService {
         if (updateRequest.getDueDate() != null) {
             milestone.setDueDate(updateRequest.getDueDate());
         }
+        if (updateRequest.getCompletedDate() != null) {
+            milestone.setCompletedDate(updateRequest.getCompletedDate());
+        }
         if (updateRequest.getStatusId() != null) {
             Status status = statusRepository.findById(updateRequest.getStatusId())
-                    .orElseThrow(() -> new EntityNotFoundException("Status not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("Status not found with ID: " + updateRequest.getStatusId()));
             milestone.setStatus(status);
         }
-        if (updateRequest.getAssignedToUserId() != null) {
-            User assignedUser = userRepository.findById(updateRequest.getAssignedToUserId())
-                    .orElseThrow(() -> new EntityNotFoundException("Assigned user not found"));
+        if (updateRequest.getManagerId() != null) {
+            User manager = userRepository.findById(updateRequest.getManagerId())
+                    .orElseThrow(() -> new EntityNotFoundException("Manager not found with ID: " + updateRequest.getManagerId()));
+            milestone.setManager(manager);
+        }
+        if (updateRequest.getAssigneeId() != null) {
+            User assignedUser = userRepository.findById(updateRequest.getAssigneeId())
+                    .orElseThrow(() -> new EntityNotFoundException("Assignee not found with ID: " + updateRequest.getAssigneeId()));
             milestone.setAssigned(assignedUser);
-        }
-        if (updateRequest.getAssignedByUserId() != null) {
-            User assignedByUser = userRepository.findById(updateRequest.getAssignedByUserId())
-                    .orElseThrow(() -> new EntityNotFoundException("Assigned by user not found"));
-            milestone.setAssignedBy(assignedByUser);
-        }
-        if (updateRequest.getCriticality() != null) {
-            milestone.setCriticality(updateRequest.getCriticality());
         }
         if (updateRequest.getRemark() != null) {
             milestone.setRemark(updateRequest.getRemark());
         }
+        if (updateRequest.getCriticality() != null) {
+            milestone.setCriticality(updateRequest.getCriticality());
+        }
 
-        // Step 3: Save updated milestone
+        // Step 3: Save the updated milestone
         milestone = milestoneRepository.save(milestone);
 
-        return Map.of(
-                "message", "Milestone updated successfully",
-                "milestoneId", milestone.getId(),
-                "mileStoneName", milestone.getMileStoneName(),
-                "description", milestone.getDescription(),
-                "dueDate", milestone.getDueDate(),
-                "status", milestone.getStatus().getName(),
-                "assignedTo", milestone.getAssigned() != null ? milestone.getAssigned().getUserName() : null,
-                "assignedBy", milestone.getAssignedBy() != null ? milestone.getAssignedBy().getUserName() : null,
-                "criticality", milestone.getCriticality(),
-                "remark", milestone.getRemark()
-        );
+        // Step 4: Manually construct response map
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Milestone updated successfully");
+        response.put("milestoneId", milestone.getId());
+        response.put("mileStoneName", milestone.getMileStoneName());
+        response.put("description", milestone.getDescription());
+        response.put("dueDate", milestone.getDueDate());
+        response.put("completedDate", milestone.getCompletedDate());
+        response.put("status", milestone.getStatus() != null ? milestone.getStatus().getName() : null);
+        response.put("manager", milestone.getManager() != null ? milestone.getManager().getUserName() : null);
+        response.put("assignedTo", milestone.getAssigned() != null ? milestone.getAssigned().getUserName() : null);
+        response.put("criticality", milestone.getCriticality());
+        response.put("remark", milestone.getRemark());
+
+        return response;
     }
 
 

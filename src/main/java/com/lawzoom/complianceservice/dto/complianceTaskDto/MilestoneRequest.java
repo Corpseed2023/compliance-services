@@ -39,7 +39,7 @@ public class MilestoneRequest {
 
 	private Long managerId;
 
-	private Long assignee;
+	private Long assigneeId;
 
 	private Long assignedBy;
 
