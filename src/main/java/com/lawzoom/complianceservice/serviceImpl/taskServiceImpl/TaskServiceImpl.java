@@ -138,22 +138,39 @@ public class TaskServiceImpl implements TaskService {
 
 
     // Helper Method
+    // Helper Method
     private TaskListResponse mapTaskToResponse(Task task) {
         TaskListResponse response = new TaskListResponse();
         response.setId(task.getId());
         response.setName(task.getName());
         response.setDescription(task.getDescription());
-        response.setStatus(task.getStatus().getName());
+
+        // ✅ Include Status ID and Name
+        response.setStatusId(task.getStatus().getId());
+        response.setStatusName(task.getStatus().getName());
+
         response.setStartDate(task.getStartDate());
         response.setDueDate(task.getDueDate());
+        response.setCompletedDate(task.getCompletedDate());
         response.setCriticality(task.getCriticality());
+
         response.setManagerId(task.getManager().getId());
         response.setManagerName(task.getManager().getUserName());
-        response.setAssigneeUserId(task.getAssignee().getId());
-        response.setAssigneeUserName(task.getAssignee().getUserName());
+
+        response.setAssigneeId(task.getAssignee().getId());
+        response.setAssigneeName(task.getAssignee().getUserName());
+
         response.setMilestoneId(task.getMilestone().getId());
         response.setMilestoneName(task.getMilestone().getMileStoneName());
+
         response.setRemark(task.getRemark());
+
+        // ✅ Include Compliance Details (if applicable)
+        if (task.getMilestone().getCompliance() != null) {
+            response.setComplianceId(task.getMilestone().getCompliance().getId());
+            response.setComplianceName(task.getMilestone().getCompliance().getComplianceName());
+        }
+
         return response;
     }
 
@@ -175,15 +192,15 @@ public class TaskServiceImpl implements TaskService {
             response.setId(task.getId());
             response.setName(task.getName());
             response.setDescription(task.getDescription());
-            response.setStatus(task.getStatus().getName());
+            response.setStatusName(task.getStatus().getName());
             response.setStartDate(task.getStartDate());
             response.setDueDate(task.getDueDate());
             response.setCompletedDate(task.getCompletedDate());
             response.setCriticality(task.getCriticality());
             response.setManagerId(task.getManager().getId());
             response.setManagerName(task.getManager().getUserName());
-            response.setAssigneeUserId(task.getAssignee().getId());
-            response.setAssigneeUserName(task.getAssignee().getUserName());
+            response.setAssigneeId(task.getAssignee().getId());
+            response.setAssigneeName(task.getAssignee().getUserName());
             response.setMilestoneId(task.getMilestone().getId());
             response.setMilestoneName(task.getMilestone().getMileStoneName());
             response.setRemark(task.getRemark());
@@ -282,11 +299,6 @@ public class TaskServiceImpl implements TaskService {
     }
 
 
-
-
-
-
-
     @Override
     public Map<String, Object> fetchAllTask(Long userId, Long subscriberId, Pageable pageable) {
         // Validate User
@@ -342,15 +354,15 @@ public class TaskServiceImpl implements TaskService {
         response.setId(task.getId());
         response.setName(task.getName());
         response.setDescription(task.getDescription());
-        response.setStatus(task.getStatus().getName());
+        response.setStatusName(task.getStatus().getName());
         response.setStartDate(task.getStartDate());
         response.setDueDate(task.getDueDate());
         response.setCompletedDate(task.getCompletedDate());
         response.setCriticality(task.getCriticality());
         response.setManagerId(task.getManager() != null ? task.getManager().getId() : null);
         response.setManagerName(task.getManager() != null ? task.getManager().getUserName() : null);
-        response.setAssigneeUserId(task.getAssignee() != null ? task.getAssignee().getId() : null);
-        response.setAssigneeUserName(task.getAssignee() != null ? task.getAssignee().getUserName() : null);
+        response.setAssigneeId(task.getAssignee() != null ? task.getAssignee().getId() : null);
+        response.setAssigneeName(task.getAssignee() != null ? task.getAssignee().getUserName() : null);
         response.setMilestoneId(task.getMilestone().getId());
         response.setMilestoneName(task.getMilestone().getMileStoneName());
         response.setRemark(task.getRemark());
