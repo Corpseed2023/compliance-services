@@ -17,6 +17,7 @@ import com.lawzoom.complianceservice.repository.MileStoneRepository.MilestoneRep
 import com.lawzoom.complianceservice.repository.taskRepo.TaskRepository;
 import com.lawzoom.complianceservice.repository.UserRepository.UserRepository;
 import com.lawzoom.complianceservice.service.taskService.TaskService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -251,7 +252,9 @@ public class TaskServiceImpl implements TaskService {
     }
 
 
+
     @Override
+    @Transactional
     public Map<String, Object> updateTask(TaskUpdateRequest taskUpdateRequest) {
         // Validate and fetch existing task
         Task task = taskRepository.findById(taskUpdateRequest.getTaskId())
@@ -294,33 +297,41 @@ public class TaskServiceImpl implements TaskService {
         // Save updated task
         Task updatedTask = taskRepository.save(task);
 
-        // Update documents if provided
+        // ✅ Update documents if provided (without deletion)
         if (taskUpdateRequest.getDocuments() != null) {
-            documentRepository.deleteByTaskId(updatedTask.getId()); // Remove existing documents
             for (DocumentRequest docReq : taskUpdateRequest.getDocuments()) {
-                Document document = new Document();
-                document.setTask(updatedTask);
-                document.setFile(docReq.getFile());
-                documentRepository.save(document);
+                Optional<Document> existingDocument = documentRepository.findByTaskIdAndFile(updatedTask.getId(), docReq.getFile());
+                if (existingDocument.isEmpty()) { // If document doesn't exist, add new
+                    Document document = new Document();
+                    document.setTask(updatedTask);
+                    document.setFile(docReq.getFile());
+                    documentRepository.save(document);
+                }
             }
         }
 
+        // ✅ Update reminders if provided (without deletion)
         if (taskUpdateRequest.getReminders() != null) {
-            taskReminderRepository.deleteByTaskId(updatedTask.getId()); // Remove existing reminders
             for (TaskReminderRequest reminderReq : taskUpdateRequest.getReminders()) {
-                TaskReminder reminder = new TaskReminder();
-                reminder.setTask(updatedTask);
-                reminder.setCreatedBy(manager);
-                reminder.setReminderDate(reminderReq.getReminderDate());
-                reminder.setReminderEndDate(reminderReq.getReminderEndDate());
-                reminder.setNotificationTimelineValue(reminderReq.getNotificationTimelineValue());
-                reminder.setRepeatTimelineValue(reminderReq.getRepeatTimelineValue());
-                reminder.setRepeatTimelineType(reminderReq.getRepeatTimelineType());
-                taskReminderRepository.save(reminder);
+                Optional<TaskReminder> existingReminder = taskReminderRepository.findByTaskIdAndReminderDate(
+                        updatedTask.getId(), reminderReq.getReminderDate()
+                );
+
+                if (existingReminder.isEmpty()) { // If reminder doesn't exist, add new
+                    TaskReminder reminder = new TaskReminder();
+                    reminder.setTask(updatedTask);
+                    reminder.setCreatedBy(manager);
+                    reminder.setReminderDate(reminderReq.getReminderDate());
+                    reminder.setReminderEndDate(reminderReq.getReminderEndDate());
+                    reminder.setNotificationTimelineValue(reminderReq.getNotificationTimelineValue());
+                    reminder.setRepeatTimelineValue(reminderReq.getRepeatTimelineValue());
+                    reminder.setRepeatTimelineType(reminderReq.getRepeatTimelineType());
+                    taskReminderRepository.save(reminder);
+                }
             }
         }
 
-        // Create response map
+        // ✅ Create response map
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
         response.put("message", "Task updated successfully");
@@ -338,6 +349,7 @@ public class TaskServiceImpl implements TaskService {
 
         return response;
     }
+
 
 
     @Override
