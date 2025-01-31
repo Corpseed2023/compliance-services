@@ -192,6 +192,7 @@ public class TaskServiceImpl implements TaskService {
             response.setId(task.getId());
             response.setName(task.getName());
             response.setDescription(task.getDescription());
+            response.setStatusId(task.getStatus().getId());
             response.setStatusName(task.getStatus().getName());
             response.setStartDate(task.getStartDate());
             response.setDueDate(task.getDueDate());
@@ -204,11 +205,51 @@ public class TaskServiceImpl implements TaskService {
             response.setMilestoneId(task.getMilestone().getId());
             response.setMilestoneName(task.getMilestone().getMileStoneName());
             response.setRemark(task.getRemark());
+
+            // ✅ Set compliance details if available
+            if (task.getMilestone().getCompliance() != null) {
+                response.setComplianceId(task.getMilestone().getCompliance().getId());
+                response.setComplianceName(task.getMilestone().getCompliance().getComplianceName());
+            }
+
+            // ✅ Map Task Reminders
+            List<TaskReminderResponse> reminderResponses = task.getTaskReminders().stream().map(reminder ->
+                    new TaskReminderResponse(
+                            reminder.getId(),
+                            reminder.getReminderDate(),
+                            reminder.getReminderEndDate(),
+                            reminder.getNotificationTimelineValue(),
+                            reminder.getRepeatTimelineValue(),
+                            reminder.getRepeatTimelineType(),
+                            reminder.getStopFlag(),
+                            reminder.getCreatedBy().getId(),
+                            reminder.getCreatedBy().getUserName()
+                    )).toList();
+
+            response.setReminders(reminderResponses.isEmpty() ? new ArrayList<>() : reminderResponses);
+
+            // ✅ Map Task Documents
+            List<TaskDocumentResponse> documentResponses = task.getDocuments().stream().map(doc ->
+                    new TaskDocumentResponse(
+                            doc.getId(),
+                            doc.getDocumentName(),
+                            doc.getFileURL(),
+                            doc.getIssueDate(),
+                            doc.getReferenceNumber(),
+                            doc.getRemarks(),
+                            doc.getUploadDate(),
+                            doc.getAddedBy() != null ? doc.getAddedBy().getId() : null,
+                            doc.getAddedBy() != null ? doc.getAddedBy().getUserName() : null
+                    )).toList();
+
+            response.setDocuments(documentResponses.isEmpty() ? new ArrayList<>() : documentResponses);
+
             responses.add(response);
         }
 
         return responses;
     }
+
 
     @Override
     public Map<String, Object> updateTask(TaskUpdateRequest taskUpdateRequest) {
