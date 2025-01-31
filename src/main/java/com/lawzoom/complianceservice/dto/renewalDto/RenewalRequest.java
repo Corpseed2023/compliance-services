@@ -1,6 +1,7 @@
 package com.lawzoom.complianceservice.dto.renewalDto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -18,7 +19,7 @@ public class RenewalRequest {
     @NotNull(message = "Renewal Date is required")
     private LocalDate renewalDate;
 
-    @NotNull(message = "Reminder Duration Type is required")
+    @Pattern(regexp = "DAYS|WEEKS|MONTHS|YEARS", message = "Reminder duration type must be one of: DAYS, WEEKS, MONTHS, YEARS")
     private String reminderDurationType;
 
     @NotNull(message = "Reminder Duration Value is required")
