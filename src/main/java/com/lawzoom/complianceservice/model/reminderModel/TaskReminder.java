@@ -10,7 +10,6 @@ import org.hibernate.annotations.Comment;
 
 import java.time.LocalDate;
 import java.util.Date;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
